@@ -7,9 +7,6 @@
     "kind": "dumbbells"
    }
   ],
-  "muscles": [
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.42,
@@ -56,9 +53,6 @@
     "stack": true
    }
   ],
-  "muscles": [
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -101,9 +95,6 @@
     "one": true
    }
   ],
-  "muscles": [
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -144,11 +135,6 @@
    {
     "kind": "dumbbells"
    }
-  ],
-  "muscles": [
-   "frontDelts",
-   "sideDelts",
-   "triceps"
   ],
   "timing": [
    0.1,
@@ -199,10 +185,6 @@
     "stack": true
    }
   ],
-  "muscles": [
-   "rearDelts",
-   "traps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -251,10 +233,6 @@
     "kind": "barbell"
    }
   ],
-  "muscles": [
-   "sideDelts",
-   "traps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -302,10 +280,6 @@
     "kind": "barbell",
     "on": "back"
    }
-  ],
-  "muscles": [
-   "quads",
-   "glutes"
   ],
   "timing": [
    0.08,
@@ -357,11 +331,6 @@
     "kind": "barbell"
    }
   ],
-  "muscles": [
-   "hamstrings",
-   "glutes",
-   "lowerBack"
-  ],
   "timing": [
    0.08,
    0.5,
@@ -408,10 +377,6 @@
     "kind": "dumbbells",
     "profile": true
    }
-  ],
-  "muscles": [
-   "quads",
-   "glutes"
   ],
   "timing": [
    0.08,
@@ -466,9 +431,6 @@
  {
   "id": 3,
   "name": "Preacher Curls",
-  "muscles": [
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -547,9 +509,6 @@
  {
   "id": 4,
   "name": "Incline Bicep Curls",
-  "muscles": [
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -635,9 +594,6 @@
  {
   "id": 6,
   "name": "Skull-Crushers",
-  "muscles": [
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -699,11 +655,6 @@
  {
   "id": 21,
   "name": "Bench Press",
-  "muscles": [
-   "chest",
-   "triceps",
-   "frontDelts"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -771,9 +722,6 @@
  {
   "id": 24,
   "name": "Chest Fly",
-  "muscles": [
-   "chest"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -843,11 +791,6 @@
  {
   "id": 22,
   "name": "Incline Bench",
-  "muscles": [
-   "chest",
-   "frontDelts",
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -939,9 +882,6 @@
  {
   "id": 23,
   "name": "Pec Dec",
-  "muscles": [
-   "chest"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -1022,9 +962,6 @@
  {
   "id": 20,
   "name": "Leg Raises",
-  "muscles": [
-   "abs"
-  ],
   "timing": [
    0.1,
    0.48,
@@ -1069,10 +1006,6 @@
  {
   "id": 26,
   "name": "Lat Pull-down",
-  "muscles": [
-   "lats",
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -1153,10 +1086,6 @@
  {
   "id": 27,
   "name": "Pull-ups",
-  "muscles": [
-   "lats",
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -1242,9 +1171,6 @@
  {
   "id": 28,
   "name": "Lat Prayers",
-  "muscles": [
-   "lats"
-  ],
   "timing": [
    0.1,
    0.48,
@@ -1298,11 +1224,6 @@
  {
   "id": 30,
   "name": "Chest-Supported Rows",
-  "muscles": [
-   "lats",
-   "traps",
-   "rearDelts"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -1386,11 +1307,6 @@
     "kind": "barbell"
    }
   ],
-  "muscles": [
-   "lats",
-   "traps",
-   "rearDelts"
-  ],
   "timing": [
    0.08,
    0.45,
@@ -1438,9 +1354,6 @@
     "radius": 15
    }
   ],
-  "muscles": [
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.42,
@@ -1482,10 +1395,6 @@
     "profile": true
    }
   ],
-  "muscles": [
-   "biceps",
-   "forearms"
-  ],
   "timing": [
    0.1,
    0.42,
@@ -1521,9 +1430,6 @@
  {
   "id": 53,
   "name": "Cable Curls",
-  "muscles": [
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.42,
@@ -1581,9 +1487,6 @@
  {
   "id": 32,
   "name": "Behind-the-Back Bicep Curls",
-  "muscles": [
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.42,
@@ -1654,9 +1557,6 @@
     "kind": "dumbbells"
    }
   ],
-  "muscles": [
-   "frontDelts"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -1697,10 +1597,6 @@
     "kind": "barbell",
     "radius": 15
    }
-  ],
-  "muscles": [
-   "frontDelts",
-   "triceps"
   ],
   "timing": [
    0.1,
@@ -1744,9 +1640,6 @@
     "profile": true
    }
   ],
-  "muscles": [
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.42,
@@ -1782,9 +1675,6 @@
  {
   "id": 43,
   "name": "Straight-Arm Pulldowns",
-  "muscles": [
-   "lats"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -1831,10 +1721,6 @@
  {
   "id": 66,
   "name": "Cable Kickbacks",
-  "muscles": [
-   "glutes",
-   "hamstrings"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -1914,11 +1800,6 @@
     "kind": "barbell"
    }
   ],
-  "muscles": [
-   "glutes",
-   "hamstrings",
-   "lowerBack"
-  ],
   "timing": [
    0.1,
    0.48,
@@ -1964,10 +1845,6 @@
    {
     "kind": "barbell"
    }
-  ],
-  "muscles": [
-   "hamstrings",
-   "glutes"
   ],
   "timing": [
    0.08,
@@ -2015,11 +1892,6 @@
     "kind": "barbell",
     "on": "back"
    }
-  ],
-  "muscles": [
-   "hamstrings",
-   "glutes",
-   "lowerBack"
   ],
   "timing": [
    0.08,
@@ -2075,11 +1947,6 @@
     ]
    }
   ],
-  "muscles": [
-   "lats",
-   "traps",
-   "rearDelts"
-  ],
   "timing": [
    0.08,
    0.45,
@@ -2121,10 +1988,6 @@
  {
   "id": 13,
   "name": "Hack Squats",
-  "muscles": [
-   "quads",
-   "glutes"
-  ],
   "timing": [
    0.08,
    0.52,
@@ -2233,10 +2096,6 @@
     "on": "back"
    }
   ],
-  "muscles": [
-   "quads",
-   "glutes"
-  ],
   "timing": [
    0.08,
    0.52,
@@ -2287,10 +2146,6 @@
     "kind": "barbell",
     "on": "front"
    }
-  ],
-  "muscles": [
-   "quads",
-   "glutes"
   ],
   "timing": [
    0.08,
@@ -2343,10 +2198,6 @@
     "on": "chest"
    }
   ],
-  "muscles": [
-   "quads",
-   "glutes"
-  ],
   "timing": [
    0.08,
    0.52,
@@ -2392,10 +2243,6 @@
  {
   "id": 59,
   "name": "Bulgarian Split Squats",
-  "muscles": [
-   "quads",
-   "glutes"
-  ],
   "timing": [
    0.08,
    0.5,
@@ -2484,9 +2331,6 @@
     "width": 8
    }
   ],
-  "muscles": [
-   "quads"
-  ],
   "timing": [
    0.06,
    0.3,
@@ -2540,9 +2384,6 @@
  {
   "id": 16,
   "name": "Calf Raises",
-  "muscles": [
-   "calves"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -2602,10 +2443,6 @@
  {
   "id": 17,
   "name": "Hip Thrusts",
-  "muscles": [
-   "glutes",
-   "hamstrings"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -2680,11 +2517,6 @@
  {
   "id": 36,
   "name": "Dumbbell Bench Press",
-  "muscles": [
-   "chest",
-   "triceps",
-   "frontDelts"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -2752,10 +2584,6 @@
  {
   "id": 56,
   "name": "Close-Grip Bench Press",
-  "muscles": [
-   "triceps",
-   "chest"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -2823,11 +2651,6 @@
  {
   "id": 37,
   "name": "Incline Dumbbell Press",
-  "muscles": [
-   "chest",
-   "frontDelts",
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -2919,10 +2742,6 @@
  {
   "id": 38,
   "name": "Decline Bench Press",
-  "muscles": [
-   "chest",
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -2999,9 +2818,6 @@
  {
   "id": 15,
   "name": "Lying Leg Curls",
-  "muscles": [
-   "hamstrings"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3075,10 +2891,6 @@
  {
   "id": 45,
   "name": "Single-Arm Dumbbell Rows",
-  "muscles": [
-   "lats",
-   "rearDelts"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3170,10 +2982,6 @@
  {
   "id": 12,
   "name": "Leg Press",
-  "muscles": [
-   "quads",
-   "glutes"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -3264,9 +3072,6 @@
  {
   "id": 31,
   "name": "Leg Extensions",
-  "muscles": [
-   "quads"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3345,9 +3150,6 @@
  {
   "id": 63,
   "name": "Seated Leg Curls",
-  "muscles": [
-   "hamstrings"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3430,9 +3232,6 @@
  {
   "id": 68,
   "name": "Seated Calf Raises",
-  "muscles": [
-   "calves"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3516,11 +3315,6 @@
  {
   "id": 41,
   "name": "Machine Chest Press",
-  "muscles": [
-   "chest",
-   "triceps",
-   "frontDelts"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3600,10 +3394,6 @@
  {
   "id": 44,
   "name": "Seated Cable Rows",
-  "muscles": [
-   "lats",
-   "traps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3704,9 +3494,6 @@
  {
   "id": 54,
   "name": "Concentration Curls",
-  "muscles": [
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.42,
@@ -3784,9 +3571,6 @@
  {
   "id": 19,
   "name": "Sit-ups",
-  "muscles": [
-   "abs"
-  ],
   "timing": [
    0.1,
    0.48,
@@ -3846,9 +3630,6 @@
  {
   "id": 71,
   "name": "Crunches",
-  "muscles": [
-   "abs"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3908,10 +3689,6 @@
  {
   "id": 65,
   "name": "Glute Bridges",
-  "muscles": [
-   "glutes",
-   "hamstrings"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -3960,10 +3737,6 @@
  {
   "id": 40,
   "name": "Push-ups",
-  "muscles": [
-   "chest",
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -4014,9 +3787,6 @@
  {
   "id": 69,
   "name": "Plank",
-  "muscles": [
-   "abs"
-  ],
   "timing": [
    0.06,
    0.28,
@@ -4062,9 +3832,6 @@
  {
   "id": 72,
   "name": "Cable Crunches",
-  "muscles": [
-   "abs"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -4128,9 +3895,6 @@
  {
   "id": 75,
   "name": "Ab Wheel Rollouts",
-  "muscles": [
-   "abs"
-  ],
   "timing": [
    0.1,
    0.48,
@@ -4197,10 +3961,6 @@
  {
   "id": 42,
   "name": "Chin-ups",
-  "muscles": [
-   "lats",
-   "biceps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -4286,9 +4046,6 @@
  {
   "id": 74,
   "name": "Hanging Leg Raises",
-  "muscles": [
-   "abs"
-  ],
   "timing": [
    0.1,
    0.48,
@@ -4372,10 +4129,6 @@
  {
   "id": 55,
   "name": "Dips",
-  "muscles": [
-   "triceps",
-   "chest"
-  ],
   "timing": [
    0.1,
    0.48,
@@ -4453,9 +4206,6 @@
     "kind": "dumbbells"
    }
   ],
-  "muscles": [
-   "sideDelts"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -4487,9 +4237,6 @@
   "id": 34,
   "name": "Cable Lateral Raises",
   "view": "front",
-  "muscles": [
-   "sideDelts"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -4569,9 +4316,6 @@
     "kind": "dumbbells"
    }
   ],
-  "muscles": [
-   "traps"
-  ],
   "timing": [
    0.1,
    0.4,
@@ -4625,11 +4369,6 @@
     "profile": true
    }
   ],
-  "muscles": [
-   "frontDelts",
-   "sideDelts",
-   "triceps"
-  ],
   "timing": [
    0.1,
    0.5,
@@ -4673,10 +4412,6 @@
     "kind": "dumbbells"
    }
   ],
-  "muscles": [
-   "rearDelts",
-   "traps"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -4714,9 +4449,6 @@
   "id": 39,
   "name": "Cable Crossovers",
   "view": "front",
-  "muscles": [
-   "chest"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -4775,9 +4507,6 @@
   "name": "Hip Abductions",
   "view": "front",
   "legsFront": true,
-  "muscles": [
-   "glutes"
-  ],
   "timing": [
    0.1,
    0.45,
@@ -4843,9 +4572,6 @@
   "id": 70,
   "name": "Side Plank",
   "view": "front",
-  "muscles": [
-   "obliques"
-  ],
   "timing": [
    0.08,
    0.32,
@@ -4916,10 +4642,6 @@
     "kind": "plate",
     "radius": 10
    }
-  ],
-  "muscles": [
-   "obliques",
-   "abs"
   ],
   "timing": [
    0.08,

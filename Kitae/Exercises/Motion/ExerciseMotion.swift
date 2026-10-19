@@ -3,8 +3,8 @@
 
 import Foundation
 
-/// Muscles an exercise works. The animated figure can show all but the last three in olive;
-/// the muscle map shows them all.
+/// Muscles an exercise works. The muscle map shows them all; the animated figure has shapes for
+/// all but the last three (see `FigureMuscles`).
 nonisolated enum Muscle: String, Decodable, Sendable, CaseIterable {
     case quads, hamstrings, glutes, calves
     case chest, abs, obliques, lats, traps, lowerBack
@@ -132,11 +132,11 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
     }
 }
 
-/// An exercise's animation: two keyframes of the figure, the muscles it works and the gear it
-/// uses, read from ExerciseMotions.json. Most are drawn from the side; movements out to the sides
-/// (`view` "front") face the viewer. They're keyed by the ids of the exercises Kitae starts with,
-/// which are the same as Kitae for Android's and are never given to another exercise.
-/// scripts/motions makes the file and draws it as pictures for checking.
+/// An exercise's animation: two keyframes of the figure and the gear it uses, read from
+/// ExerciseMotions.json, and the muscles of the exercise's muscle map. Most are drawn from the
+/// side; movements out to the sides (`view` "front") face the viewer. They're keyed by the ids of
+/// the exercises Kitae starts with, which are the same as Kitae for Android's and are never given
+/// to another exercise. scripts/motions makes the file and draws it as pictures for checking.
 nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
     nonisolated enum Keyframes: Sendable {
         case side(FigurePose, FigurePose)
@@ -151,7 +151,6 @@ nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
     /// In the front view, legs that come toward the viewer (sitting) are drawn over the body.
     var legsFront: Bool
     var gear: [Gear]
-    var muscles: Set<Muscle>
     /// The ends of the hold at the start, the move to the end, the hold at the end and the
     /// move back, as fractions of a loop.
     var timing: [Double]
@@ -167,7 +166,7 @@ nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
     var shadowWidth: Double
 
     nonisolated private enum Keys: String, CodingKey {
-        case id, name, view, legsFront, gear, muscles, timing, seconds, shift, zoom, shadow, shadowWidth, from, to
+        case id, name, view, legsFront, gear, timing, seconds, shift, zoom, shadow, shadowWidth, from, to
     }
 
     init(from decoder: Decoder) throws {
@@ -181,7 +180,6 @@ nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
         }
         legsFront = try c.decodeIfPresent(Bool.self, forKey: .legsFront) ?? false
         gear = try c.decodeIfPresent([Gear].self, forKey: .gear) ?? []
-        muscles = Set(try c.decodeIfPresent([Muscle].self, forKey: .muscles) ?? [])
         timing = try c.decodeIfPresent([Double].self, forKey: .timing) ?? [0.08, 0.5, 0.58, 0.96]
         seconds = try c.decodeIfPresent(Double.self, forKey: .seconds) ?? 2.4
         shift = try c.decodeIfPresent(Double.self, forKey: .shift) ?? 0
@@ -197,6 +195,45 @@ nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
 
     func gear(_ kind: Gear.Kind) -> [Gear] {
         gear.filter { $0.kind == kind }
+    }
+
+    /// The muscles the figure shades, from the exercise's muscle map.
+    var muscles: FigureMuscles {
+        FigureMuscles(ExerciseMuscles.byID[Int64(id)])
+    }
+}
+
+/// The muscles the figure shades for an exercise, from its muscle map: the ones it works most in
+/// olive and the ones that help lighter. The figure has no shapes of its own for the upper back
+/// and the hip's abductors, so its traps and glutes show them; the adductors, inside the thighs,
+/// aren't seen. scripts/motions/motion.js does the same for the pictures.
+nonisolated struct FigureMuscles: Equatable, Sendable {
+    /// The lighter shade comes first, so where muscles meet the ones worked most are drawn on top.
+    nonisolated enum Shade: Comparable, CaseIterable, Sendable {
+        case secondary, primary
+    }
+
+    private(set) var primary: Set<Muscle> = []
+    private(set) var secondary: Set<Muscle> = []
+
+    init(_ work: MuscleWork?) {
+        primary = Set((work?.primary ?? []).compactMap(Self.shape))
+        secondary = Set((work?.secondary ?? []).compactMap(Self.shape)).subtracting(primary)
+    }
+
+    /// The muscle whose shape shows `muscle` on the figure, or nil when it can't be seen.
+    static func shape(_ muscle: Muscle) -> Muscle? {
+        switch muscle {
+        case .upperBack: .traps
+        case .abductors: .glutes
+        case .adductors: nil
+        default: muscle
+        }
+    }
+
+    /// How the figure shades `muscle`, or nil when the exercise doesn't work it.
+    subscript(muscle: Muscle) -> Shade? {
+        primary.contains(muscle) ? .primary : secondary.contains(muscle) ? .secondary : nil
     }
 }
 

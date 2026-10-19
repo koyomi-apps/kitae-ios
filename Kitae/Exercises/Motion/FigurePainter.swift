@@ -10,6 +10,9 @@ nonisolated struct FigurePalette: Sendable {
     var far: Color
     var muscle: Color
     var muscleFar: Color
+    /// The lighter shades, for the muscles that help.
+    var muscleSecondary: Color
+    var muscleSecondaryFar: Color
     var gear: Color
     var gearFace: Color
     var prop: Color
@@ -70,25 +73,37 @@ nonisolated struct FigurePainter: Sendable {
             clipped.clip(to: clip)
             clipped.fill(path, with: .color(color))
         }
-        func leg(_ l: LegShape, _ body: Color, _ muscle: Color) {
+        func tint(_ shade: FigureMuscles.Shade, far: Bool) -> Color {
+            switch shade {
+            case .primary: far ? c.muscleFar : c.muscle
+            case .secondary: far ? c.muscleSecondaryFar : c.muscleSecondary
+            }
+        }
+        func leg(_ l: LegShape, _ body: Color, far: Bool) {
             fill(l.thigh, body)
             fill(l.shin, body)
             fill(l.foot, body)
-            if muscles.contains(.quads) { fillInside(l.thigh, l.quads, muscle) }
-            if muscles.contains(.hamstrings) { fillInside(l.thigh, l.hamstrings, muscle) }
-            if muscles.contains(.calves) { fillInside(l.shin, l.calves, muscle) }
+            for shade in FigureMuscles.Shade.allCases {
+                let color = tint(shade, far: far)
+                if muscles[.quads] == shade { fillInside(l.thigh, l.quads, color) }
+                if muscles[.hamstrings] == shade { fillInside(l.thigh, l.hamstrings, color) }
+                if muscles[.calves] == shade { fillInside(l.shin, l.calves, color) }
+            }
         }
-        func arm(_ a: ArmShape, _ body: Color, _ muscle: Color) {
+        func arm(_ a: ArmShape, _ body: Color, far: Bool) {
             fill(a.upper, body)
             fill(a.forearm, body)
             fill(a.hand, body)
             let cap = FigureShapes.union(a.upper, FigureShapes.circle(a.arm.shoulder, 7.2))
-            if muscles.contains(.biceps) { fillInside(a.upper, a.biceps, muscle) }
-            if muscles.contains(.triceps) { fillInside(a.upper, a.triceps, muscle) }
-            if muscles.contains(.forearms) { fillInside(a.forearm, a.forearms, muscle) }
-            if muscles.contains(.sideDelts) { fillInside(cap, a.delts(0), muscle) }
-            if muscles.contains(.frontDelts) { fillInside(cap, a.delts(1), muscle) }
-            if muscles.contains(.rearDelts) { fillInside(cap, a.delts(-1), muscle) }
+            for shade in FigureMuscles.Shade.allCases {
+                let color = tint(shade, far: far)
+                if muscles[.biceps] == shade { fillInside(a.upper, a.biceps, color) }
+                if muscles[.triceps] == shade { fillInside(a.upper, a.triceps, color) }
+                if muscles[.forearms] == shade { fillInside(a.forearm, a.forearms, color) }
+                if muscles[.sideDelts] == shade { fillInside(cap, a.delts(0), color) }
+                if muscles[.frontDelts] == shade { fillInside(cap, a.delts(1), color) }
+                if muscles[.rearDelts] == shade { fillInside(cap, a.delts(-1), color) }
+            }
         }
         func plate(_ at: Vec, _ r: Double) {
             fill(FigureShapes.circle(at, r), c.gear)
@@ -179,8 +194,8 @@ nonisolated struct FigurePainter: Sendable {
 
         // The far side, a little behind the near one.
         let dumbbells = motion.gear(.dumbbells).filter { $0.on != "chest" }
-        leg(LegShape(f.farLeg), c.far, c.muscleFar)
-        arm(farArm, c.far, c.muscleFar)
+        leg(LegShape(f.farLeg), c.far, far: true)
+        arm(farArm, c.far, far: true)
         if !dumbbells.isEmpty, !dumbbells.contains(where: \.one) {
             dumbbell(farArm, near: false)
         }
@@ -202,26 +217,29 @@ nonisolated struct FigurePainter: Sendable {
         // The body.
         let torso = torsoPath(f)
         fill(torso, c.body)
-        if muscles.contains(.glutes) {
-            fillInside(torso, FigureShapes.ellipse(f.torso(-1.5, -8.5), 8.5, 10.5, turned: f.turn(at: -1.5)), c.muscle)
-        }
-        if muscles.contains(.chest) {
-            fillInside(torso, FigureShapes.ellipse(f.torso(37, 8.5), 6.5, 9, turned: f.turn(at: 37)), c.muscle)
-        }
-        if muscles.contains(.abs) {
-            fillInside(torso, FigureShapes.capsule(f.torso(4, 5.8), f.torso(27, 8.5), 3.4, 3.4), c.muscle)
-        }
-        if muscles.contains(.obliques) {
-            fillInside(torso, FigureShapes.ellipse(f.torso(14, 2), 4.5, 9, turned: f.turn(at: 14)), c.muscle)
-        }
-        if muscles.contains(.lats) {
-            fillInside(torso, FigureShapes.ellipse(f.torso(33, -7.5), 4.5, 11, turned: f.turn(at: 33)), c.muscle)
-        }
-        if muscles.contains(.traps) {
-            fillInside(torso, FigureShapes.ellipse(f.torso(50, -6), 5, 7, turned: f.turn(at: 50)), c.muscle)
-        }
-        if muscles.contains(.lowerBack) {
-            fillInside(torso, FigureShapes.capsule(f.torso(6, -8), f.torso(26, -6.2), 2.8, 2.8), c.muscle)
+        for shade in FigureMuscles.Shade.allCases {
+            let color = tint(shade, far: false)
+            if muscles[.glutes] == shade {
+                fillInside(torso, FigureShapes.ellipse(f.torso(-1.5, -8.5), 8.5, 10.5, turned: f.turn(at: -1.5)), color)
+            }
+            if muscles[.chest] == shade {
+                fillInside(torso, FigureShapes.ellipse(f.torso(37, 8.5), 6.5, 9, turned: f.turn(at: 37)), color)
+            }
+            if muscles[.abs] == shade {
+                fillInside(torso, FigureShapes.capsule(f.torso(4, 5.8), f.torso(27, 8.5), 3.4, 3.4), color)
+            }
+            if muscles[.obliques] == shade {
+                fillInside(torso, FigureShapes.ellipse(f.torso(14, 2), 4.5, 9, turned: f.turn(at: 14)), color)
+            }
+            if muscles[.lats] == shade {
+                fillInside(torso, FigureShapes.ellipse(f.torso(33, -7.5), 4.5, 11, turned: f.turn(at: 33)), color)
+            }
+            if muscles[.traps] == shade {
+                fillInside(torso, FigureShapes.ellipse(f.torso(50, -6), 5, 7, turned: f.turn(at: 50)), color)
+            }
+            if muscles[.lowerBack] == shade {
+                fillInside(torso, FigureShapes.capsule(f.torso(6, -8), f.torso(26, -6.2), 2.8, 2.8), color)
+            }
         }
 
         // A barbell across the shoulders, seen a little from behind so the head stays clear.
@@ -271,8 +289,8 @@ nonisolated struct FigurePainter: Sendable {
         }
 
         // The near side.
-        leg(LegShape(f.nearLeg), c.body, c.muscle)
-        arm(nearArm, c.body, c.muscle)
+        leg(LegShape(f.nearLeg), c.body, far: false)
+        arm(nearArm, c.body, far: false)
 
         // What the near hand holds, and machine pads in front of the legs.
         for g in motion.gear(.barbell) where g.on == nil || g.on == "hands" {

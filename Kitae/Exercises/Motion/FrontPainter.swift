@@ -108,43 +108,49 @@ nonisolated extension FigurePainter {
         let torso = FigureShapes.outline(Self.frontTorso.map { f.torso($0.0, $0.1) })
         fill(torso, c.body)
         let sides = [1.0, -1.0]
-        if muscles.contains(.chest) {
-            for s in sides {
-                fillInside(torso, FigureShapes.ellipse(f.torso(37.5, 8.5 * s), 8.2, 6.4, turned: f.turn(at: 37.5)), c.muscle)
-            }
-        }
-        if muscles.contains(.abs) {
-            fillInside(torso, FigureShapes.capsule(f.torso(5, 0), f.torso(31, 0), 5, 5.2), c.muscle)
-        }
-        if muscles.contains(.obliques) {
-            for s in sides {
-                fillInside(torso, FigureShapes.ellipse(f.torso(16, 12 * s), 3.6, 8.5, turned: f.turn(at: 16)), c.muscle)
-            }
-        }
-        if muscles.contains(.lats) {
-            for s in sides {
-                fillInside(torso, FigureShapes.ellipse(f.torso(31, 16 * s), 3.4, 8, turned: f.turn(at: 31)), c.muscle)
-            }
-        }
-        if muscles.contains(.traps) {
-            for s in sides {
-                fillInside(torso, FigureShapes.capsule(f.torso(53.5, 6 * s), f.torso(50.5, 15.5 * s), 3.2, 3.6), c.muscle)
-            }
+        func tint(_ shade: FigureMuscles.Shade) -> Color {
+            shade == .primary ? c.muscle : c.muscleSecondary
         }
         // The glutes show at the outer hips; with legs in front, on the outside of the thighs.
         func glutes(_ s: Double) -> Path {
             motion.legsFront ? FigureShapes.ellipse(f.torso(2, 17 * s), 3.2, 7, turned: f.turn(at: 2))
                 : FigureShapes.ellipse(f.torso(1, 13.5 * s), 3.6, 7.5, turned: f.turn(at: 1))
         }
-        if muscles.contains(.glutes), !motion.legsFront {
-            for s in sides { fillInside(torso, glutes(s), c.muscle) }
+        for shade in FigureMuscles.Shade.allCases {
+            let color = tint(shade)
+            if muscles[.chest] == shade {
+                for s in sides {
+                    fillInside(torso, FigureShapes.ellipse(f.torso(37.5, 8.5 * s), 8.2, 6.4, turned: f.turn(at: 37.5)), color)
+                }
+            }
+            if muscles[.abs] == shade {
+                fillInside(torso, FigureShapes.capsule(f.torso(5, 0), f.torso(31, 0), 5, 5.2), color)
+            }
+            if muscles[.obliques] == shade {
+                for s in sides {
+                    fillInside(torso, FigureShapes.ellipse(f.torso(16, 12 * s), 3.6, 8.5, turned: f.turn(at: 16)), color)
+                }
+            }
+            if muscles[.lats] == shade {
+                for s in sides {
+                    fillInside(torso, FigureShapes.ellipse(f.torso(31, 16 * s), 3.4, 8, turned: f.turn(at: 31)), color)
+                }
+            }
+            if muscles[.traps] == shade {
+                for s in sides {
+                    fillInside(torso, FigureShapes.capsule(f.torso(53.5, 6 * s), f.torso(50.5, 15.5 * s), 3.2, 3.6), color)
+                }
+            }
+            if muscles[.glutes] == shade, !motion.legsFront {
+                for s in sides { fillInside(torso, glutes(s), color) }
+            }
         }
         if motion.legsFront {
             drawLegs(inFront: true)
-        }
-        if muscles.contains(.glutes), motion.legsFront {
-            for s in sides {
-                fillInside(FigureShapes.union(torso, legParts(f.legs[s > 0 ? 1 : 0]).thigh), glutes(s), c.muscle)
+            for shade in FigureMuscles.Shade.allCases where muscles[.glutes] == shade {
+                for s in sides {
+                    fillInside(FigureShapes.union(torso, legParts(f.legs[s > 0 ? 1 : 0]).thigh), glutes(s), tint(shade))
+                }
             }
         }
 
@@ -170,25 +176,29 @@ nonisolated extension FigurePainter {
             fill(FigureShapes.circle(pulley, 1.7), c.prop)
         }
 
-        // The arms, the -x one first.
-        let delts = muscles.contains(.frontDelts) || muscles.contains(.sideDelts) || muscles.contains(.rearDelts)
+        // The arms, the -x one first. From the front the three delts are one shoulder cap, shaded
+        // as the most worked of them.
+        let delts = [Muscle.frontDelts, .sideDelts, .rearDelts].compactMap { muscles[$0] }.max()
         for (a, p) in arms {
             separate(p.all, from: a.shoulder, radius: 9)
             fill(p.upper, c.body)
             fill(p.forearm, c.body)
             fill(p.hand, c.body)
-            if delts {
-                let cap = FigureShapes.union(p.upper, FigureShapes.circle(a.shoulder, 7.2))
-                fillInside(cap, muscleShape(a.shoulder, a.elbow, 6.8, 4.5, at: (0, 0.16, 0.38), widths: (1, 1, 0.7), side: 0),
-                           c.muscle)
-            }
-            if muscles.contains(.triceps) {
-                fillInside(p.upper, muscleShape(a.shoulder, a.elbow, 6.8, 4.5, at: (0.25, 0.55, 0.88),
-                                                widths: (0.5, 0.6, 0.5), side: a.side), c.muscle)
-            }
-            if muscles.contains(.biceps) {
-                fillInside(p.upper, muscleShape(a.shoulder, a.elbow, 6.8, 4.5, at: (0.25, 0.55, 0.88),
-                                                widths: (0.5, 0.62, 0.5), side: -a.side), c.muscle)
+            for shade in FigureMuscles.Shade.allCases {
+                let color = tint(shade)
+                if delts == shade {
+                    let cap = FigureShapes.union(p.upper, FigureShapes.circle(a.shoulder, 7.2))
+                    fillInside(cap, muscleShape(a.shoulder, a.elbow, 6.8, 4.5, at: (0, 0.16, 0.38), widths: (1, 1, 0.7), side: 0),
+                               color)
+                }
+                if muscles[.triceps] == shade {
+                    fillInside(p.upper, muscleShape(a.shoulder, a.elbow, 6.8, 4.5, at: (0.25, 0.55, 0.88),
+                                                    widths: (0.5, 0.6, 0.5), side: a.side), color)
+                }
+                if muscles[.biceps] == shade {
+                    fillInside(p.upper, muscleShape(a.shoulder, a.elbow, 6.8, 4.5, at: (0.25, 0.55, 0.88),
+                                                    widths: (0.5, 0.62, 0.5), side: -a.side), color)
+                }
             }
         }
 

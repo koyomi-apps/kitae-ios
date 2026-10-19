@@ -83,12 +83,26 @@ function pose(j) {
     curl: j.curl ?? 0, shrug: j.shrug ?? 0, kneeAt: j.kneeAt ? V(j.kneeAt) : null,
   };
 }
+// The muscles the figure shades, from the exercise's muscle map (ExerciseMuscles.json, like
+// FigureMuscles in ExerciseMotion.swift): the ones it works most in olive, the ones that help
+// lighter. The figure has no shapes of its own for the upper back and the hip's abductors, so its
+// traps and glutes show them; the adductors, inside the thighs, aren't seen.
+const STAND_INS = { upperBack: 'traps', abductors: 'glutes', adductors: null };
+function figureMuscles(work) {
+  const shape = x => (x in STAND_INS ? STAND_INS[x] : x);
+  const primary = new Set((work ? work.primary : []).map(shape).filter(Boolean));
+  const secondary = new Set((work ? work.secondary : []).map(shape).filter(x => x && !primary.has(x)));
+  return { primary, secondary };
+}
+// The lighter shade first, so the muscles an exercise works most come out on top where they meet.
+const ROLES = ['secondary', 'primary'];
+let WORK = new Map();
 function motion(j) {
   const front = j.view === 'front';
   return {
     id: j.id, name: j.name, view: front ? 'front' : 'side', legsFront: j.legsFront ?? false,
     gear: (j.gear || []).map(gearOf), shadowWidth: j.shadowWidth ?? 40,
-    muscles: new Set(j.muscles || []), timing: j.timing || [0.08, 0.5, 0.58, 0.96],
+    muscles: figureMuscles(WORK.get(j.id)), timing: j.timing || [0.08, 0.5, 0.58, 0.96],
     seconds: j.seconds ?? 2.4, shift: j.shift ?? 0, zoom: j.zoom ?? 1, shadow: j.shadow ? V(j.shadow) : v(4, 0),
     from: front ? frontPose(j.from) : pose(j.from), to: front ? frontPose(j.to) : pose(j.to),
   };
@@ -196,9 +210,9 @@ function armShape(a) {
 
 const THEMES = {
   light: { page: '#FDF9F0', card: '#F4F0E6', body: '#AAA696', far: '#CDC9BA', muscle: '#63611E',
-    muscleFar: '#9C9A66', gear: '#34332B', gearFace: '#4B4940', prop: '#DDD8C8', shadow: 'rgba(28,28,22,0.10)' },
+    muscleFar: '#9C9A66', muscleSecondary: '#85823C', muscleSecondaryFar: '#B4B17E', gear: '#34332B', gearFace: '#4B4940', prop: '#DDD8C8', shadow: 'rgba(28,28,22,0.10)' },
   dark: { page: '#14140E', card: '#1E1E18', body: '#6F6C5F', far: '#47463D', muscle: '#CECA75',
-    muscleFar: '#88864F', gear: '#D8D4C7', gearFace: '#B9B5A8', prop: '#34332B', shadow: 'rgba(0,0,0,0.34)' },
+    muscleFar: '#88864F', muscleSecondary: '#9A975E', muscleSecondaryFar: '#67653F', gear: '#D8D4C7', gearFace: '#B9B5A8', prop: '#34332B', shadow: 'rgba(0,0,0,0.34)' },
 };
 
 function gearOf(j) {
@@ -222,24 +236,29 @@ function paint(m, F, c) {
     defs.push(`<clipPath id="${id}"><path d="${clip}"/></clipPath>`);
     out.push(`<path d="${d}" fill="${col}" clip-path="url(#${id})"/>`);
   };
-  const has = x => m.muscles.has(x);
+  const is = (x, role) => m.muscles[role].has(x);
+  const near = { primary: c.muscle, secondary: c.muscleSecondary }, far = { primary: c.muscleFar, secondary: c.muscleSecondaryFar };
   const gears = kind => m.gear.filter(g => g.kind === kind);
   const plate = (at, r) => { fill(circle(at, r), c.gear); fill(circle(at, r * 0.735), c.gearFace); fill(circle(at, r * 0.21), c.body); };
   const leg = (l, body, mc) => {
     fill(l.thigh, body); fill(l.shin, body); fill(l.foot, body);
-    if (has('quads')) fillInside(l.thigh, l.quads, mc);
-    if (has('hamstrings')) fillInside(l.thigh, l.hamstrings, mc);
-    if (has('calves')) fillInside(l.shin, l.calves, mc);
+    for (const r of ROLES) {
+      if (is('quads', r)) fillInside(l.thigh, l.quads, mc[r]);
+      if (is('hamstrings', r)) fillInside(l.thigh, l.hamstrings, mc[r]);
+      if (is('calves', r)) fillInside(l.shin, l.calves, mc[r]);
+    }
   };
   const armDraw = (a, body, mc) => {
     fill(a.upper, body); fill(a.forearm, body); fill(a.hand, body);
     const cap = a.upper + circle(a.arm.shoulder, 7.2);
-    if (has('biceps')) fillInside(a.upper, a.biceps, mc);
-    if (has('triceps')) fillInside(a.upper, a.triceps, mc);
-    if (has('forearms')) fillInside(a.forearm, a.forearms, mc);
-    if (has('sideDelts')) fillInside(cap, a.delts(0), mc);
-    if (has('frontDelts')) fillInside(cap, a.delts(1), mc);
-    if (has('rearDelts')) fillInside(cap, a.delts(-1), mc);
+    for (const r of ROLES) {
+      if (is('biceps', r)) fillInside(a.upper, a.biceps, mc[r]);
+      if (is('triceps', r)) fillInside(a.upper, a.triceps, mc[r]);
+      if (is('forearms', r)) fillInside(a.forearm, a.forearms, mc[r]);
+      if (is('sideDelts', r)) fillInside(cap, a.delts(0), mc[r]);
+      if (is('frontDelts', r)) fillInside(cap, a.delts(1), mc[r]);
+      if (is('rearDelts', r)) fillInside(cap, a.delts(-1), mc[r]);
+    }
   };
   const farArm = armShape(F.farArm), nearArm = armShape(F.nearArm);
   const farLeg = legShape(F.farLeg), nearLeg = legShape(F.nearLeg);
@@ -296,8 +315,8 @@ function paint(m, F, c) {
   for (const g of gears('post')) fill(capsule(g.from, g.to, g.width / 2, g.width / 2), c.prop);
 
   // The far side.
-  leg(farLeg, c.far, c.muscleFar);
-  armDraw(farArm, c.far, c.muscleFar);
+  leg(farLeg, c.far, far);
+  armDraw(farArm, c.far, far);
   const handDumbbells = gears('dumbbells').filter(d => d.on !== 'chest');
   const hasDumbbells = handDumbbells.length > 0, oneDumbbell = handDumbbells.some(d => d.one);
   if (hasDumbbells && !oneDumbbell) dumbbell(farArm, false);
@@ -331,13 +350,16 @@ function paint(m, F, c) {
   const torso = outline(torsoPts.map(([a, b]) => F.torso(a, b)));
   const lean = F.pose.lean, turnAt = a => lean + F.pose.curl * smooth01((a - 10) / 16);
   fill(torso, c.body);
-  if (has('glutes')) fillInside(torso, ellipse(F.torso(-1.5, -8.5), 8.5, 10.5, turnAt(-1.5)), c.muscle);
-  if (has('chest')) fillInside(torso, ellipse(F.torso(37, 8.5), 6.5, 9, turnAt(37)), c.muscle);
-  if (has('abs')) fillInside(torso, capsule(F.torso(4, 5.8), F.torso(27, 8.5), 3.4, 3.4), c.muscle);
-  if (has('obliques')) fillInside(torso, ellipse(F.torso(14, 2), 4.5, 9, turnAt(14)), c.muscle);
-  if (has('lats')) fillInside(torso, ellipse(F.torso(33, -7.5), 4.5, 11, turnAt(33)), c.muscle);
-  if (has('traps')) fillInside(torso, ellipse(F.torso(50, -6), 5, 7, turnAt(50)), c.muscle);
-  if (has('lowerBack')) fillInside(torso, capsule(F.torso(6, -8), F.torso(26, -6.2), 2.8, 2.8), c.muscle);
+  for (const r of ROLES) {
+    const mc = near[r];
+    if (is('glutes', r)) fillInside(torso, ellipse(F.torso(-1.5, -8.5), 8.5, 10.5, turnAt(-1.5)), mc);
+    if (is('chest', r)) fillInside(torso, ellipse(F.torso(37, 8.5), 6.5, 9, turnAt(37)), mc);
+    if (is('abs', r)) fillInside(torso, capsule(F.torso(4, 5.8), F.torso(27, 8.5), 3.4, 3.4), mc);
+    if (is('obliques', r)) fillInside(torso, ellipse(F.torso(14, 2), 4.5, 9, turnAt(14)), mc);
+    if (is('lats', r)) fillInside(torso, ellipse(F.torso(33, -7.5), 4.5, 11, turnAt(33)), mc);
+    if (is('traps', r)) fillInside(torso, ellipse(F.torso(50, -6), 5, 7, turnAt(50)), mc);
+    if (is('lowerBack', r)) fillInside(torso, capsule(F.torso(6, -8), F.torso(26, -6.2), 2.8, 2.8), mc);
+  }
 
   for (const g of gears('barbell')) if (g.on === 'back') {
     const bar = F.torso(50, -9), pl = add(bar, v(-9, 2.5));
@@ -373,8 +395,8 @@ function paint(m, F, c) {
   }
   if (gears('dumbbells').some(d => d.on === 'chest')) goblet();
 
-  leg(nearLeg, c.body, c.muscle);
-  armDraw(nearArm, c.body, c.muscle);
+  leg(nearLeg, c.body, near);
+  armDraw(nearArm, c.body, near);
 
   for (const g of gears('barbell')) if (g.on === 'hands' || g.on == null) plate(nearArm.grip, g.radius ?? 17);
   for (const g of gears('barbell')) if (g.on === 'hips') plate(F.torso(-1, 12), g.radius ?? 17);
@@ -501,7 +523,8 @@ function paintFront(m, F, c) {
     const keep = clipId(`M-2000 -2000H2000V2000H-2000Z${circle(joint, r)}`, true);
     out.push(`<path d="${d}" fill="none" stroke="${c.card}" stroke-width="3.2" stroke-linejoin="round" clip-path="url(#${keep})"/>`);
   };
-  const has = x => m.muscles.has(x);
+  const is = (x, role) => m.muscles[role].has(x);
+  const tint = { primary: c.muscle, secondary: c.muscleSecondary };
   const gears = kind => m.gear.filter(g => g.kind === kind);
   const plate = (at, r) => { fill(circle(at, r), c.gear); fill(circle(at, r * 0.735), c.gearFace); fill(circle(at, r * 0.21), c.body); };
   const turnDeg = F.pose.turn, turnR = turnDeg * Math.PI / 180;
@@ -550,15 +573,20 @@ function paintFront(m, F, c) {
   fill(torso, c.body);
   const both = f => { f(1); f(-1); };
   const ta = F.turnAt;
-  if (has('chest')) both(s => fillInside(torso, ellipse(F.torso(37.5, 8.5 * s), 8.2, 6.4, ta(37.5)), c.muscle));
-  if (has('abs')) fillInside(torso, capsule(F.torso(5, 0), F.torso(31, 0), 5, 5.2), c.muscle);
-  if (has('obliques')) both(s => fillInside(torso, ellipse(F.torso(16, 12 * s), 3.6, 8.5, ta(16)), c.muscle));
-  if (has('lats')) both(s => fillInside(torso, ellipse(F.torso(31, 16 * s), 3.4, 8, ta(31)), c.muscle));
-  if (has('traps')) both(s => fillInside(torso, capsule(F.torso(53.5, 6 * s), F.torso(50.5, 15.5 * s), 3.2, 3.6), c.muscle));
   const glutes = s => m.legsFront ? ellipse(F.torso(2, 17 * s), 3.2, 7, ta(2)) : ellipse(F.torso(1, 13.5 * s), 3.6, 7.5, ta(1));
-  if (has('glutes') && !m.legsFront) both(s => fillInside(torso, glutes(s), c.muscle));
+  for (const r of ROLES) {
+    const mc = tint[r];
+    if (is('chest', r)) both(s => fillInside(torso, ellipse(F.torso(37.5, 8.5 * s), 8.2, 6.4, ta(37.5)), mc));
+    if (is('abs', r)) fillInside(torso, capsule(F.torso(5, 0), F.torso(31, 0), 5, 5.2), mc);
+    if (is('obliques', r)) both(s => fillInside(torso, ellipse(F.torso(16, 12 * s), 3.6, 8.5, ta(16)), mc));
+    if (is('lats', r)) both(s => fillInside(torso, ellipse(F.torso(31, 16 * s), 3.4, 8, ta(31)), mc));
+    if (is('traps', r)) both(s => fillInside(torso, capsule(F.torso(53.5, 6 * s), F.torso(50.5, 15.5 * s), 3.2, 3.6), mc));
+    if (is('glutes', r) && !m.legsFront) both(s => fillInside(torso, glutes(s), mc));
+  }
   if (m.legsFront) drawLegs(true);
-  if (has('glutes') && m.legsFront) both(s => fillInside(torso + legParts(F.legs[s > 0 ? 1 : 0]).thigh, glutes(s), c.muscle));
+  for (const r of ROLES) {
+    if (is('glutes', r) && m.legsFront) both(s => fillInside(torso + legParts(F.legs[s > 0 ? 1 : 0]).thigh, glutes(s), tint[r]));
+  }
 
   const headTurn = turnDeg + F.pose.lean + F.pose.head;
   // A head hanging forward (headHeight below 0.5) shows its crown in front of the shoulders, without a neck or jaw.
@@ -578,14 +606,18 @@ function paintFront(m, F, c) {
     fill(circle(g.from, 4.2), c.gear); fill(circle(g.from, 1.7), c.prop);
   }
 
-  const delts = has('frontDelts') || has('sideDelts') || has('rearDelts');
+  // From the front the three delts are one shoulder cap, shaded as the most worked of them.
+  const delts = ['frontDelts', 'sideDelts', 'rearDelts'];
+  const deltsRole = delts.some(x => is(x, 'primary')) ? 'primary' : delts.some(x => is(x, 'secondary')) ? 'secondary' : null;
   for (const p of arms) {
     separate(p.all, p.a.shoulder, 9);
     fill(p.upper, c.body); fill(p.forearm, c.body); fill(p.hand, c.body);
     const a = p.a;
-    if (delts) fillInside(p.upper + circle(a.shoulder, 7.2), muscle(a.shoulder, a.elbow, 6.8, 4.5, [0, 0.16, 0.38], [1, 1, 0.7], 0), c.muscle);
-    if (has('triceps')) fillInside(p.upper, muscle(a.shoulder, a.elbow, 6.8, 4.5, [0.25, 0.55, 0.88], [0.5, 0.6, 0.5], a.side), c.muscle);
-    if (has('biceps')) fillInside(p.upper, muscle(a.shoulder, a.elbow, 6.8, 4.5, [0.25, 0.55, 0.88], [0.5, 0.62, 0.5], -a.side), c.muscle);
+    for (const r of ROLES) {
+      if (deltsRole === r) fillInside(p.upper + circle(a.shoulder, 7.2), muscle(a.shoulder, a.elbow, 6.8, 4.5, [0, 0.16, 0.38], [1, 1, 0.7], 0), tint[r]);
+      if (is('triceps', r)) fillInside(p.upper, muscle(a.shoulder, a.elbow, 6.8, 4.5, [0.25, 0.55, 0.88], [0.5, 0.6, 0.5], a.side), tint[r]);
+      if (is('biceps', r)) fillInside(p.upper, muscle(a.shoulder, a.elbow, 6.8, 4.5, [0.25, 0.55, 0.88], [0.5, 0.62, 0.5], -a.side), tint[r]);
+    }
   }
 
   const dumbbells = gears('dumbbells');
@@ -631,7 +663,11 @@ function card(m, t, theme, x, y, w, h, still = false) {
   return { defs, body: `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="24" fill="${c.card}"/><g transform="${g}">${body}</g>` };
 }
 
-function load(file) { return JSON.parse(fs.readFileSync(file, 'utf8')).map(motion); }
+// Reads the animations, and the muscle map's file for their muscles.
+function load(file, musclesFile = require('path').join(__dirname, '../../Kitae/Exercises/Muscles/ExerciseMuscles.json')) {
+  WORK = new Map(JSON.parse(fs.readFileSync(musclesFile, 'utf8')).exercises.map(e => [e.id, e]));
+  return JSON.parse(fs.readFileSync(file, 'utf8')).map(motion);
+}
 function render(svg, file, scale = 1) {
   const { Resvg } = require('@resvg/resvg-js');
   fs.writeFileSync(file, new Resvg(svg, { fitTo: { mode: 'zoom', value: scale } }).render().asPng());

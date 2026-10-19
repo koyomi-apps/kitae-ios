@@ -1,11 +1,16 @@
 # Exercise animations
 
 `Kitae/Exercises/Motion/ExerciseMotions.json` holds each exercise's animation: its start and end
-poses, the gear it uses and the muscles it works, keyed by the starter exercises' ids. `make.js`
-writes it (edit the poses there, not in the JSON). `sheet.js` and `zoom.js`
-draw it as pictures, so poses can be checked without building the app. They draw with
-`motion.js`, which matches `FigureRig.swift` and `FigurePainter.swift` step for step: a change to
-one needs the same change in the other.
+poses and the gear it uses, keyed by the starter exercises' ids. `make.js` writes it (edit the
+poses there, not in the JSON). `sheet.js` and `zoom.js` draw it as pictures, so poses can be
+checked without building the app. They draw with `motion.js`, which matches `FigureRig.swift` and
+`FigurePainter.swift` step for step: a change to one needs the same change in the other.
+
+The figure takes its muscles from the muscle map below (`motion.js` reads
+`ExerciseMuscles.json` from the repository): the ones an exercise works most in olive, the ones
+that help in a lighter olive, drawn first so the olive ones stay on top where they meet. It has no
+shapes of its own for the upper back and the abductors, so its traps and glutes show them; the
+adductors aren't seen.
 
     npm install          # only needed for the pictures
     node make.js
@@ -54,5 +59,5 @@ The picture is 100 units wide and 222 tall, facing the viewer, with y growing do
 shape is a list of points that a smooth closed curve (Catmull-Rom) passes through, written out as
 cubic Béziers, given for the right half of the picture and mirrored for the left. Muscles are
 drawn over the body's outline with a thin gap round each. People's own exercises show their
-muscle group instead (`MuscleGroup.muscles` in Swift). The muscles an animation shows in olive
-have to be among its exercise's muscles here; a test checks it.
+muscle group instead (`MuscleGroup.muscles` in Swift). Changing an exercise's muscles here
+changes its animation too.

@@ -43,13 +43,23 @@ struct ExerciseMusclesTests {
         #expect(map.body.allSatisfy { $0.count >= 8 && ($0.count - 2) % 6 == 0 })
     }
 
-    @Test func theAnimationsMusclesAreAmongTheMaps() {
-        for (id, motion) in ExerciseMotions.byID {
-            guard let work = ExerciseMuscles.byID[Int64(id)] else {
-                Issue.record("\(motion.name) has no muscles")
-                continue
-            }
-            #expect(motion.muscles.isSubset(of: Set(work.primary + work.secondary)), "\(motion.name)")
+    @Test func theAnimationsShadeTheMapsMuscles() throws {
+        // Bench press: the chest most, with the front delts and triceps helping.
+        let bench = try #require(ExerciseMotions.byID[21]).muscles
+        #expect(bench.primary == [.chest] && bench.secondary == [.frontDelts, .triceps])
+        #expect(bench[.chest] == .primary && bench[.triceps] == .secondary && bench[.quads] == nil)
+        // The traps show the upper back, and the glutes the abductors.
+        let rows = try #require(ExerciseMotions.byID[29]).muscles
+        #expect(rows[.traps] == .primary && rows[.rearDelts] == .secondary)
+        let abductions = try #require(ExerciseMotions.byID[67]).muscles
+        #expect(abductions.primary == [.glutes] && abductions.secondary.isEmpty)
+        // Every animation has a muscle in olive, and shades only muscles it has shapes for.
+        for motion in ExerciseMotions.byID.values {
+            let muscles = motion.muscles
+            #expect(!muscles.primary.isEmpty, "\(motion.name)")
+            #expect(muscles.primary.isDisjoint(with: muscles.secondary), "\(motion.name)")
+            #expect(muscles.primary.union(muscles.secondary).isDisjoint(with: [.upperBack, .adductors, .abductors]),
+                    "\(motion.name)")
         }
     }
 

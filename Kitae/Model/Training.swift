@@ -86,6 +86,9 @@ nonisolated struct Exercise: Identifiable, Hashable, Sendable {
     /// The muscle as it's stored, like "Chest" or "UpperBack".
     var target: String
     var isIsometric = false
+    /// False for exercises done with the body alone, like sit-ups: their sets are reps (or
+    /// seconds) without weight, and a weight a set has from before is left out.
+    var usesWeight = true
     /// Rest after each set of this exercise, unless the set has its own. nil uses the default.
     var restSeconds: Int?
     /// A link to a video or page that shows it.
@@ -97,6 +100,11 @@ nonisolated struct Exercise: Identifiable, Hashable, Sendable {
     var libraryKey: String?
 
     var muscle: MuscleGroup? { MuscleGroup(rawValue: target) }
+
+    /// A set's weight as it counts for this exercise: none if it doesn't use weight.
+    func weight(_ kilograms: Double) -> Double {
+        usesWeight ? kilograms : 0
+    }
 
     /// The instructions as steps, without numbers typed in front of them. Kitae for
     /// Android's exercise page reads them the same way.
@@ -125,6 +133,7 @@ nonisolated struct ExerciseDraft: Hashable, Sendable {
     var name = ""
     var muscle: MuscleGroup = .chest
     var isIsometric = false
+    var usesWeight = true
     var restSeconds: Int?
     var instructions = ""
     var reference = ""
@@ -138,6 +147,7 @@ nonisolated struct ExerciseDraft: Hashable, Sendable {
         name = exercise.name
         muscle = exercise.muscle ?? .chest
         isIsometric = exercise.isIsometric
+        usesWeight = exercise.usesWeight
         restSeconds = exercise.restSeconds
         instructions = exercise.instructions ?? ""
         reference = exercise.reference ?? ""

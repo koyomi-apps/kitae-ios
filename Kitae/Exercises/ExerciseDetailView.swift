@@ -16,7 +16,7 @@ struct ExercisePage {
     init(exercise: Exercise, history: [ExerciseSession]) {
         self.exercise = exercise
         self.history = history
-        progress = ExerciseProgress(history: history, isIsometric: exercise.isIsometric)
+        progress = ExerciseProgress(history: history, isIsometric: exercise.isIsometric, usesWeight: exercise.usesWeight)
         records = ExerciseRecords(history: history)
     }
 }
@@ -230,7 +230,8 @@ struct ExerciseDetailView: View {
                 }
             case .reps, .seconds:
                 if let most = records.mostReps {
-                    tile(isIsometric ? "Longest hold" : "Most reps", formatter.summary(reps: most.reps, kilograms: most.weightKg, isIsometric: isIsometric))
+                    tile(isIsometric ? "Longest hold" : "Most reps",
+                         formatter.summary(reps: most.reps, kilograms: page.exercise.weight(most.weightKg), isIsometric: isIsometric))
                 }
                 tile("Workouts", "\(records.workoutCount)")
             }
@@ -383,7 +384,7 @@ struct ExerciseDetailView: View {
     /// "10 × 22.5 kg, 9 × 22.5 kg".
     private func sessionSets(_ session: ExerciseSession, of exercise: Exercise) -> String {
         session.sets
-            .map { model.weightFormatter.summary(reps: $0.reps, kilograms: $0.weightKg, isIsometric: exercise.isIsometric) }
+            .map { model.weightFormatter.summary(reps: $0.reps, kilograms: exercise.weight($0.weightKg), isIsometric: exercise.isIsometric) }
             .joined(separator: ", ")
     }
 

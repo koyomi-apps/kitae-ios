@@ -31,7 +31,9 @@ struct PlannedSetSheet: View {
                     Section {
                         HStack(spacing: 8) {
                             field(isIsometric ? ".seconds" : ".reps", text: $repsText, keyboard: .numberPad, value: .reps)
-                            field(".weight", text: $weightText, unit: formatter.unit.symbol, keyboard: .decimalPad, value: .weight)
+                            if usesWeight {
+                                field(".weight", text: $weightText, unit: formatter.unit.symbol, keyboard: .decimalPad, value: .weight)
+                            }
                         }
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
@@ -101,6 +103,7 @@ struct PlannedSetSheet: View {
     private var set: PlannedSet? { editor.plannedSet(target.id) }
     private var exercise: DayExercise? { editor.exercise(containing: target.id) }
     private var isIsometric: Bool { exercise?.exercise.isIsometric ?? false }
+    private var usesWeight: Bool { exercise?.exercise.usesWeight ?? true }
 
     /// The set's label as it is now, so changing its type to failure turns 03 into F1.
     private var label: String {

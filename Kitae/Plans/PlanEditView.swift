@@ -240,7 +240,7 @@ struct PlanEditView: View {
     }
 
     private func setRow(_ set: PlannedSet, label: String, of item: DayExercise) -> some View {
-        let summary = model.weightFormatter.summary(reps: set.reps, kilograms: set.weightKg, isIsometric: item.exercise.isIsometric)
+        let summary = model.weightFormatter.summary(reps: set.reps, kilograms: item.exercise.weight(set.weightKg), isIsometric: item.exercise.isIsometric)
         return Button {
             sheet = .set(set.id)
         } label: {

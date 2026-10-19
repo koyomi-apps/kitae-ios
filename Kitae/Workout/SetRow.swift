@@ -10,9 +10,13 @@ enum SetField: Hashable {
 }
 
 /// One set in the workout: its label, reps and weight you can type into, and the done button.
+/// A held exercise counts seconds instead of reps, and one that doesn't use weight has no
+/// weight to type.
 struct SetRow: View {
     let set: WorkoutSet
     let label: String
+    let isIsometric: Bool
+    let usesWeight: Bool
     let formatter: WeightFormatter
     var focus: FocusState<SetField?>.Binding
     let onReps: (Int) -> Void
@@ -37,9 +41,11 @@ struct SetRow: View {
             .buttonStyle(.plain)
             .accessibilityLabel("Set \(label) options")
 
-            field(".reps", text: $repsText, keyboard: .numberPad, value: .reps(set.id))
-                .frame(width: 100)
-            field(".weight", text: $weightText, unit: formatter.unit.symbol, keyboard: .decimalPad, value: .weight(set.id))
+            field(isIsometric ? ".seconds" : ".reps", text: $repsText, keyboard: .numberPad, value: .reps(set.id))
+                .frame(width: usesWeight ? 100 : nil)
+            if usesWeight {
+                field(".weight", text: $weightText, unit: formatter.unit.symbol, keyboard: .decimalPad, value: .weight(set.id))
+            }
 
             Button(action: onToggleDone) {
                 Image(systemName: "checkmark")

@@ -3,29 +3,31 @@
 
 import GRDB
 
-/// Kitae for Android's database, version 9, table for table.
+/// Kitae for Android's database, version 10, table for table.
 ///
 /// The statements are the ones Room writes for that version (its schema file is
-/// `app/schemas/com.looker.kenko.data.local.KenkoDatabase/9.json`), so a database made here
+/// `app/schemas/com.looker.kenko.data.local.KenkoDatabase/10.json`), so a database made here
 /// opens in Kitae for Android and the other way round. Change nothing here without making
 /// the same change in Kitae for Android. Version 9 gave exercises their library key
-/// (`ExerciseLibrary`); databases and backups from version 8 are brought up to it.
+/// (`ExerciseLibrary`), and version 10 whether they use weight; databases and backups from
+/// versions 8 and 9 are brought up to it.
 nonisolated enum Schema {
     /// What Room keeps in `PRAGMA user_version`.
-    static let version = 9
+    static let version = 10
 
     /// The oldest version Kitae can bring up to date.
     static let oldestVersion = 8
 
-    /// What Room keeps in `room_master_table` for version 9. Room refuses a database whose
+    /// What Room keeps in `room_master_table` for version 10. Room refuses a database whose
     /// hash doesn't match. It's worked out from the entities the way Room's compiler does
     /// (`SchemaIdentityKey`), which gives version 8's hash from its schema file too.
-    static let identityHash = "5d1b3eb2bd3f9bcf00e2d5627becb694"
+    static let identityHash = "a8dd8c0661148678f11cce771546f37e"
 
     /// Room's hash for each version Kitae can open.
     static let identityHashes = [
         8: "ed136697240555e41abaa05a57ab6667",
-        9: identityHash,
+        9: "5d1b3eb2bd3f9bcf00e2d5627becb694",
+        10: identityHash,
     ]
 
     /// Room's statements in Room's order: each table, then its indices, then Room's own table.
@@ -33,7 +35,7 @@ nonisolated enum Schema {
         "CREATE TABLE IF NOT EXISTS `sessions` (`date` INTEGER NOT NULL, `planId` INTEGER, `routineId` INTEGER, `isFinished` INTEGER NOT NULL DEFAULT 1, `startedAt` INTEGER, `finishedAt` INTEGER, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`planId`) REFERENCES `plans`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL , FOREIGN KEY(`routineId`) REFERENCES `routines`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
         "CREATE INDEX IF NOT EXISTS `index_sessions_planId` ON `sessions` (`planId`)",
         "CREATE INDEX IF NOT EXISTS `index_sessions_routineId` ON `sessions` (`routineId`)",
-        "CREATE TABLE IF NOT EXISTS `exercises` (`name` TEXT NOT NULL, `target` TEXT NOT NULL, `reference` TEXT, `isIsometric` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `restSeconds` INTEGER, `instructions` TEXT, `libraryKey` TEXT)",
+        "CREATE TABLE IF NOT EXISTS `exercises` (`name` TEXT NOT NULL, `target` TEXT NOT NULL, `reference` TEXT, `isIsometric` INTEGER NOT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `restSeconds` INTEGER, `instructions` TEXT, `libraryKey` TEXT, `usesWeight` INTEGER NOT NULL DEFAULT 1)",
         "CREATE UNIQUE INDEX IF NOT EXISTS `index_exercises_libraryKey` ON `exercises` (`libraryKey`)",
         "CREATE TABLE IF NOT EXISTS `plans` (`name` TEXT NOT NULL, `description` TEXT DEFAULT NULL, `difficulty` TEXT DEFAULT NULL, `focus` TEXT DEFAULT NULL, `equipment` TEXT DEFAULT NULL, `time` TEXT DEFAULT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
         "CREATE TABLE IF NOT EXISTS `plan_history` (`planId` INTEGER, `start` INTEGER NOT NULL, `end` INTEGER DEFAULT NULL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, FOREIGN KEY(`planId`) REFERENCES `plans`(`id`) ON UPDATE NO ACTION ON DELETE SET NULL )",
@@ -64,7 +66,7 @@ nonisolated enum Schema {
         (.failure, Double(Float(1.15))),
     ]
 
-    /// Makes every table in an empty database and marks it as version 9.
+    /// Makes every table in an empty database and marks it as version 10.
     static func create(_ db: Database) throws {
         for statement in statements {
             try db.execute(sql: statement)
@@ -87,7 +89,25 @@ nonisolated enum Schema {
         for (id, key) in keys.sorted(by: { $0.key < $1.key }) {
             try db.execute(sql: "UPDATE `exercises` SET `libraryKey` = ? WHERE `id` = ?", arguments: [key, id])
         }
-        try db.execute(sql: "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '\(identityHash)')")
+        try mark(db, version: 9)
+    }
+
+    /// Brings a version 9 database up to version 10, as Room's `Migration(9, 10)` in Kitae for
+    /// Android does: exercises say whether they use weight, and Kitae's exercises done with
+    /// the body alone (`weightless`, by library key) don't. Weights their sets already have
+    /// stay as they were; Kitae leaves them out while the exercise doesn't use weight.
+    static func migrate9(_ db: Database, weightless: Set<String>) throws {
+        try db.execute(sql: "ALTER TABLE `exercises` ADD COLUMN `usesWeight` INTEGER NOT NULL DEFAULT 1")
+        for key in weightless.sorted() {
+            try db.execute(sql: "UPDATE `exercises` SET `usesWeight` = 0 WHERE `libraryKey` = ?", arguments: [key])
+        }
+        try mark(db, version: 10)
+    }
+
+    /// Records that the database is now at `version`, with Room's hash for it.
+    private static func mark(_ db: Database, version: Int) throws {
+        guard let hash = identityHashes[version] else { throw KitaeDatabaseError.unsupportedVersion(version) }
+        try db.execute(sql: "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, ?)", arguments: [hash])
         try db.execute(sql: "PRAGMA user_version = \(version)")
     }
 }

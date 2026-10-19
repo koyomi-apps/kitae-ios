@@ -55,9 +55,10 @@ nonisolated enum Sessions {
             """, arguments: [today, planID, dayID, now])
         let sessionID = db.lastInsertedRowID
         let planned = try Row.fetchAll(db, sql: """
-            SELECT `routine_sets`.*, `routine_exercises`.`exerciseId`
+            SELECT `routine_sets`.*, `routine_exercises`.`exerciseId`, `exercises`.`usesWeight`
             FROM `routine_sets`
             INNER JOIN `routine_exercises` ON `routine_exercises`.`id` = `routine_sets`.`routineExerciseId`
+            INNER JOIN `exercises` ON `exercises`.`id` = `routine_exercises`.`exerciseId`
             WHERE `routine_exercises`.`routineId` = ?
             ORDER BY `routine_exercises`.`position` ASC, `routine_exercises`.`id` ASC,
             `routine_sets`.`position` ASC, `routine_sets`.`id` ASC
@@ -67,7 +68,7 @@ nonisolated enum Sessions {
                 INSERT INTO `sets` (`reps`, `weight`, `type`, `order`, `sessionId`, `exerciseId`, `rir`, `isCompleted`, `routineSetId`, `restSeconds`)
                 VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)
                 """, arguments: [
-                    set["reps"] as Int, set["weight"] as Double, set["type"] as String, order, sessionID,
+                    set["reps"] as Int, (set["usesWeight"] as Bool) ? set["weight"] as Double : 0, set["type"] as String, order, sessionID,
                     set["exerciseId"] as Int64, defaultRir, set["id"] as Int64, set["restSeconds"] as Int?,
                 ])
         }
@@ -216,13 +217,18 @@ nonisolated enum Sessions {
         }
     }
 
-    /// Adds a set that isn't done yet after the workout's other sets. Returns its id.
+    /// Adds a set that isn't done yet after the workout's other sets, without weight if the
+    /// exercise doesn't use any. Returns its id.
     @discardableResult
     static func addSet(_ db: Database, sessionID: Int64, exerciseID: Int64, set: SetDraft) throws -> Int64 {
+        let usesWeight = try Bool.fetchOne(db, sql: "SELECT `usesWeight` FROM `exercises` WHERE `id` = ?", arguments: [exerciseID]) ?? true
         try db.execute(sql: """
             INSERT INTO `sets` (`reps`, `weight`, `type`, `order`, `sessionId`, `exerciseId`, `rir`, `isCompleted`, `restSeconds`)
             VALUES (?, ?, ?, (SELECT COALESCE(MAX(`order`), -1) + 1 FROM `sets` WHERE `sessionId` = ?), ?, ?, ?, 0, ?)
-            """, arguments: [set.reps, set.weightKg, set.type.rawValue, sessionID, sessionID, exerciseID, defaultRir, set.restSeconds])
+            """, arguments: [
+                set.reps, usesWeight ? set.weightKg : 0, set.type.rawValue, sessionID, sessionID, exerciseID, defaultRir,
+                set.restSeconds,
+            ])
         let setID = db.lastInsertedRowID
         try groupWarmups(db, sessionID: sessionID, exerciseID: exerciseID)
         return setID

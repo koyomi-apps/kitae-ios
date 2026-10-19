@@ -71,6 +71,7 @@ struct ExerciseTests {
             let saved = try #require(try Exercises.exercise(db, id: id))
             #expect(saved.name == "Cable Fly")
             #expect(saved.muscle == .chest)
+            #expect(saved.usesWeight)
             #expect(saved.restSeconds == 60)
             #expect(saved.instructions == "Pull the handles together.")
             #expect(saved.reference == "https://example.com/fly")
@@ -85,12 +86,14 @@ struct ExerciseTests {
             renamed.name = "Cable Crossover Fly"
             renamed.muscle = .shoulders
             renamed.isIsometric = true
+            renamed.usesWeight = false
             renamed.reference = ""
             try Exercises.update(db, id: id, renamed)
             let updated = try #require(try Exercises.exercise(db, id: id))
             #expect(updated.name == "Cable Crossover Fly")
             #expect(updated.target == "Shoulders")
             #expect(updated.isIsometric)
+            #expect(!updated.usesWeight && !ExerciseDraft(updated).usesWeight)
             #expect(updated.reference == nil)
             #expect(try Exercises.all(db).count == 76)
         }
@@ -163,6 +166,12 @@ struct ExerciseTests {
         #expect(reps.measure == .reps)
         #expect(reps.points.map(\.value) == [9, 12])
         #expect(ExerciseProgress(history: bodyweight, isIsometric: true).measure == .seconds)
+
+        // An exercise that doesn't use weight follows its reps, even with weight from before.
+        let weightless = ExerciseProgress(history: Array(sessions), isIsometric: false, usesWeight: false)
+        #expect(weightless.measure == .reps)
+        #expect(weightless.points.last?.value == 9)
+        #expect(sessions.first?.best(usesWeight: false) == SetDraft(reps: 9, weightKg: 52.5))
 
         let records = ExerciseRecords(history: Array(sessions))
         #expect(records.heaviest?.weightKg == 52.5)

@@ -18,6 +18,9 @@ nonisolated struct Seed: Decodable, Sendable {
         var name: String
         var target: String
         var isIsometric: Bool
+        /// False for exercises done with the body alone, like sit-ups: their sets are reps (or
+        /// seconds) without weight.
+        var usesWeight: Bool
         var reference: String?
         var restSeconds: Int?
         var instructions: String?
@@ -26,10 +29,10 @@ nonisolated struct Seed: Decodable, Sendable {
         func insert(_ db: Database) throws {
             try db.execute(
                 sql: """
-                INSERT INTO `exercises` (`id`, `name`, `target`, `reference`, `isIsometric`, `restSeconds`, `instructions`, `libraryKey`)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO `exercises` (`id`, `name`, `target`, `reference`, `isIsometric`, `restSeconds`, `instructions`, `libraryKey`, `usesWeight`)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
                 """,
-                arguments: [id, name, target, reference, isIsometric, restSeconds, instructions, key]
+                arguments: [id, name, target, reference, isIsometric, restSeconds, instructions, key, usesWeight]
             )
         }
     }
@@ -70,6 +73,11 @@ nonisolated struct Seed: Decodable, Sendable {
                    uniquingKeysWith: { first, _ in first })
     }
 
+    /// The library keys of the exercises that don't use weight.
+    var weightlessKeys: Set<String> {
+        Set(exercises.filter { !$0.usesWeight }.map(\.key))
+    }
+
     static func bundled() throws -> Seed {
         guard let url = Bundle.main.url(forResource: "Seed", withExtension: "json") else {
             throw KitaeDatabaseError.missingSeed
@@ -84,6 +92,8 @@ nonisolated struct Seed: Decodable, Sendable {
         for exercise in exercises where exercise.id != nil {
             try exercise.insert(db)
         }
+        // Kitae for Android's starter plan gives every set 20 kg, leg raises and pull-ups too.
+        let weightless = Set(exercises.filter { !$0.usesWeight }.compactMap(\.id))
         var firstPlanID: Int64?
         for plan in plans {
             try db.execute(
@@ -113,7 +123,8 @@ nonisolated struct Seed: Decodable, Sendable {
                             INSERT INTO `routine_sets` (`routineExerciseId`, `reps`, `weight`, `type`, `position`, `restSeconds`)
                             VALUES (?, ?, ?, ?, ?, ?)
                             """,
-                            arguments: [slotID, set.reps, set.weight, set.type, setPosition, set.restSeconds]
+                            arguments: [slotID, set.reps, weightless.contains(item.exercise) ? 0 : set.weight, set.type,
+                                        setPosition, set.restSeconds]
                         )
                     }
                 }

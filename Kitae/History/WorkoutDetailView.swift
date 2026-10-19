@@ -116,7 +116,7 @@ struct WorkoutDetailView: View {
     }
 
     private func setRow(_ set: WorkoutSet, label: String, of exercise: Exercise) -> some View {
-        let summary = model.weightFormatter.summary(reps: set.reps, kilograms: set.weightKg, isIsometric: exercise.isIsometric)
+        let summary = model.weightFormatter.summary(reps: set.reps, kilograms: exercise.weight(set.weightKg), isIsometric: exercise.isIsometric)
         return HStack(spacing: 12) {
             Text(label)
                 .font(.kitaeMono(15, relativeTo: .body, bold: true))

@@ -53,12 +53,14 @@ struct ExerciseEditor: View {
                     .listRowBackground(Color.card)
                     Toggle("Isometric", isOn: $draft.isIsometric)
                         .listRowBackground(Color.card)
+                    Toggle("Uses weight", isOn: $draft.usesWeight)
+                        .listRowBackground(Color.card)
                 } footer: {
                     if let problem {
                         Text(problem)
                             .foregroundStyle(.red)
                     } else {
-                        Text("Isometric exercises, like a plank, are held, so they count seconds instead of reps.")
+                        Text("Isometric exercises, like a plank, are held, so they count seconds instead of reps. Exercises done with your body alone, like sit-ups, don't use weight, so their sets have none.")
                     }
                 }
 

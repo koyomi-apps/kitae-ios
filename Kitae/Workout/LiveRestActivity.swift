@@ -87,6 +87,6 @@ final class LiveRestActivity {
 
     /// A set's reps and weight like "10 × 17.5 kg".
     static func describe(_ set: WorkoutSet, of exercise: Exercise, formatter: WeightFormatter) -> String {
-        formatter.summary(reps: set.reps, kilograms: set.weightKg, isIsometric: exercise.isIsometric)
+        formatter.summary(reps: set.reps, kilograms: exercise.weight(set.weightKg), isIsometric: exercise.isIsometric)
     }
 }

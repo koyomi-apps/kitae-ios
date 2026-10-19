@@ -22,7 +22,7 @@ struct LibraryTests {
 
     private let landminePress = Seed.Exercise(
         id: nil, key: "landmine-press", name: "Landmine Press", target: "Shoulders", isIsometric: false,
-        instructions: "Hold the end of the bar at your shoulder.\nPress it up and forward."
+        usesWeight: true, instructions: "Hold the end of the bar at your shoulder.\nPress it up and forward."
     )
 
     @Test func theStarterExercisesHaveTheirKeys() throws {
@@ -33,6 +33,16 @@ struct LibraryTests {
         #expect(try database.read { db in try Exercises.exercise(db, id: 21) }?.libraryKey == "barbell-bench-press")
         let given = try database.read { db in try String.fetchAll(db, sql: "SELECT key FROM exercise_library") }
         #expect(Set(given) == Set(starters.values))
+        // Sit-ups and the other exercises done with the body alone don't use weight, and the
+        // starter plan doesn't give their sets any.
+        let weightless = try database.read { db in try String.fetchAll(db, sql: "SELECT libraryKey FROM exercises WHERE usesWeight = 0") }
+        #expect(try Set(weightless) == Seed.bundled().weightlessKeys && weightless.count == 13 && weightless.contains("sit-ups"))
+        #expect(try count(database, """
+            SELECT COUNT(*) FROM routine_sets
+            JOIN routine_exercises ON routine_exercises.id = routine_sets.routineExerciseId
+            JOIN exercises ON exercises.id = routine_exercises.exerciseId
+            WHERE exercises.usesWeight = 0 AND routine_sets.weight > 0
+            """) == 0)
         // Every animation, muscle map and energy belongs to one of them.
         let all = Set(starters.values)
         #expect(Set(ExerciseMotions.byKey.keys) == all)
@@ -60,6 +70,7 @@ struct LibraryTests {
         #expect(version == Schema.version && hash == Schema.identityHash && index == 1)
         let keys = try keys(database)
         #expect(keys[1] == "dumbbell-curls" && keys[12] == nil && keys.count == 74)
+        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE usesWeight = 0") == 13)
         // Leg Press stays deleted, and the exercise people made stays theirs.
         #expect(try count(database, "SELECT COUNT(*) FROM exercises") == 75)
         #expect(try count(database, "SELECT COUNT(*) FROM exercise_library") == 75)
@@ -67,6 +78,36 @@ struct LibraryTests {
         // Opening it again changes nothing.
         _ = try KitaeDatabase(queue)
         #expect(try count(database, "SELECT COUNT(*) FROM exercises") == 75)
+    }
+
+    @Test func aVersion9DatabaseLearnsWhichExercisesUseWeight() throws {
+        let queue = try DatabaseQueue()
+        try KitaeDatabase.makeVersion9(queue)
+        try queue.write { db in
+            // Leg raises done with the 20 kg of Kitae for Android's starter plan, and someone's
+            // own exercise.
+            try db.execute(sql: "INSERT INTO sessions (date, isFinished) VALUES (20000, 1)")
+            try db.execute(sql: """
+                INSERT INTO sets (reps, weight, type, `order`, sessionId, exerciseId, rir)
+                VALUES (12, 20, 'Standard', 0, ?, 20, 2)
+                """, arguments: [db.lastInsertedRowID])
+            try db.execute(sql: "INSERT INTO exercises (name, target, isIsometric) VALUES ('Weighted Dips', 'Triceps', 0)")
+        }
+        let database = try KitaeDatabase(queue)
+        let (version, hash) = try database.read { db in
+            (
+                try Int.fetchOne(db, sql: "PRAGMA user_version"),
+                try String.fetchOne(db, sql: "SELECT identity_hash FROM room_master_table WHERE id = 42")
+            )
+        }
+        #expect(version == Schema.version && hash == Schema.identityHash)
+        let weightless = try database.read { db in try String.fetchAll(db, sql: "SELECT libraryKey FROM exercises WHERE usesWeight = 0") }
+        #expect(try Set(weightless) == Seed.bundled().weightlessKeys)
+        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE name = 'Weighted Dips' AND usesWeight = 1") == 1)
+        // The set keeps its 20 kg, but leg raises' energy leaves it out.
+        #expect(try count(database, "SELECT COUNT(*) FROM sets WHERE exerciseId = 20 AND weight = 20") == 1)
+        let done = try database.read { db in try Sessions.doneSets(db, from: 20000, to: 20000) }
+        #expect(done.values.flatMap { $0 }.map(\.weightKg) == [0])
     }
 
     @Test func exercisesALaterVersionBringsArriveOnce() throws {

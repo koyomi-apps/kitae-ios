@@ -59,6 +59,32 @@ struct SessionTests {
         #expect(rows.allSatisfy { $0["isCompleted"] as Bool == false && $0["rir"] as Int == 2 })
     }
 
+    @Test func exercisesWithoutWeightGetNone() throws {
+        // A day planned before leg raises stopped using weight, with Kitae for Android's 20 kg.
+        try database.write { db in
+            try db.execute(sql: """
+                UPDATE routine_sets SET weight = 20
+                WHERE routineExerciseId IN (SELECT id FROM routine_exercises WHERE exerciseId = 20)
+                """)
+        }
+        let id = try start(pushA)
+        let legRaises = try #require(try exercises(id, pushA).first { $0.exercise.libraryKey == "lying-leg-raises" })
+        #expect(!legRaises.exercise.usesWeight)
+        #expect(!legRaises.sets.isEmpty && legRaises.sets.allSatisfy { $0.weightKg == 0 })
+
+        // Nor do sets added during the workout or to the plan.
+        try database.write { db in
+            _ = try Sessions.addSet(db, sessionID: id, exerciseID: 20, set: SetDraft(reps: 12, weightKg: 20))
+        }
+        #expect(try sets(id).filter { $0["exerciseId"] as Int64 == 20 }.allSatisfy { $0["weight"] as Double == 0 })
+        let slot = try #require(pushA.exercises.first { $0.exercise.id == 20 })
+        let planned = try database.write { db in try Plans.addSet(db, slotID: slot.id, set: SetDraft(reps: 10, weightKg: 20)) }
+        #expect(try database.read { db in try Double.fetchOne(db, sql: "SELECT weight FROM routine_sets WHERE id = ?", arguments: [planned]) } == 0)
+        // Exercises that use weight keep theirs.
+        let bench = try #require(try exercises(id, pushA).first { $0.exercise.usesWeight })
+        #expect(bench.sets.allSatisfy { $0.weightKg == 20 })
+    }
+
     @Test func startingTheSameDayAgainCarriesOn() throws {
         let first = try start(pushA)
         #expect(try start(pushA) == first)

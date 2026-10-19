@@ -184,12 +184,19 @@ nonisolated extension Plans {
         try db.execute(sql: "DELETE FROM `routine_sets` WHERE `id` = ?", arguments: [setID])
     }
 
+    /// Plans a set, without weight if the exercise doesn't use any.
     @discardableResult
     private static func insertSet(_ db: Database, slotID: Int64, set: SetDraft, position: Int) throws -> Int64 {
+        let usesWeight = try Bool.fetchOne(db, sql: """
+            SELECT `exercises`.`usesWeight`
+            FROM `routine_exercises`
+            INNER JOIN `exercises` ON `exercises`.`id` = `routine_exercises`.`exerciseId`
+            WHERE `routine_exercises`.`id` = ?
+            """, arguments: [slotID]) ?? true
         try db.execute(sql: """
             INSERT INTO `routine_sets` (`routineExerciseId`, `reps`, `weight`, `type`, `position`, `restSeconds`)
             VALUES (?, ?, ?, ?, ?, ?)
-            """, arguments: [slotID, set.reps, set.weightKg, set.type.rawValue, position, set.restSeconds])
+            """, arguments: [slotID, set.reps, usesWeight ? set.weightKg : 0, set.type.rawValue, position, set.restSeconds])
         return db.lastInsertedRowID
     }
 }

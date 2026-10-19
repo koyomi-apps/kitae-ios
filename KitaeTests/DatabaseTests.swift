@@ -7,9 +7,10 @@ import Testing
 @testable import Kitae
 
 /// The database has to stay exactly like Kitae for Android's, so backups open in both apps.
-/// `RoomSchema9.json` is Room's schema file for version 9, written as Room writes it for the
-/// entities in `ExerciseLibrary`'s notes; `RoomSchema8.json` is version 8's, copied from Kitae
-/// for Android, for databases from before.
+/// `RoomSchema10.json` is Room's schema file for version 10, written as Room writes it once
+/// Kitae for Android's exercise entity has `libraryKey` (version 9) and `usesWeight`.
+/// `RoomSchema9.json` is version 9's, written the same way, and `RoomSchema8.json` version 8's,
+/// copied from Kitae for Android; they make databases from before.
 struct SchemaTests {
     struct RoomSchema: Decodable {
         struct Database: Decodable {
@@ -34,7 +35,7 @@ struct SchemaTests {
     }
 
     private func roomSchema() throws -> RoomSchema.Database {
-        let url = try #require(Bundle(for: TestBundle.self).url(forResource: "RoomSchema9", withExtension: "json"))
+        let url = try #require(Bundle(for: TestBundle.self).url(forResource: "RoomSchema10", withExtension: "json"))
         return try JSONDecoder().decode(RoomSchema.self, from: Data(contentsOf: url)).database
     }
 
@@ -87,7 +88,7 @@ struct SchemaTests {
                 try String.fetchOne(db, sql: "SELECT identity_hash FROM room_master_table WHERE id = 42")
             )
         }
-        #expect(version == 9)
+        #expect(version == 10)
         #expect(hash == room.identityHash)
     }
 
@@ -104,7 +105,7 @@ struct SchemaTests {
 
     @Test func refusesADatabaseFromAnotherVersion() throws {
         let queue = try DatabaseQueue()
-        try queue.write { db in try db.execute(sql: "PRAGMA user_version = 10") }
+        try queue.write { db in try db.execute(sql: "PRAGMA user_version = 11") }
         #expect(throws: KitaeDatabaseError.self) { try KitaeDatabase(queue) }
     }
 

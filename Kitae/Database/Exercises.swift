@@ -22,6 +22,12 @@ nonisolated struct ExerciseSession: Identifiable, Hashable, Sendable {
     var heaviest: SetDraft? { heaviestSet(workSets) }
 
     var mostReps: Int { workSets.map(\.reps).max() ?? 0 }
+
+    /// The set to show for it: the heaviest, or the one with the most reps when the exercise
+    /// doesn't use weight.
+    func best(usesWeight: Bool) -> SetDraft? {
+        usesWeight ? heaviest : workSets.max { $0.reps < $1.reps }
+    }
 }
 
 /// The heaviest set, and of the heaviest, the one with the most reps.
@@ -55,9 +61,9 @@ nonisolated struct ExerciseProgress: Hashable, Sendable {
     var points: [Point]
 
     /// `history` is newest first, as `Exercises.history` reads it.
-    init(history: [ExerciseSession], isIsometric: Bool) {
+    init(history: [ExerciseSession], isIsometric: Bool, usesWeight: Bool = true) {
         let recent = history.prefix(Self.maxPoints).reversed()
-        let byWeight = recent.contains { ($0.heaviest?.weightKg ?? 0) > 0 }
+        let byWeight = usesWeight && recent.contains { ($0.heaviest?.weightKg ?? 0) > 0 }
         measure = byWeight ? .weight : isIsometric ? .seconds : .reps
         points = recent.map { session in
             Point(
@@ -126,10 +132,10 @@ nonisolated enum Exercises {
     static func create(_ db: Database, _ draft: ExerciseDraft) throws -> Int64 {
         let name = try usableName(db, draft.name)
         try db.execute(sql: """
-            INSERT INTO `exercises` (`name`, `target`, `reference`, `isIsometric`, `restSeconds`, `instructions`)
-            VALUES (?, ?, ?, ?, ?, ?)
+            INSERT INTO `exercises` (`name`, `target`, `reference`, `isIsometric`, `usesWeight`, `restSeconds`, `instructions`)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """, arguments: [
-                name, draft.muscle.rawValue, savedReference(draft.reference), draft.isIsometric,
+                name, draft.muscle.rawValue, savedReference(draft.reference), draft.isIsometric, draft.usesWeight,
                 draft.restSeconds, savedInstructions(draft.instructions),
             ])
         return db.lastInsertedRowID
@@ -140,10 +146,10 @@ nonisolated enum Exercises {
         let name = try usableName(db, draft.name, excluding: id)
         try db.execute(sql: """
             UPDATE `exercises`
-            SET `name` = ?, `target` = ?, `reference` = ?, `isIsometric` = ?, `restSeconds` = ?, `instructions` = ?
+            SET `name` = ?, `target` = ?, `reference` = ?, `isIsometric` = ?, `usesWeight` = ?, `restSeconds` = ?, `instructions` = ?
             WHERE `id` = ?
             """, arguments: [
-                name, draft.muscle.rawValue, savedReference(draft.reference), draft.isIsometric,
+                name, draft.muscle.rawValue, savedReference(draft.reference), draft.isIsometric, draft.usesWeight,
                 draft.restSeconds, savedInstructions(draft.instructions), id,
             ])
     }

@@ -75,11 +75,12 @@ struct ExercisesView: View {
                 Text(exercise.name)
                     .foregroundStyle(.ink)
                 Spacer(minLength: 8)
-                if let set = lastSessions[exercise.id]?.heaviest {
-                    Text(model.weightFormatter.weightFirst(reps: set.reps, kilograms: set.weightKg, isIsometric: exercise.isIsometric))
+                if let set = lastSessions[exercise.id]?.best(usesWeight: exercise.usesWeight) {
+                    let text = model.weightFormatter.weightFirst(reps: set.reps, kilograms: exercise.weight(set.weightKg), isIsometric: exercise.isIsometric)
+                    Text(text)
                         .font(.kitaeMono(12, relativeTo: .caption))
                         .foregroundStyle(.inkSoft)
-                        .accessibilityLabel("Last time \(model.weightFormatter.weightFirst(reps: set.reps, kilograms: set.weightKg, isIsometric: exercise.isIsometric))")
+                        .accessibilityLabel("Last time \(text)")
                 }
             }
         }

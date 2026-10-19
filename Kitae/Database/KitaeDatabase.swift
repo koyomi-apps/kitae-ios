@@ -117,6 +117,9 @@ nonisolated final class KitaeDatabase: Sendable {
             if version == 8 {
                 try Schema.migrate8(db, keys: seed.starterKeys)
             }
+            if version <= 9 {
+                try Schema.migrate9(db, weightless: seed.weightlessKeys)
+            }
         }
         try BodyTables.create(db)
         try ExerciseLibrary.create(db, seed: seed)

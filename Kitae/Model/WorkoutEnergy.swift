@@ -100,7 +100,7 @@ nonisolated extension WorkoutExercise {
     var doneSets: [DoneSet] {
         sets.filter(\.isDone).map {
             DoneSet(exerciseID: exercise.id, libraryKey: exercise.libraryKey, target: exercise.target,
-                    isIsometric: exercise.isIsometric, reps: $0.reps, weightKg: $0.weightKg, type: $0.type)
+                    isIsometric: exercise.isIsometric, reps: $0.reps, weightKg: exercise.weight($0.weightKg), type: $0.type)
         }
     }
 }

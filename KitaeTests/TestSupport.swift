@@ -23,8 +23,18 @@ extension KitaeDatabase {
 
 extension KitaeDatabase {
     /// Makes `queue` a database as Kitae made it before library keys: Room's version 8 tables,
-    /// from its schema file, with the starter exercises and plan.
+    /// from its schema file, with the starter exercises.
     static func makeVersion8(_ queue: DatabaseQueue) throws {
+        try makeRoomVersion(8, queue)
+    }
+
+    /// Makes `queue` a database as Kitae made it before exercises said whether they use
+    /// weight: Room's version 9 tables, with the starter exercises and their library keys.
+    static func makeVersion9(_ queue: DatabaseQueue) throws {
+        try makeRoomVersion(9, queue)
+    }
+
+    private static func makeRoomVersion(_ version: Int, _ queue: DatabaseQueue) throws {
         struct RoomSchema: Decodable {
             struct Database: Decodable {
                 var entities: [Entity]
@@ -40,7 +50,7 @@ extension KitaeDatabase {
             }
             var database: Database
         }
-        let url = try #require(Bundle(for: TestSupportBundle.self).url(forResource: "RoomSchema8", withExtension: "json"))
+        let url = try #require(Bundle(for: TestSupportBundle.self).url(forResource: "RoomSchema\(version)", withExtension: "json"))
         let room = try JSONDecoder().decode(RoomSchema.self, from: Data(contentsOf: url)).database
         let seed = try Seed.bundled()
         try queue.write { db in
@@ -62,8 +72,11 @@ extension KitaeDatabase {
                     sql: "INSERT INTO `exercises` (`id`, `name`, `target`, `isIsometric`, `instructions`) VALUES (?, ?, ?, ?, ?)",
                     arguments: [id, exercise.name, exercise.target, exercise.isIsometric, exercise.instructions]
                 )
+                if version >= 9 {
+                    try db.execute(sql: "UPDATE `exercises` SET `libraryKey` = ? WHERE `id` = ?", arguments: [exercise.key, id])
+                }
             }
-            try db.execute(sql: "PRAGMA user_version = 8")
+            try db.execute(sql: "PRAGMA user_version = \(version)")
         }
     }
 }

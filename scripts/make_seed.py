@@ -97,6 +97,13 @@ KEYS = {
     75: "ab-wheel-rollouts",
 }
 
+# The starter exercises done with the body alone, by library key: their sets are reps (or
+# seconds) without weight (`exercises.usesWeight`). Kitae for Android's data has no such column.
+WEIGHTLESS = {
+    "sit-ups", "lying-leg-raises", "pull-ups", "push-ups", "chin-ups", "dips", "wall-sit",
+    "glute-bridges", "plank", "side-plank", "crunches", "hanging-leg-raises", "ab-wheel-rollouts",
+}
+
 
 def main() -> None:
     if len(sys.argv) != 2:
@@ -112,6 +119,7 @@ def main() -> None:
             "name": row["name"],
             "target": row["target"],
             "isIsometric": bool(row["isIsometric"]),
+            "usesWeight": KEYS[row["id"]] not in WEIGHTLESS,
         }
         for column in ("reference", "restSeconds", "instructions"):
             if row[column] is not None:

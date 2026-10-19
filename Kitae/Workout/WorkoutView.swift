@@ -108,6 +108,8 @@ struct WorkoutView: View {
                 SetRow(
                     set: set,
                     label: labels[index],
+                    isIsometric: exercise.exercise.isIsometric,
+                    usesWeight: exercise.exercise.usesWeight,
                     formatter: model.weightFormatter,
                     focus: $focus,
                     onReps: { reps in workout.update(set.id) { $0.reps = reps } },
@@ -212,10 +214,11 @@ struct WorkoutView: View {
                             .accessibilityLabel("\(step < 0 ? "Minus" : "Plus") \(stepNumber(abs(step))) \(model.weightFormatter.unit.symbol)")
                     }
                 case .reps(let id)?:
+                    let isHeld = workout.exercise(containing: id)?.exercise.isIsometric ?? false
                     stepButton("−1") { workout.update(id) { $0.reps = max($0.reps - 1, 0) } }
-                        .accessibilityLabel("One rep less")
+                        .accessibilityLabel(isHeld ? "One second less" : "One rep less")
                     stepButton("+1") { workout.update(id) { $0.reps += 1 } }
-                        .accessibilityLabel("One rep more")
+                        .accessibilityLabel(isHeld ? "One second more" : "One rep more")
                 case nil:
                     EmptyView()
                 }

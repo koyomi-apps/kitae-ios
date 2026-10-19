@@ -85,7 +85,7 @@ struct StatsTests {
 
     @Test func aNewDatabaseHasOnlyExercises() throws {
         let totals = try database.read { db in try Stats.totals(db) }
-        #expect(totals == TrainingTotals(lifts: 0, days: 0, exercises: 75))
+        #expect(try totals == TrainingTotals(lifts: 0, days: 0, exercises: Seed.bundled().exercises.count))
         let weeks = try database.read { db in try Stats.activity(db, today: Self.today, firstWeekday: 2) }
         #expect(weeks.trained.isEmpty)
     }
@@ -104,7 +104,7 @@ struct StatsTests {
         let totals = try database.read { db in try Stats.totals(db) }
         #expect(totals.lifts == 7)
         #expect(totals.days == 3)
-        #expect(totals.exercises == 75)
+        #expect(try totals.exercises == Seed.bundled().exercises.count)
 
         let weeks = try database.read { db in try Stats.activity(db, today: Self.today, firstWeekday: 2) }
         #expect(weeks.trained == [Self.today - 3, Self.today])

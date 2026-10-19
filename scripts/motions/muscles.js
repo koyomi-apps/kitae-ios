@@ -239,6 +239,16 @@ const EXERCISES = {
     'russian-twists': ['Russian Twists', 'obliques', 'abs'],
     'hanging-leg-raises': ['Hanging Leg Raises', 'abs', 'obliques forearms'],
     'ab-wheel-rollouts': ['Ab Wheel Rollouts', 'abs', 'obliques lats frontDelts'],
+    // The library's later exercises
+    'decline-dumbbell-press': ['Decline Dumbbell Press', 'chest', 'triceps frontDelts'],
+    'smith-machine-bench-press': ['Smith Machine Bench Press', 'chest', 'frontDelts triceps'],
+    'smith-machine-incline-press': ['Smith Machine Incline Press', 'chest', 'frontDelts triceps'],
+    'incline-machine-press': ['Incline Machine Press', 'chest', 'frontDelts triceps'],
+    'incline-dumbbell-flyes': ['Incline Dumbbell Flyes', 'chest', 'frontDelts'],
+    'low-to-high-cable-flyes': ['Low-to-High Cable Flyes', 'chest', 'frontDelts'],
+    'incline-push-ups': ['Incline Push-ups', 'chest', 'frontDelts triceps'],
+    'decline-push-ups': ['Decline Push-ups', 'chest', 'frontDelts triceps abs'],
+    'chest-dips': ['Chest Dips', 'chest', 'triceps frontDelts'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

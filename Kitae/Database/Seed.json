@@ -674,6 +674,78 @@
    "isIsometric": false,
    "usesWeight": false,
    "instructions": "Kneel holding the ab wheel on the floor in front of your knees.\nBrace your core and roll the wheel forward as far as you can without your lower back sagging.\nUse your abs to roll back to the start.\nStart with short rollouts and go further as you get stronger."
+  },
+  {
+   "key": "decline-dumbbell-press",
+   "name": "Decline Dumbbell Press",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Lie on a decline bench with your legs secured under the pads and a dumbbell in each hand at your chest.\nPress the dumbbells up over your lower chest until your arms are straight.\nLower them slowly to the sides of your chest, elbows at about 45 degrees to your body.\nKeep the dumbbells close to your chest as you sit up at the end of the set."
+  },
+  {
+   "key": "smith-machine-bench-press",
+   "name": "Smith Machine Bench Press",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set a flat bench under the Smith machine so the bar lowers to your mid chest, then lie back with your feet flat on the floor.\nGrip the bar a little wider than shoulder-width and twist it to unhook it.\nLower it to your mid chest, elbows at about 45 degrees to your body, then press it back up until your arms are straight.\nSet the safety stops just below your chest, and twist the bar back onto its hooks when you're done."
+  },
+  {
+   "key": "smith-machine-incline-press",
+   "name": "Smith Machine Incline Press",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set a bench to about 30 to 45 degrees under the Smith machine so the bar lowers to your upper chest.\nGrip the bar a little wider than shoulder-width and twist it to unhook it.\nLower it to your upper chest, then press it back up until your arms are straight.\nKeep your back against the bench, and set the safety stops just above your chest."
+  },
+  {
+   "key": "incline-machine-press",
+   "name": "Incline Machine Press",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Adjust the seat so the handles start level with your upper chest, then sit with your back against the pad.\nPress the handles up and forward until your arms are straight, without locking your elbows hard.\nReturn slowly until you feel a stretch in your chest.\nKeep your shoulder blades back against the pad."
+  },
+  {
+   "key": "incline-dumbbell-flyes",
+   "name": "Incline Dumbbell Flyes",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set a bench to about 30 degrees and lie back holding dumbbells above your chest, palms facing each other and elbows slightly bent.\nOpen your arms wide in an arc, lowering the weights until you feel a stretch in your upper chest.\nBring them back together above your chest, keeping the same bend in your elbows.\nUse a weight you can control at the bottom."
+  },
+  {
+   "key": "low-to-high-cable-flyes",
+   "name": "Low-to-High Cable Flyes",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set both pulleys low and stand in the middle with a handle in each hand, one foot slightly forward.\nWith a slight bend in your elbows, bring your hands up and together in front of your upper chest.\nSqueeze your chest, then lower your arms slowly back out to your sides.\nKeep your torso still and the bend in your elbows the same throughout."
+  },
+  {
+   "key": "incline-push-ups",
+   "name": "Incline Push-ups",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Place your hands on the edge of a bench or box, slightly wider than your shoulders, body straight from head to heels.\nLower your chest towards the edge, elbows at about 45 degrees to your body.\nPush back up until your arms are straight.\nThe higher your hands, the easier they are. Keep your hips in line with your body."
+  },
+  {
+   "key": "decline-push-ups",
+   "name": "Decline Push-ups",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Place your feet on a bench behind you and your hands on the floor, slightly wider than your shoulders.\nKeeping your body straight, lower your chest towards the floor, elbows at about 45 degrees to your body.\nPush back up until your arms are straight.\nKeep your core tight so your hips don't sag or rise."
+  },
+  {
+   "key": "chest-dips",
+   "name": "Chest Dips",
+   "target": "Chest",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Support yourself on parallel bars with straight arms, then lean forward and bend your knees behind you.\nLower yourself by bending your elbows, letting them move out a little, until you feel a stretch in your chest.\nPush back up until your arms are straight, staying leaned forward.\nOnly go as low as your shoulders are comfortable. Use an assisted machine if you need to."
   }
  ],
  "plans": [

@@ -95,7 +95,7 @@ struct ExerciseTests {
             #expect(updated.isIsometric)
             #expect(!updated.usesWeight && !ExerciseDraft(updated).usesWeight)
             #expect(updated.reference == nil)
-            #expect(try Exercises.all(db).count == 76)
+            #expect(try Exercises.all(db).count == Seed.bundled().exercises.count + 1)
         }
     }
 
@@ -111,7 +111,7 @@ struct ExerciseTests {
         }
         #expect(day.map(\.exercise.name) == ["Chest Fly", "Leg Raises", "Overhead Extensions", "Tricep Push Down"])
         #expect(sets == 0)
-        #expect(exercises.count == 74)
+        #expect(try exercises.count == Seed.bundled().exercises.count - 1)
     }
 
     @Test func historyIsNewestFirstAndLeavesOutSetsNotDone() throws {

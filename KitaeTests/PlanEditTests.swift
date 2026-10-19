@@ -187,7 +187,7 @@ struct PlanEditTests {
 
     @Test func exercisesAreListedByName() throws {
         let all = try database.read { db in try Exercises.all(db) }
-        #expect(all.count == 75)
+        #expect(try all.count == Seed.bundled().exercises.count)
         // SQLite's NOCASE only folds ASCII letters, like lowercased() does for these names.
         let names = all.map { $0.name.lowercased() }
         #expect(names == names.sorted())

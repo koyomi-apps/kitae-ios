@@ -114,7 +114,7 @@ struct SchemaTests {
         _ = try KitaeDatabase(queue)
         let again = try KitaeDatabase(queue)
         let exercises = try again.read { db in try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM exercises") }
-        #expect(exercises == 75)
+        #expect(try exercises == Seed.bundled().exercises.count)
     }
 }
 
@@ -134,10 +134,12 @@ struct SeedTests {
                 try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM exercises WHERE instructions IS NOT NULL") ?? 0
             )
         }
-        #expect(count == 75)
+        // Kitae for Android's 75, then the library's later exercises with the next ids.
+        let all = try Seed.bundled().exercises.count
+        #expect(count == all)
         #expect(firstID == 1)
-        #expect(lastID == 75)
-        #expect(withSteps == 75)
+        #expect(lastID == Int64(all))
+        #expect(withSteps == all)
     }
 
     @Test func noPlanIsFollowedAtFirst() throws {

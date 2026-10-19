@@ -93,6 +93,16 @@ const PUSHUP_TOES = [-62, -20.7], PLANK_TOES = [-70, -20.7];
 const pullUpBar = [{ kind: 'post', from: [-34, -2], to: [-34, -236], width: 5 }, { kind: 'post', from: [-34, -228], to: [6, -228], width: 3 },
   { kind: 'bar', at: [6, -228] }];
 const dipLegs = { thigh: 192, shin: 238, farThigh: 186, farShin: 232 };
+// A Smith machine's rail, behind its bar from the floor up.
+const smithRail = x => ({ kind: 'post', from: [x, -2], to: [x, -204], width: 6 });
+// The point above `x` that a hand reaches with its arm `reach` long from shoulder `s`.
+const reachAbove = (s, x, reach = 61) => [r1(x), r1(s[1] - Math.sqrt(reach * reach - (x - s[0]) ** 2))];
+const inclineBench = [{ kind: 'pad', from: [-16, SEAT], to: [22, SEAT], legs: [8] }, backPad(incline, 74, 2), postDown(on(incline, 36, -22))];
+const inclinePress = { hip: [-4, -60], lean: -12, head: -4, ankle: [38, -7.4] };
+// A body straight from the ankle at `lean`, as in a push-up.
+const straightBody = (ankle, lean) => ({ hip: lineHip(ankle, lean), lean, thigh: 180 + lean, shin: 180 + lean, foot: lean });
+const DECLINE_TOES = [-70, -67.7];
+const chestDipLegs = { thigh: 200, shin: 248, farThigh: 194, farShin: 242 };
 
 // The front view: the figure facing the viewer. Standing hip height puts the feet on the floor.
 const fstand = { hip: [0, -100.2] };
@@ -613,6 +623,63 @@ const motions = [
       arm: { hand: [24, -30], elbow: 1 }, otherArm: { hand: [24, -30], elbow: 1 } },
     to: { hip: [0, -16], torsoLength: 0.8, lean: -8, thigh: 158, thighLength: 0.62, shin: 8, shinLength: 0.62,
       arm: { hand: [-24, -30], elbow: 1 }, otherArm: { hand: [-24, -30], elbow: 1 } },
+  },
+
+  // The library's chest exercises
+  {
+    key: 'decline-dumbbell-press', name: 'Decline Dumbbell Press', timing: [0.1, 0.5, 0.58, 0.95], shift: 6,
+    gear: [{ ...backPad(decline, 100, -14), legs: [-60, 4] }, { kind: 'roller', at: [52, -20] }, { kind: 'dumbbells' }],
+    from: { ...decline, arm: { hand: add(declineShoulder, [2, -60]), elbow: 1 } },
+    to: { ...decline, arm: { hand: add(on(decline, 32, 17), [-2, 2]), elbow: 1 } },
+  },
+  {
+    key: 'smith-machine-bench-press', name: 'Smith Machine Bench Press', timing: [0.1, 0.5, 0.58, 0.95], shift: 14,
+    gear: [smithRail(-38), flatBench, { kind: 'barbell' }],
+    from: { ...lie, arm: { hand: reachAbove(lieShoulder, -38), elbow: 1 } },
+    to: { ...lie, arm: { hand: [-38, -69.5], elbow: 1 } },
+  },
+  {
+    key: 'smith-machine-incline-press', name: 'Smith Machine Incline Press', timing: [0.1, 0.5, 0.58, 0.95], shift: 4,
+    gear: [smithRail(inclineChest[0]), ...inclineBench, { kind: 'barbell' }],
+    from: { ...incline, arm: { hand: reachAbove(inclineShoulder, inclineChest[0]), elbow: 1 } },
+    to: { ...incline, arm: { hand: add(inclineChest, [0, 6.5]), elbow: 1 } },
+  },
+  {
+    key: 'incline-machine-press', name: 'Incline Machine Press', timing: [0.1, 0.45, 0.55, 0.95], shift: -10,
+    gear: [{ kind: 'pad', from: [-24, -50], to: [12, -50], legs: [-6] }, backPad(inclinePress, 66, 4), { kind: 'handle' }],
+    from: { ...inclinePress, arm: { hand: add(shoulder(inclinePress), [18, -4]), elbow: 1 } },
+    to: { ...inclinePress, arm: { hand: add(shoulder(inclinePress), [44, -40]), elbow: 1 } },
+  },
+  {
+    key: 'incline-dumbbell-flyes', name: 'Incline Dumbbell Flyes', timing: [0.1, 0.5, 0.58, 0.95], shift: 4,
+    gear: [...inclineBench, { kind: 'dumbbells', profile: true }],
+    from: { ...incline, arm: { hand: add(inclineShoulder, [3, -57]), elbow: 1 } },
+    to: { ...incline, arm: { hand: add(inclineShoulder, [3, 10]), scale: 0.42, elbow: 1 } },
+  },
+  {
+    key: 'incline-push-ups', name: 'Incline Push-ups', timing: [0.1, 0.5, 0.58, 0.95], shift: -20, shadow: [10, 0], shadowWidth: 80,
+    gear: [{ kind: 'pad', from: [56, BENCH], to: [112, BENCH], legs: [66, 102] }],
+    from: { ...straightBody(PUSHUP_TOES, 51.2), arm: { hand: [63.4, -52], elbow: 1 } },
+    to: { ...straightBody(PUSHUP_TOES, 67.6), arm: { hand: [63.4, -52], elbow: 1 } },
+  },
+  {
+    key: 'decline-push-ups', name: 'Decline Push-ups', timing: [0.1, 0.5, 0.58, 0.95], shift: -8, shadow: [10, 0], shadowWidth: 80,
+    gear: [{ kind: 'pad', from: [-112, BENCH], to: [-56, BENCH], legs: [-102, -66] }],
+    from: { ...straightBody(DECLINE_TOES, 91.9), arm: { hand: [60, -5], elbow: 1 } },
+    to: { ...straightBody(DECLINE_TOES, 107.3), arm: { hand: [60, -5], elbow: 1 } },
+  },
+  {
+    key: 'chest-dips', name: 'Chest Dips', timing: [0.1, 0.48, 0.56, 0.95], zoom: 0.86, shift: 24,
+    gear: [{ kind: 'post', from: [2, -2], to: [2, -112], width: 5 }, { kind: 'bar', at: [2, -112] }],
+    from: { hip: [-24.1, -133.9], lean: 24, head: 14, ...chestDipLegs, arm: { hand: [1, -118.5], elbow: -1 } },
+    to: { hip: [-54.7, -108.5], lean: 42, head: 26, ...chestDipLegs, arm: { hand: [1, -118.5], elbow: -1 } },
+  },
+  {
+    key: 'low-to-high-cable-flyes', name: 'Low-to-High Cable Flyes', view: 'front', timing: [0.1, 0.45, 0.55, 0.95],
+    gear: [{ kind: 'post', from: [76, -2], to: [76, -206], width: 7 }, { kind: 'post', from: [-76, -2], to: [-76, -206], width: 7 },
+      { kind: 'cable', from: [76, -24], side: 1 }, { kind: 'cable', from: [-76, -24], side: -1 }],
+    from: { ...fstand, arm: { hand: [52, -88], elbow: -1 } },
+    to: { ...fstand, arm: { hand: [10, -136], elbow: -1 } },
   },
 ];
 

@@ -6,7 +6,8 @@ import GRDB
 
 /// What a new database starts with: Kitae for Android's exercises, with the same ids, and its
 /// starter plan, and the exercises of Kitae's library (see `ExerciseLibrary`). `Seed.json` is
-/// made from Kitae for Android's starter database by `scripts/make_seed.py`.
+/// made from Kitae for Android's starter database by `scripts/make_seed.py`; the library's
+/// later exercises, which have no id, are written in it by hand.
 nonisolated struct Seed: Decodable, Sendable {
     /// One of Kitae's exercises.
     nonisolated struct Exercise: Decodable, Sendable {

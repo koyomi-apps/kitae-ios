@@ -4708,5 +4708,719 @@
     "elbow": 1
    }
   }
+ },
+ {
+  "key": "decline-dumbbell-press",
+  "name": "Decline Dumbbell Press",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": 6,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -84.3,
+     -34.3
+    ],
+    "to": [
+     28.1,
+     -53.1
+    ],
+    "legs": [
+     -60,
+     4
+    ]
+   },
+   {
+    "kind": "roller",
+    "at": [
+     52,
+     -20
+    ]
+   },
+   {
+    "kind": "dumbbells"
+   }
+  ],
+  "from": {
+   "hip": [
+    12,
+    -64
+   ],
+   "lean": -100,
+   "head": -96,
+   "ankle": [
+    46,
+    -26
+   ],
+   "arm": {
+    "hand": [
+     -33.2,
+     -115.2
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    12,
+    -64
+   ],
+   "lean": -100,
+   "head": -96,
+   "ankle": [
+    46,
+    -26
+   ],
+   "arm": {
+    "hand": [
+     -24.5,
+     -73.2
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "smith-machine-bench-press",
+  "name": "Smith Machine Bench Press",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": 14,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -38,
+     -2
+    ],
+    "to": [
+     -38,
+     -204
+    ],
+    "width": 6
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -92,
+     -47
+    ],
+    "to": [
+     24,
+     -47
+    ],
+    "legs": [
+     -76,
+     8
+    ]
+   },
+   {
+    "kind": "barbell"
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -59.5
+   ],
+   "lean": -90,
+   "ankle": [
+    44,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -38,
+     -119.2
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -59.5
+   ],
+   "lean": -90,
+   "ankle": [
+    44,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -38,
+     -69.5
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "smith-machine-incline-press",
+  "name": "Smith Machine Incline Press",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": 4,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -25.2,
+     -2
+    ],
+    "to": [
+     -25.2,
+     -204
+    ],
+    "width": 6
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -16,
+     -48
+    ],
+    "to": [
+     22,
+     -48
+    ],
+    "legs": [
+     8
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -67.8,
+     -90.2
+    ],
+    "to": [
+     -9.4,
+     -48.1
+    ]
+   },
+   {
+    "kind": "post",
+    "from": [
+     -42.1,
+     -60.6
+    ],
+    "to": [
+     -42.1,
+     -2
+    ],
+    "width": 4
+   },
+   {
+    "kind": "barbell"
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -58
+   ],
+   "lean": -55,
+   "head": -45,
+   "ankle": [
+    50,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -25.2,
+     -144.4
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -58
+   ],
+   "lean": -55,
+   "head": -45,
+   "ankle": [
+    50,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -25.2,
+     -88.7
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "incline-machine-press",
+  "name": "Incline Machine Press",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -10,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -24,
+     -50
+    ],
+    "to": [
+     12,
+     -50
+    ],
+    "legs": [
+     -6
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -29.9,
+     -122
+    ],
+    "to": [
+     -18,
+     -61.1
+    ]
+   },
+   {
+    "kind": "handle"
+   }
+  ],
+  "from": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": -12,
+   "head": -4,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     3.5,
+     -110.8
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": -12,
+   "head": -4,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     29.5,
+     -146.8
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "incline-dumbbell-flyes",
+  "name": "Incline Dumbbell Flyes",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": 4,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -16,
+     -48
+    ],
+    "to": [
+     22,
+     -48
+    ],
+    "legs": [
+     8
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -67.8,
+     -90.2
+    ],
+    "to": [
+     -9.4,
+     -48.1
+    ]
+   },
+   {
+    "kind": "post",
+    "from": [
+     -42.1,
+     -60.6
+    ],
+    "to": [
+     -42.1,
+     -2
+    ],
+    "width": 4
+   },
+   {
+    "kind": "dumbbells",
+    "profile": true
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -58
+   ],
+   "lean": -55,
+   "head": -45,
+   "ankle": [
+    50,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -36.6,
+     -142.1
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -58
+   ],
+   "lean": -55,
+   "head": -45,
+   "ankle": [
+    50,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -36.6,
+     -75.1
+    ],
+    "scale": 0.42,
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "incline-push-ups",
+  "name": "Incline Push-ups",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": -20,
+  "shadow": [
+   10,
+   0
+  ],
+  "shadowWidth": 80,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     56,
+     -47
+    ],
+    "to": [
+     112,
+     -47
+    ],
+    "legs": [
+     66,
+     102
+    ]
+   }
+  ],
+  "from": {
+   "hip": [
+    10.6,
+    -79.1
+   ],
+   "lean": 51.2,
+   "thigh": 231.2,
+   "shin": 231.2,
+   "foot": 51.2,
+   "arm": {
+    "hand": [
+     63.4,
+     -52
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    24.2,
+    -56.2
+   ],
+   "lean": 67.6,
+   "thigh": 247.6,
+   "shin": 247.6,
+   "foot": 67.6,
+   "arm": {
+    "hand": [
+     63.4,
+     -52
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "decline-push-ups",
+  "name": "Decline Push-ups",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": -8,
+  "shadow": [
+   10,
+   0
+  ],
+  "shadowWidth": 80,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -112,
+     -47
+    ],
+    "to": [
+     -56,
+     -47
+    ],
+    "legs": [
+     -102,
+     -66
+    ]
+   }
+  ],
+  "from": {
+   "hip": [
+    23.1,
+    -64.6
+   ],
+   "lean": 91.9,
+   "thigh": 271.9,
+   "shin": 271.9,
+   "foot": 91.9,
+   "arm": {
+    "hand": [
+     60,
+     -5
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    19,
+    -40
+   ],
+   "lean": 107.3,
+   "thigh": 287.3,
+   "shin": 287.3,
+   "foot": 107.3,
+   "arm": {
+    "hand": [
+     60,
+     -5
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "chest-dips",
+  "name": "Chest Dips",
+  "timing": [
+   0.1,
+   0.48,
+   0.56,
+   0.95
+  ],
+  "zoom": 0.86,
+  "shift": 24,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     2,
+     -2
+    ],
+    "to": [
+     2,
+     -112
+    ],
+    "width": 5
+   },
+   {
+    "kind": "bar",
+    "at": [
+     2,
+     -112
+    ]
+   }
+  ],
+  "from": {
+   "hip": [
+    -24.1,
+    -133.9
+   ],
+   "lean": 24,
+   "head": 14,
+   "thigh": 200,
+   "shin": 248,
+   "farThigh": 194,
+   "farShin": 242,
+   "arm": {
+    "hand": [
+     1,
+     -118.5
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -54.7,
+    -108.5
+   ],
+   "lean": 42,
+   "head": 26,
+   "thigh": 200,
+   "shin": 248,
+   "farThigh": 194,
+   "farShin": 242,
+   "arm": {
+    "hand": [
+     1,
+     -118.5
+    ],
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "low-to-high-cable-flyes",
+  "name": "Low-to-High Cable Flyes",
+  "view": "front",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     76,
+     -2
+    ],
+    "to": [
+     76,
+     -206
+    ],
+    "width": 7
+   },
+   {
+    "kind": "post",
+    "from": [
+     -76,
+     -2
+    ],
+    "to": [
+     -76,
+     -206
+    ],
+    "width": 7
+   },
+   {
+    "kind": "cable",
+    "from": [
+     76,
+     -24
+    ],
+    "side": 1
+   },
+   {
+    "kind": "cable",
+    "from": [
+     -76,
+     -24
+    ],
+    "side": -1
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -100.2
+   ],
+   "arm": {
+    "hand": [
+     52,
+     -88
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -100.2
+   ],
+   "arm": {
+    "hand": [
+     10,
+     -136
+    ],
+    "elbow": -1
+   }
+  }
  }
 ]

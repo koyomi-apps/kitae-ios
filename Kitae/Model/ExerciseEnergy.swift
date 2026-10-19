@@ -48,8 +48,9 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
     private static let legMachine = 0.008
     private static let core = 0.008
 
-    /// Each of Kitae's exercises', by its library key. Dumbbells are counted as a pair at the
-    /// weight of one, as people log them, and a side at a time as both sides done.
+    /// Each of Kitae's exercises', by its library key: the starters, then the library's later
+    /// ones. Dumbbells are counted as a pair at the weight of one, as people log them, and a side
+    /// at a time as both sides done.
     static let starters: [String: ExerciseEnergy] = [
         "dumbbell-curls": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Curls
         "barbell-curls": .init(perKilogram: arms, bodyShare: 0.02), // Barbell Curls
@@ -126,6 +127,18 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         "russian-twists": .init(perKilogram: 0.004, bodyShare: 0.3), // Russian Twists
         "hanging-leg-raises": .init(perKilogram: 0.012, bodyShare: 0.35), // Hanging Leg Raises
         "ab-wheel-rollouts": .init(perKilogram: 0.011, bodyShare: 0.55), // Ab Wheel Rollouts
+        // The library's later exercises.
+        "decline-dumbbell-press": .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Decline Dumbbell Press
+        "smith-machine-bench-press": .init(perKilogram: arms, bodyShare: 0.05), // Smith Machine Bench Press
+        "smith-machine-incline-press": .init(perKilogram: arms, bodyShare: 0.05), // Smith Machine Incline Press
+        "incline-machine-press": .init(perKilogram: arms, bodyShare: 0.05), // Incline Machine Press
+        "incline-dumbbell-flyes": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Incline Dumbbell Flyes
+        "low-to-high-cable-flyes": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Low-to-High Cable Flyes
+        // Hands or feet raised a bench's height: about 48% or 72% of the body's weight on the
+        // hands, from Ebben et al. (2011), who measured 64% in a push-up on the floor.
+        "incline-push-ups": .init(perKilogram: 0.014, bodyShare: 0.48), // Incline Push-ups
+        "decline-push-ups": .init(perKilogram: 0.014, bodyShare: 0.72), // Decline Push-ups
+        "chest-dips": .init(perKilogram: arms, bodyShare: 0.95), // Chest Dips
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

@@ -6,8 +6,9 @@
 Kitae for Android ships its exercises and its starter plan in app/src/main/assets/kenko.db.
 Kitae for iPhone starts from the same exercises, with the same ids, and the same plan, so
 both apps begin alike. The plan's description is left out: it's text from Kenko, and
-Kitae for iPhone doesn't include Kenko's work. Run this again when the Android app's
-starter data changes:
+Kitae for iPhone doesn't include Kenko's work. The exercises Kitae's library adds after the
+starters have no id and aren't in Android's database: they're written in Seed.json by hand,
+and this keeps them. Run this again when the Android app's starter data changes:
 
     python3 scripts/make_seed.py path/to/kitae/app/src/main/assets/kenko.db
 """
@@ -163,6 +164,10 @@ def main() -> None:
         plans.append(entry)
 
     out = Path(__file__).resolve().parent.parent / "Kitae" / "Database" / "Seed.json"
+    # Kitae's library: the exercises after the starters, which Kitae for Android's database
+    # doesn't have. They're written in Seed.json by hand, without ids, and kept as they are.
+    if out.exists():
+        exercises += [e for e in json.loads(out.read_text())["exercises"] if "id" not in e]
     out.write_text(json.dumps({"exercises": exercises, "plans": plans}, indent=1, ensure_ascii=False) + "\n")
     print(f"{out}: {len(exercises)} exercises, {len(plans)} plans")
 

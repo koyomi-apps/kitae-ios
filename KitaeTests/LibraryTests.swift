@@ -20,31 +20,36 @@ struct LibraryTests {
         try database.read { db in try Int.fetchOne(db, sql: sql) ?? 0 }
     }
 
-    private let landminePress = Seed.Exercise(
-        id: nil, key: "landmine-press", name: "Landmine Press", target: "Shoulders", isIsometric: false,
-        usesWeight: true, instructions: "Hold the end of the bar at your shoulder.\nPress it up and forward."
+    /// An exercise a later version could bring, made up so it's never one of Kitae's own.
+    private let examplePress = Seed.Exercise(
+        id: nil, key: "example-press", name: "Example Press", target: "Shoulders", isIsometric: false,
+        usesWeight: true, instructions: "Hold the handle at your shoulder.\nPress it up and forward."
     )
 
-    @Test func theStarterExercisesHaveTheirKeys() throws {
+    @Test func kitaesExercisesHaveTheirKeys() throws {
         let database = try KitaeDatabase.inMemory()
-        let starters = try Seed.bundled().starterKeys
-        #expect(starters.count == 75)
-        #expect(try keys(database) == starters)
+        let seed = try Seed.bundled()
+        let all = Set(seed.exercises.map(\.key))
+        let starters = seed.starterKeys
+        #expect(starters.count == 75 && all.count == seed.exercises.count)
+        // The starters have Kitae for Android's ids, and the library's later exercises the next ones.
+        let keys = try keys(database)
+        #expect(keys.filter { $0.key <= 75 } == starters)
+        #expect(Set(keys.values) == all && keys.count == all.count)
         #expect(try database.read { db in try Exercises.exercise(db, id: 21) }?.libraryKey == "barbell-bench-press")
         let given = try database.read { db in try String.fetchAll(db, sql: "SELECT key FROM exercise_library") }
-        #expect(Set(given) == Set(starters.values))
+        #expect(Set(given) == all)
         // Sit-ups and the other exercises done with the body alone don't use weight, and the
         // starter plan doesn't give their sets any.
         let weightless = try database.read { db in try String.fetchAll(db, sql: "SELECT libraryKey FROM exercises WHERE usesWeight = 0") }
-        #expect(try Set(weightless) == Seed.bundled().weightlessKeys && weightless.count == 13 && weightless.contains("sit-ups"))
+        #expect(Set(weightless) == seed.weightlessKeys && weightless.contains("sit-ups"))
         #expect(try count(database, """
             SELECT COUNT(*) FROM routine_sets
             JOIN routine_exercises ON routine_exercises.id = routine_sets.routineExerciseId
             JOIN exercises ON exercises.id = routine_exercises.exerciseId
             WHERE exercises.usesWeight = 0 AND routine_sets.weight > 0
             """) == 0)
-        // Every animation, muscle map and energy belongs to one of them.
-        let all = Set(starters.values)
+        // Each of them has its animation, muscle map and energy.
         #expect(Set(ExerciseMotions.byKey.keys) == all)
         #expect(Set(ExerciseMuscles.byKey.keys) == all)
         #expect(Set(ExerciseEnergy.starters.keys) == all)
@@ -57,9 +62,10 @@ struct LibraryTests {
             // Leg Press was deleted, Curls renamed, and someone made an exercise of their own.
             try db.execute(sql: "DELETE FROM exercises WHERE id = 12")
             try db.execute(sql: "UPDATE exercises SET name = 'Dumbbell Curls' WHERE id = 1")
-            try db.execute(sql: "INSERT INTO exercises (name, target, isIsometric) VALUES ('Landmine Press', 'Shoulders', 0)")
+            try db.execute(sql: "INSERT INTO exercises (name, target, isIsometric) VALUES ('Example Press', 'Shoulders', 0)")
         }
         let database = try KitaeDatabase(queue)
+        let seed = try Seed.bundled()
         let (version, hash, index) = try database.read { db in
             (
                 try Int.fetchOne(db, sql: "PRAGMA user_version"),
@@ -69,15 +75,16 @@ struct LibraryTests {
         }
         #expect(version == Schema.version && hash == Schema.identityHash && index == 1)
         let keys = try keys(database)
-        #expect(keys[1] == "dumbbell-curls" && keys[12] == nil && keys.count == 74)
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE usesWeight = 0") == 13)
-        // Leg Press stays deleted, and the exercise people made stays theirs.
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises") == 75)
-        #expect(try count(database, "SELECT COUNT(*) FROM exercise_library") == 75)
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE name = 'Landmine Press' AND libraryKey IS NULL") == 1)
+        // Leg Press stays deleted, and the library's later exercises arrive.
+        #expect(keys[1] == "dumbbell-curls" && keys[12] == nil && keys.count == seed.exercises.count - 1)
+        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE usesWeight = 0") == seed.weightlessKeys.count)
+        #expect(try count(database, "SELECT COUNT(*) FROM exercises") == seed.exercises.count)
+        #expect(try count(database, "SELECT COUNT(*) FROM exercise_library") == seed.exercises.count)
+        // The exercise people made stays theirs.
+        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE name = 'Example Press' AND libraryKey IS NULL") == 1)
         // Opening it again changes nothing.
         _ = try KitaeDatabase(queue)
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises") == 75)
+        #expect(try count(database, "SELECT COUNT(*) FROM exercises") == seed.exercises.count)
     }
 
     @Test func aVersion9DatabaseLearnsWhichExercisesUseWeight() throws {
@@ -112,26 +119,27 @@ struct LibraryTests {
 
     @Test func exercisesALaterVersionBringsArriveOnce() throws {
         let database = try KitaeDatabase.inMemory()
-        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [landminePress]) } == 1)
+        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [examplePress]) } == 1)
         let added = try #require(try database.read { db in
-            try Row.fetchOne(db, sql: "SELECT * FROM exercises WHERE libraryKey = 'landmine-press'").map(Exercise.init(row:))
+            try Row.fetchOne(db, sql: "SELECT * FROM exercises WHERE libraryKey = 'example-press'").map(Exercise.init(row:))
         })
-        #expect(added.id > 75 && added.name == "Landmine Press" && added.steps.count == 2)
+        #expect(try added.id == Int64(Seed.bundled().exercises.count + 1))
+        #expect(added.name == "Example Press" && added.steps.count == 2)
         // Once deleted, it doesn't come back.
         try database.write { db in try Exercises.delete(db, id: added.id) }
-        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [landminePress]) } == 0)
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE name = 'Landmine Press'") == 0)
+        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [examplePress]) } == 0)
+        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE name = 'Example Press'") == 0)
     }
 
     @Test func anExerciseWithItsNameBecomesKitaes() throws {
         let database = try KitaeDatabase.inMemory()
         let id = try database.write { db in
-            try Exercises.create(db, ExerciseDraft(name: "landmine press", muscle: .shoulders))
+            try Exercises.create(db, ExerciseDraft(name: "example press", muscle: .shoulders))
         }
-        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [landminePress]) } == 0)
+        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [examplePress]) } == 0)
         let exercise = try #require(try database.read { db in try Exercises.exercise(db, id: id) })
-        #expect(exercise.libraryKey == "landmine-press" && exercise.name == "landmine press")
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises") == 76)
+        #expect(exercise.libraryKey == "example-press" && exercise.name == "example press")
+        #expect(try count(database, "SELECT COUNT(*) FROM exercises") == Seed.bundled().exercises.count + 1)
     }
 
     @Test func aVersion8BackupIsBroughtUpToDate() throws {
@@ -148,6 +156,6 @@ struct LibraryTests {
         let target = try KitaeDatabase.inMemory()
         _ = try Backups.restore(from: zip, into: target)
         #expect(try count(target, "PRAGMA user_version") == Schema.version)
-        #expect(try keys(target) == Seed.bundled().starterKeys)
+        #expect(try keys(target).filter { $0.key <= 75 } == Seed.bundled().starterKeys)
     }
 }

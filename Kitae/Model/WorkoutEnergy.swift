@@ -6,6 +6,8 @@ import Foundation
 /// A done set, as a workout's energy estimate needs it.
 nonisolated struct DoneSet: Hashable, Sendable {
     var exerciseID: Int64
+    /// The exercise's library key, when it's one of Kitae's.
+    var libraryKey: String?
     /// The exercise's muscle group, as it's stored, like "Chest".
     var target: String
     var isIsometric: Bool
@@ -47,7 +49,7 @@ nonisolated enum WorkoutEnergy {
         guard !sets.isEmpty, bodyKg > 0 else { return 0 }
         let scale = Self.reach(heightCm: heightCm)
         let lifting = sets.reduce(0.0) { total, set in
-            let energy = ExerciseEnergy.of(exerciseID: set.exerciseID, target: set.target, isIsometric: set.isIsometric)
+            let energy = ExerciseEnergy.of(key: set.libraryKey, target: set.target, isIsometric: set.isIsometric)
             let cost = energy.kilocalories(reps: set.reps, weightKg: set.weightKg, bodyKg: bodyKg, reach: scale)
             return total + cost * set.type.energyFactor
         }
@@ -97,8 +99,8 @@ nonisolated extension WorkoutExercise {
     /// Its done sets, for the energy estimate.
     var doneSets: [DoneSet] {
         sets.filter(\.isDone).map {
-            DoneSet(exerciseID: exercise.id, target: exercise.target, isIsometric: exercise.isIsometric,
-                    reps: $0.reps, weightKg: $0.weightKg, type: $0.type)
+            DoneSet(exerciseID: exercise.id, libraryKey: exercise.libraryKey, target: exercise.target,
+                    isIsometric: exercise.isIsometric, reps: $0.reps, weightKg: $0.weightKg, type: $0.type)
         }
     }
 }

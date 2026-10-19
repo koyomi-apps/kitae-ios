@@ -48,90 +48,90 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
     private static let legMachine = 0.008
     private static let core = 0.008
 
-    /// Each starter exercise's, by its id. Dumbbells are counted as a pair at the weight of one,
-    /// as people log them, and a side at a time as both sides done.
-    static let starters: [Int64: ExerciseEnergy] = [
-        1: .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Curls
-        2: .init(perKilogram: arms, bodyShare: 0.02), // Barbell Curls
-        3: .init(perKilogram: arms, bodyShare: 0.02), // Preacher Curls
-        4: .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Incline Bicep Curls
-        5: .init(perKilogram: arms, bodyShare: 0.02), // Tricep Push Down
-        6: .init(perKilogram: arms, bodyShare: 0.02), // Skull-Crushers
-        7: .init(perKilogram: arms, bodyShare: 0.02), // Overhead Extensions
-        8: .init(perKilogram: raise, bodyShare: 0.03, loadFactor: 2), // Lateral Raises
-        9: .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Shoulder Press
-        10: .init(perKilogram: arms, bodyShare: 0.03), // Face Pulls
-        11: .init(perKilogram: squat, bodyShare: 0.85), // Squats
-        12: .init(perKilogram: squat, bodyShare: 0.15, loadFactor: 0.7), // Leg Press
-        13: .init(perKilogram: squat, bodyShare: 0.7, loadFactor: 0.7), // Hack Squats
-        14: .init(perKilogram: hinge, bodyShare: 0.55), // Stiff Legged Deadlift
-        15: .init(perKilogram: legMachine, bodyShare: 0.1), // Lying Leg Curls
-        16: .init(perKilogram: calf, bodyShare: 1), // Calf Raises
-        17: .init(perKilogram: 0.007, bodyShare: 0.4), // Hip Thrusts
-        18: .init(perKilogram: squat, bodyShare: 0.85, loadFactor: 2), // Lunges
-        19: .init(perKilogram: core, bodyShare: 0.5), // Sit-ups
-        20: .init(perKilogram: core, bodyShare: 0.3), // Leg Raises
-        21: .init(perKilogram: arms, bodyShare: 0.05), // Bench Press
-        22: .init(perKilogram: arms, bodyShare: 0.05), // Incline Bench
-        23: .init(perKilogram: arms, bodyShare: 0.02), // Pec Dec
-        24: .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Chest Fly
-        25: .init(perKilogram: 0.007, bodyShare: 0, loadFactor: 2), // Shrugs
-        26: .init(perKilogram: arms, bodyShare: 0.05), // Lat Pull-down
-        27: .init(perKilogram: arms, bodyShare: 0.95), // Pull-ups
-        28: .init(perKilogram: arms, bodyShare: 0.1), // Lat Prayers
-        29: .init(perKilogram: arms, bodyShare: 0.1), // Bent-over Rows
-        30: .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Chest-Supported Rows
-        31: .init(perKilogram: legMachine, bodyShare: 0.05), // Leg Extensions
-        32: .init(perKilogram: arms, bodyShare: 0.01, sides: 2), // Behind-the-Back Bicep Curls
-        33: .init(perKilogram: squat, bodyShare: 0.85), // Smith-Squats
-        34: .init(perKilogram: raise, bodyShare: 0.015, sides: 2), // Cable Lateral Raises
-        35: .init(perKilogram: arms, bodyShare: 0.04), // Upright Rows
-        36: .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Dumbbell Bench Press
-        37: .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Incline Dumbbell Press
-        38: .init(perKilogram: arms, bodyShare: 0.05), // Decline Bench Press
-        39: .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Cable Crossovers
-        40: .init(perKilogram: 0.014, bodyShare: 0.64), // Push-ups
-        41: .init(perKilogram: arms, bodyShare: 0.05), // Machine Chest Press
-        42: .init(perKilogram: arms, bodyShare: 0.95), // Chin-ups
-        43: .init(perKilogram: arms, bodyShare: 0.05), // Straight-Arm Pulldowns
-        44: .init(perKilogram: arms, bodyShare: 0.05), // Seated Cable Rows
-        45: .init(perKilogram: arms, bodyShare: 0.05, sides: 2), // Single-Arm Dumbbell Rows
-        46: .init(perKilogram: arms, bodyShare: 0.1), // T-Bar Rows
-        47: .init(perKilogram: 0.0124, bodyShare: 0.6), // Deadlift
-        48: .init(perKilogram: arms, bodyShare: 0.05), // Overhead Press
-        49: .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Arnold Press
-        50: .init(perKilogram: raise, bodyShare: 0.03, loadFactor: 2), // Front Raises
-        51: .init(perKilogram: raise, bodyShare: 0.03, loadFactor: 2), // Rear Delt Flyes
-        52: .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Hammer Curls
-        53: .init(perKilogram: arms, bodyShare: 0.02), // Cable Curls
-        54: .init(perKilogram: arms, bodyShare: 0.01, sides: 2), // Concentration Curls
-        55: .init(perKilogram: arms, bodyShare: 0.95), // Dips
-        56: .init(perKilogram: arms, bodyShare: 0.05), // Close-Grip Bench Press
-        57: .init(perKilogram: arms, bodyShare: 0.01, sides: 2), // Tricep Kickbacks
-        58: .init(perKilogram: squat, bodyShare: 0.85), // Front Squats
-        59: .init(perKilogram: squat, bodyShare: 0.8, loadFactor: 2, sides: 2), // Bulgarian Split Squats
-        60: .init(perKilogram: squat, bodyShare: 0.85), // Goblet Squats
-        61: .init(perKilogram: 0, bodyShare: 0, holdMETs: 3.5), // Wall Sit
-        62: .init(perKilogram: hinge, bodyShare: 0.55), // Romanian Deadlift
-        63: .init(perKilogram: legMachine, bodyShare: 0.05), // Seated Leg Curls
-        64: .init(perKilogram: hinge, bodyShare: 0.55), // Good Mornings
-        65: .init(perKilogram: 0.007, bodyShare: 0.4), // Glute Bridges
-        66: .init(perKilogram: arms, bodyShare: 0.15, sides: 2), // Cable Kickbacks
-        67: .init(perKilogram: 0.006, bodyShare: 0), // Hip Abductions
-        68: .init(perKilogram: calf, bodyShare: 0), // Seated Calf Raises
-        69: .init(perKilogram: 0, bodyShare: 0, holdMETs: 3.5), // Plank
-        70: .init(perKilogram: 0, bodyShare: 0, sides: 2, holdMETs: 3), // Side Plank
-        71: .init(perKilogram: 0.006, bodyShare: 0.35), // Crunches
-        72: .init(perKilogram: 0.006, bodyShare: 0.35), // Cable Crunches
-        73: .init(perKilogram: 0.004, bodyShare: 0.3), // Russian Twists
-        74: .init(perKilogram: 0.012, bodyShare: 0.35), // Hanging Leg Raises
-        75: .init(perKilogram: 0.011, bodyShare: 0.55), // Ab Wheel Rollouts
+    /// Each of Kitae's exercises', by its library key. Dumbbells are counted as a pair at the
+    /// weight of one, as people log them, and a side at a time as both sides done.
+    static let starters: [String: ExerciseEnergy] = [
+        "dumbbell-curls": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Curls
+        "barbell-curls": .init(perKilogram: arms, bodyShare: 0.02), // Barbell Curls
+        "ez-bar-preacher-curls": .init(perKilogram: arms, bodyShare: 0.02), // Preacher Curls
+        "incline-dumbbell-curls": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Incline Bicep Curls
+        "tricep-pushdowns": .init(perKilogram: arms, bodyShare: 0.02), // Tricep Push Down
+        "ez-bar-skull-crushers": .init(perKilogram: arms, bodyShare: 0.02), // Skull-Crushers
+        "dumbbell-overhead-tricep-extensions": .init(perKilogram: arms, bodyShare: 0.02), // Overhead Extensions
+        "dumbbell-lateral-raises": .init(perKilogram: raise, bodyShare: 0.03, loadFactor: 2), // Lateral Raises
+        "dumbbell-shoulder-press": .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Shoulder Press
+        "face-pulls": .init(perKilogram: arms, bodyShare: 0.03), // Face Pulls
+        "barbell-back-squats": .init(perKilogram: squat, bodyShare: 0.85), // Squats
+        "leg-press": .init(perKilogram: squat, bodyShare: 0.15, loadFactor: 0.7), // Leg Press
+        "hack-squats": .init(perKilogram: squat, bodyShare: 0.7, loadFactor: 0.7), // Hack Squats
+        "barbell-stiff-legged-deadlift": .init(perKilogram: hinge, bodyShare: 0.55), // Stiff Legged Deadlift
+        "lying-leg-curls": .init(perKilogram: legMachine, bodyShare: 0.1), // Lying Leg Curls
+        "standing-calf-raises": .init(perKilogram: calf, bodyShare: 1), // Calf Raises
+        "barbell-hip-thrusts": .init(perKilogram: 0.007, bodyShare: 0.4), // Hip Thrusts
+        "dumbbell-lunges": .init(perKilogram: squat, bodyShare: 0.85, loadFactor: 2), // Lunges
+        "sit-ups": .init(perKilogram: core, bodyShare: 0.5), // Sit-ups
+        "lying-leg-raises": .init(perKilogram: core, bodyShare: 0.3), // Leg Raises
+        "barbell-bench-press": .init(perKilogram: arms, bodyShare: 0.05), // Bench Press
+        "barbell-incline-bench-press": .init(perKilogram: arms, bodyShare: 0.05), // Incline Bench
+        "pec-deck": .init(perKilogram: arms, bodyShare: 0.02), // Pec Dec
+        "dumbbell-flyes": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Chest Fly
+        "dumbbell-shrugs": .init(perKilogram: 0.007, bodyShare: 0, loadFactor: 2), // Shrugs
+        "lat-pulldowns": .init(perKilogram: arms, bodyShare: 0.05), // Lat Pull-down
+        "pull-ups": .init(perKilogram: arms, bodyShare: 0.95), // Pull-ups
+        "lat-prayers": .init(perKilogram: arms, bodyShare: 0.1), // Lat Prayers
+        "barbell-bent-over-rows": .init(perKilogram: arms, bodyShare: 0.1), // Bent-over Rows
+        "chest-supported-dumbbell-rows": .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Chest-Supported Rows
+        "leg-extensions": .init(perKilogram: legMachine, bodyShare: 0.05), // Leg Extensions
+        "behind-the-back-cable-curls": .init(perKilogram: arms, bodyShare: 0.01, sides: 2), // Behind-the-Back Bicep Curls
+        "smith-machine-squats": .init(perKilogram: squat, bodyShare: 0.85), // Smith-Squats
+        "cable-lateral-raises": .init(perKilogram: raise, bodyShare: 0.015, sides: 2), // Cable Lateral Raises
+        "barbell-upright-rows": .init(perKilogram: arms, bodyShare: 0.04), // Upright Rows
+        "dumbbell-bench-press": .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Dumbbell Bench Press
+        "incline-dumbbell-press": .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Incline Dumbbell Press
+        "barbell-decline-bench-press": .init(perKilogram: arms, bodyShare: 0.05), // Decline Bench Press
+        "cable-crossovers": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Cable Crossovers
+        "push-ups": .init(perKilogram: 0.014, bodyShare: 0.64), // Push-ups
+        "machine-chest-press": .init(perKilogram: arms, bodyShare: 0.05), // Machine Chest Press
+        "chin-ups": .init(perKilogram: arms, bodyShare: 0.95), // Chin-ups
+        "straight-arm-pulldowns": .init(perKilogram: arms, bodyShare: 0.05), // Straight-Arm Pulldowns
+        "seated-cable-rows": .init(perKilogram: arms, bodyShare: 0.05), // Seated Cable Rows
+        "single-arm-dumbbell-rows": .init(perKilogram: arms, bodyShare: 0.05, sides: 2), // Single-Arm Dumbbell Rows
+        "t-bar-rows": .init(perKilogram: arms, bodyShare: 0.1), // T-Bar Rows
+        "barbell-deadlift": .init(perKilogram: 0.0124, bodyShare: 0.6), // Deadlift
+        "barbell-overhead-press": .init(perKilogram: arms, bodyShare: 0.05), // Overhead Press
+        "arnold-press": .init(perKilogram: arms, bodyShare: 0.05, loadFactor: 2), // Arnold Press
+        "dumbbell-front-raises": .init(perKilogram: raise, bodyShare: 0.03, loadFactor: 2), // Front Raises
+        "dumbbell-rear-delt-flyes": .init(perKilogram: raise, bodyShare: 0.03, loadFactor: 2), // Rear Delt Flyes
+        "hammer-curls": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Hammer Curls
+        "cable-curls": .init(perKilogram: arms, bodyShare: 0.02), // Cable Curls
+        "concentration-curls": .init(perKilogram: arms, bodyShare: 0.01, sides: 2), // Concentration Curls
+        "dips": .init(perKilogram: arms, bodyShare: 0.95), // Dips
+        "close-grip-bench-press": .init(perKilogram: arms, bodyShare: 0.05), // Close-Grip Bench Press
+        "dumbbell-tricep-kickbacks": .init(perKilogram: arms, bodyShare: 0.01, sides: 2), // Tricep Kickbacks
+        "barbell-front-squats": .init(perKilogram: squat, bodyShare: 0.85), // Front Squats
+        "dumbbell-bulgarian-split-squats": .init(perKilogram: squat, bodyShare: 0.8, loadFactor: 2, sides: 2), // Bulgarian Split Squats
+        "goblet-squats": .init(perKilogram: squat, bodyShare: 0.85), // Goblet Squats
+        "wall-sit": .init(perKilogram: 0, bodyShare: 0, holdMETs: 3.5), // Wall Sit
+        "barbell-romanian-deadlift": .init(perKilogram: hinge, bodyShare: 0.55), // Romanian Deadlift
+        "seated-leg-curls": .init(perKilogram: legMachine, bodyShare: 0.05), // Seated Leg Curls
+        "good-mornings": .init(perKilogram: hinge, bodyShare: 0.55), // Good Mornings
+        "glute-bridges": .init(perKilogram: 0.007, bodyShare: 0.4), // Glute Bridges
+        "cable-glute-kickbacks": .init(perKilogram: arms, bodyShare: 0.15, sides: 2), // Cable Kickbacks
+        "machine-hip-abductions": .init(perKilogram: 0.006, bodyShare: 0), // Hip Abductions
+        "seated-calf-raises": .init(perKilogram: calf, bodyShare: 0), // Seated Calf Raises
+        "plank": .init(perKilogram: 0, bodyShare: 0, holdMETs: 3.5), // Plank
+        "side-plank": .init(perKilogram: 0, bodyShare: 0, sides: 2, holdMETs: 3), // Side Plank
+        "crunches": .init(perKilogram: 0.006, bodyShare: 0.35), // Crunches
+        "cable-crunches": .init(perKilogram: 0.006, bodyShare: 0.35), // Cable Crunches
+        "russian-twists": .init(perKilogram: 0.004, bodyShare: 0.3), // Russian Twists
+        "hanging-leg-raises": .init(perKilogram: 0.012, bodyShare: 0.35), // Hanging Leg Raises
+        "ab-wheel-rollouts": .init(perKilogram: 0.011, bodyShare: 0.55), // Ab Wheel Rollouts
     ]
 
-    /// A starter exercise's own, or for people's own exercises, one for their muscle group, or
-    /// a hold for isometric ones.
-    static func of(exerciseID: Int64, target: String, isIsometric: Bool) -> ExerciseEnergy {
-        if let starter = starters[exerciseID] { return starter }
+    /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,
+    /// or a hold for isometric ones.
+    static func of(key: String?, target: String, isIsometric: Bool) -> ExerciseEnergy {
+        if let key, let starter = starters[key] { return starter }
         if isIsometric { return ExerciseEnergy(perKilogram: 0, bodyShare: 0, holdMETs: 3.5) }
         switch MuscleGroup(rawValue: target) {
         case .biceps, .triceps: return ExerciseEnergy(perKilogram: arms, bodyShare: 0.02)

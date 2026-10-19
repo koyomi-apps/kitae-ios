@@ -215,7 +215,7 @@ nonisolated extension Sessions {
     static func doneSets(_ db: Database, from first: Int, to last: Int) throws -> [Int64: [DoneSet]] {
         let rows = try Row.fetchAll(db, sql: """
             SELECT `sets`.`sessionId`, `sets`.`reps`, `sets`.`weight`, `sets`.`type`,
-            `exercises`.`id` AS `exerciseId`, `exercises`.`target`, `exercises`.`isIsometric`
+            `exercises`.`id` AS `exerciseId`, `exercises`.`libraryKey`, `exercises`.`target`, `exercises`.`isIsometric`
             FROM `sets`
             JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
             JOIN `exercises` ON `exercises`.`id` = `sets`.`exerciseId`
@@ -226,6 +226,7 @@ nonisolated extension Sessions {
         for row in rows {
             sets[row["sessionId"], default: []].append(DoneSet(
                 exerciseID: row["exerciseId"],
+                libraryKey: row["libraryKey"],
                 target: row["target"],
                 isIsometric: row["isIsometric"],
                 reps: row["reps"],

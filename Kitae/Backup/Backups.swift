@@ -187,7 +187,8 @@ nonisolated enum Backups {
     }
 
     /// Takes in the log Kitae for Android may have left next to its database, and checks the
-    /// database is Kitae's, at the version this app has, and not damaged.
+    /// database is Kitae's, at a version this app can open (an older one is brought up to date
+    /// once it's restored), and not damaged.
     private static func check(_ file: URL) throws {
         do {
             let queue = try DatabaseQueue(path: file.path)
@@ -198,10 +199,10 @@ nonisolated enum Backups {
             try queue.read { db in
                 guard try db.tableExists("room_master_table") else { throw BackupError.notKitae }
                 let version = try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0
-                if version < Schema.version { throw BackupError.olderVersion }
+                if version < Schema.oldestVersion { throw BackupError.olderVersion }
                 if version > Schema.version { throw BackupError.newerVersion }
                 let hash = try String.fetchOne(db, sql: "SELECT identity_hash FROM room_master_table WHERE id = 42")
-                guard hash == Schema.identityHash else { throw BackupError.notKitae }
+                guard hash == Schema.identityHashes[version] else { throw BackupError.notKitae }
                 guard try String.fetchOne(db, sql: "PRAGMA quick_check") == "ok" else { throw BackupError.damaged }
             }
         } catch let error as DatabaseError where error.resultCode == .SQLITE_NOTADB {

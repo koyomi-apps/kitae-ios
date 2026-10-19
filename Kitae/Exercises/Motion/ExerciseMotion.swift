@@ -134,17 +134,18 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
 
 /// An exercise's animation: two keyframes of the figure and the gear it uses, read from
 /// ExerciseMotions.json, and the muscles of the exercise's muscle map. Most are drawn from the
-/// side; movements out to the sides (`view` "front") face the viewer. They're keyed by the ids of
-/// the exercises Kitae starts with, which are the same as Kitae for Android's and are never given
-/// to another exercise. scripts/motions makes the file and draws it as pictures for checking.
+/// side; movements out to the sides (`view` "front") face the viewer. They're keyed by the
+/// exercises' library keys (`Exercise.libraryKey`), which never change. scripts/motions makes the
+/// file and draws it as pictures for checking.
 nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
     nonisolated enum Keyframes: Sendable {
         case side(FigurePose, FigurePose)
         case front(FrontPose, FrontPose)
     }
 
-    /// The id of the exercise it shows.
-    var id: Int
+    /// The library key of the exercise it shows.
+    var key: String
+    var id: String { key }
     /// The exercise's name as Kitae starts with it, to make the file easier to read.
     var name: String
     var keyframes: Keyframes
@@ -166,12 +167,12 @@ nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
     var shadowWidth: Double
 
     nonisolated private enum Keys: String, CodingKey {
-        case id, name, view, legsFront, gear, timing, seconds, shift, zoom, shadow, shadowWidth, from, to
+        case key, name, view, legsFront, gear, timing, seconds, shift, zoom, shadow, shadowWidth, from, to
     }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
-        id = try c.decode(Int.self, forKey: .id)
+        key = try c.decode(String.self, forKey: .key)
         name = try c.decode(String.self, forKey: .name)
         if try c.decodeIfPresent(String.self, forKey: .view) == "front" {
             keyframes = .front(try c.decode(FrontPose.self, forKey: .from), try c.decode(FrontPose.self, forKey: .to))
@@ -199,7 +200,7 @@ nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
 
     /// The muscles the figure shades, from the exercise's muscle map.
     var muscles: FigureMuscles {
-        FigureMuscles(ExerciseMuscles.byID[Int64(id)])
+        FigureMuscles(ExerciseMuscles.byKey[key])
     }
 }
 
@@ -238,20 +239,25 @@ nonisolated struct FigureMuscles: Equatable, Sendable {
 }
 
 nonisolated enum ExerciseMotions {
-    /// The animations, by exercise id.
-    static let byID: [Int: ExerciseMotion] = {
+    /// The animations, in the file's order.
+    static let all: [ExerciseMotion] = {
         guard let url = Bundle.main.url(forResource: "ExerciseMotions", withExtension: "json"),
               let data = try? Data(contentsOf: url),
-              let list = try? decode(data) else { return [:] }
-        return Dictionary(list.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+              let list = try? decode(data) else { return [] }
+        return list
     }()
+
+    /// The animations, by library key.
+    static let byKey: [String: ExerciseMotion] = Dictionary(
+        all.map { ($0.key, $0) }, uniquingKeysWith: { first, _ in first }
+    )
 
     static func decode(_ data: Data) throws -> [ExerciseMotion] {
         try JSONDecoder().decode([ExerciseMotion].self, from: data)
     }
 
-    /// The animation of an exercise, if it has one.
-    static func motion(for id: Int64) -> ExerciseMotion? {
-        byID[Int(id)]
+    /// The animation of an exercise, if it's one of Kitae's with one.
+    static func motion(for exercise: Exercise) -> ExerciseMotion? {
+        exercise.libraryKey.flatMap { byKey[$0] }
     }
 }

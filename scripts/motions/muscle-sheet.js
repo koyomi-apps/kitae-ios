@@ -3,7 +3,7 @@
 //
 // Draws muscle maps as a picture for checking, like the app draws them.
 //
-//     node muscle-sheet.js ExerciseMuscles.json out.png light|dark [ids, "all-muscles" or "blank"]
+//     node muscle-sheet.js ExerciseMuscles.json out.png light|dark [keys, "all-muscles" or "blank"]
 
 const fs = require('fs');
 const path = require('path');
@@ -82,9 +82,9 @@ function main() {
     } else if (which === 'blank') {
         items = [{ name: 'Blank', work: { primary: [], secondary: [] } }];
     } else {
-        const byID = new Map(map.exercises.map((e) => [String(e.id), e]));
-        const ids = which ? which.split(',') : [...byID.keys()];
-        items = ids.map((id) => ({ name: byID.get(id).name, work: byID.get(id) }));
+        const byKey = new Map(map.exercises.map((e) => [e.key, e]));
+        const keys = which ? which.split(',') : [...byKey.keys()];
+        items = keys.map((key) => ({ name: byKey.get(key).name, work: byKey.get(key) }));
     }
     const w = 370, h = 236, cols = Math.min(3, items.length), gap = 14;
     const rows = Math.ceil(items.length / cols);

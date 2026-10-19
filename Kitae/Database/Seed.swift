@@ -5,17 +5,33 @@ import Foundation
 import GRDB
 
 /// What a new database starts with: Kitae for Android's exercises, with the same ids, and its
-/// starter plan. `Seed.json` is made from Kitae for Android's starter database by
-/// `scripts/make_seed.py`.
+/// starter plan, and the exercises of Kitae's library (see `ExerciseLibrary`). `Seed.json` is
+/// made from Kitae for Android's starter database by `scripts/make_seed.py`.
 nonisolated struct Seed: Decodable, Sendable {
+    /// One of Kitae's exercises.
     nonisolated struct Exercise: Decodable, Sendable {
-        var id: Int64
+        /// The starter exercises' ids, as in Kitae for Android. Exercises added to the library
+        /// later have none: a database gives them the next free one.
+        var id: Int64?
+        /// Its library key, which never changes (`exercises.libraryKey`).
+        var key: String
         var name: String
         var target: String
         var isIsometric: Bool
         var reference: String?
         var restSeconds: Int?
         var instructions: String?
+
+        /// Adds it to the `exercises` table, with its id if it has one.
+        func insert(_ db: Database) throws {
+            try db.execute(
+                sql: """
+                INSERT INTO `exercises` (`id`, `name`, `target`, `reference`, `isIsometric`, `restSeconds`, `instructions`, `libraryKey`)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                """,
+                arguments: [id, name, target, reference, isIsometric, restSeconds, instructions, key]
+            )
+        }
     }
 
     nonisolated struct Plan: Decodable, Sendable {
@@ -48,6 +64,12 @@ nonisolated struct Seed: Decodable, Sendable {
     var exercises: [Exercise]
     var plans: [Plan]
 
+    /// The starter exercises' library keys, by id.
+    var starterKeys: [Int64: String] {
+        Dictionary(exercises.compactMap { exercise in exercise.id.map { ($0, exercise.key) } },
+                   uniquingKeysWith: { first, _ in first })
+    }
+
     static func bundled() throws -> Seed {
         guard let url = Bundle.main.url(forResource: "Seed", withExtension: "json") else {
             throw KitaeDatabaseError.missingSeed
@@ -55,20 +77,12 @@ nonisolated struct Seed: Decodable, Sendable {
         return try JSONDecoder().decode(Seed.self, from: Data(contentsOf: url))
     }
 
-    /// Adds the exercises and plans. Returns the id of the first plan.
+    /// Adds the starter exercises and plans. Returns the id of the first plan. The library's
+    /// other exercises come with `ExerciseLibrary.sync`.
     @discardableResult
     func insert(_ db: Database) throws -> Int64? {
-        for exercise in exercises {
-            try db.execute(
-                sql: """
-                INSERT INTO `exercises` (`id`, `name`, `target`, `reference`, `isIsometric`, `restSeconds`, `instructions`)
-                VALUES (?, ?, ?, ?, ?, ?, ?)
-                """,
-                arguments: [
-                    exercise.id, exercise.name, exercise.target, exercise.reference,
-                    exercise.isIsometric, exercise.restSeconds, exercise.instructions,
-                ]
-            )
+        for exercise in exercises where exercise.id != nil {
+            try exercise.insert(db)
         }
         var firstPlanID: Int64?
         for plan in plans {

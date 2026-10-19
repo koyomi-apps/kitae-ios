@@ -1,6 +1,6 @@
 [
  {
-  "id": 1,
+  "key": "dumbbell-curls",
   "name": "Curls",
   "gear": [
    {
@@ -40,7 +40,7 @@
   }
  },
  {
-  "id": 5,
+  "key": "tricep-pushdowns",
   "name": "Tricep Push Down",
   "gear": [
    {
@@ -86,7 +86,7 @@
   }
  },
  {
-  "id": 7,
+  "key": "dumbbell-overhead-tricep-extensions",
   "name": "Overhead Extensions",
   "gear": [
    {
@@ -129,7 +129,7 @@
   }
  },
  {
-  "id": 9,
+  "key": "dumbbell-shoulder-press",
   "name": "Shoulder Press",
   "gear": [
    {
@@ -172,7 +172,7 @@
   }
  },
  {
-  "id": 10,
+  "key": "face-pulls",
   "name": "Face Pulls",
   "gear": [
    {
@@ -226,7 +226,7 @@
   }
  },
  {
-  "id": 35,
+  "key": "barbell-upright-rows",
   "name": "Upright Rows",
   "gear": [
    {
@@ -273,7 +273,7 @@
   }
  },
  {
-  "id": 11,
+  "key": "barbell-back-squats",
   "name": "Squats",
   "gear": [
    {
@@ -324,7 +324,7 @@
   }
  },
  {
-  "id": 14,
+  "key": "barbell-stiff-legged-deadlift",
   "name": "Stiff Legged Deadlift",
   "gear": [
    {
@@ -370,7 +370,7 @@
   }
  },
  {
-  "id": 18,
+  "key": "dumbbell-lunges",
   "name": "Lunges",
   "gear": [
    {
@@ -429,7 +429,7 @@
   }
  },
  {
-  "id": 3,
+  "key": "ez-bar-preacher-curls",
   "name": "Preacher Curls",
   "timing": [
    0.1,
@@ -507,7 +507,7 @@
   }
  },
  {
-  "id": 4,
+  "key": "incline-dumbbell-curls",
   "name": "Incline Bicep Curls",
   "timing": [
    0.1,
@@ -592,7 +592,7 @@
   }
  },
  {
-  "id": 6,
+  "key": "ez-bar-skull-crushers",
   "name": "Skull-Crushers",
   "timing": [
    0.1,
@@ -653,7 +653,7 @@
   }
  },
  {
-  "id": 21,
+  "key": "barbell-bench-press",
   "name": "Bench Press",
   "timing": [
    0.1,
@@ -720,7 +720,7 @@
   }
  },
  {
-  "id": 24,
+  "key": "dumbbell-flyes",
   "name": "Chest Fly",
   "timing": [
    0.1,
@@ -789,7 +789,7 @@
   }
  },
  {
-  "id": 22,
+  "key": "barbell-incline-bench-press",
   "name": "Incline Bench",
   "timing": [
    0.1,
@@ -880,7 +880,7 @@
   }
  },
  {
-  "id": 23,
+  "key": "pec-deck",
   "name": "Pec Dec",
   "timing": [
    0.1,
@@ -960,7 +960,7 @@
   }
  },
  {
-  "id": 20,
+  "key": "lying-leg-raises",
   "name": "Leg Raises",
   "timing": [
    0.1,
@@ -1004,7 +1004,7 @@
   }
  },
  {
-  "id": 26,
+  "key": "lat-pulldowns",
   "name": "Lat Pull-down",
   "timing": [
    0.1,
@@ -1084,7 +1084,7 @@
   }
  },
  {
-  "id": 27,
+  "key": "pull-ups",
   "name": "Pull-ups",
   "timing": [
    0.1,
@@ -1169,7 +1169,7 @@
   }
  },
  {
-  "id": 28,
+  "key": "lat-prayers",
   "name": "Lat Prayers",
   "timing": [
    0.1,
@@ -1222,7 +1222,7 @@
   }
  },
  {
-  "id": 30,
+  "key": "chest-supported-dumbbell-rows",
   "name": "Chest-Supported Rows",
   "timing": [
    0.1,
@@ -1300,7 +1300,7 @@
   }
  },
  {
-  "id": 29,
+  "key": "barbell-bent-over-rows",
   "name": "Bent-over Rows",
   "gear": [
    {
@@ -1346,7 +1346,7 @@
   }
  },
  {
-  "id": 2,
+  "key": "barbell-curls",
   "name": "Barbell Curls",
   "gear": [
    {
@@ -1387,7 +1387,7 @@
   }
  },
  {
-  "id": 52,
+  "key": "hammer-curls",
   "name": "Hammer Curls",
   "gear": [
    {
@@ -1428,7 +1428,7 @@
   }
  },
  {
-  "id": 53,
+  "key": "cable-curls",
   "name": "Cable Curls",
   "timing": [
    0.1,
@@ -1485,7 +1485,7 @@
   }
  },
  {
-  "id": 32,
+  "key": "behind-the-back-cable-curls",
   "name": "Behind-the-Back Bicep Curls",
   "timing": [
    0.1,
@@ -1550,7 +1550,7 @@
   }
  },
  {
-  "id": 50,
+  "key": "dumbbell-front-raises",
   "name": "Front Raises",
   "gear": [
    {
@@ -1590,7 +1590,7 @@
   }
  },
  {
-  "id": 48,
+  "key": "barbell-overhead-press",
   "name": "Overhead Press",
   "gear": [
    {
@@ -1632,7 +1632,7 @@
   }
  },
  {
-  "id": 57,
+  "key": "dumbbell-tricep-kickbacks",
   "name": "Tricep Kickbacks",
   "gear": [
    {
@@ -1673,7 +1673,7 @@
   }
  },
  {
-  "id": 43,
+  "key": "straight-arm-pulldowns",
   "name": "Straight-Arm Pulldowns",
   "timing": [
    0.1,
@@ -1719,7 +1719,7 @@
   }
  },
  {
-  "id": 66,
+  "key": "cable-glute-kickbacks",
   "name": "Cable Kickbacks",
   "timing": [
    0.1,
@@ -1793,7 +1793,7 @@
   }
  },
  {
-  "id": 47,
+  "key": "barbell-deadlift",
   "name": "Deadlift",
   "gear": [
    {
@@ -1839,7 +1839,7 @@
   }
  },
  {
-  "id": 62,
+  "key": "barbell-romanian-deadlift",
   "name": "Romanian Deadlift",
   "gear": [
    {
@@ -1885,7 +1885,7 @@
   }
  },
  {
-  "id": 64,
+  "key": "good-mornings",
   "name": "Good Mornings",
   "gear": [
    {
@@ -1936,7 +1936,7 @@
   }
  },
  {
-  "id": 46,
+  "key": "t-bar-rows",
   "name": "T-Bar Rows",
   "gear": [
    {
@@ -1986,7 +1986,7 @@
   }
  },
  {
-  "id": 13,
+  "key": "hack-squats",
   "name": "Hack Squats",
   "timing": [
    0.08,
@@ -2076,7 +2076,7 @@
   }
  },
  {
-  "id": 33,
+  "key": "smith-machine-squats",
   "name": "Smith-Squats",
   "gear": [
    {
@@ -2139,7 +2139,7 @@
   }
  },
  {
-  "id": 58,
+  "key": "barbell-front-squats",
   "name": "Front Squats",
   "gear": [
    {
@@ -2190,7 +2190,7 @@
   }
  },
  {
-  "id": 60,
+  "key": "goblet-squats",
   "name": "Goblet Squats",
   "gear": [
    {
@@ -2241,7 +2241,7 @@
   }
  },
  {
-  "id": 59,
+  "key": "dumbbell-bulgarian-split-squats",
   "name": "Bulgarian Split Squats",
   "timing": [
    0.08,
@@ -2315,7 +2315,7 @@
   }
  },
  {
-  "id": 61,
+  "key": "wall-sit",
   "name": "Wall Sit",
   "gear": [
    {
@@ -2382,7 +2382,7 @@
   }
  },
  {
-  "id": 16,
+  "key": "standing-calf-raises",
   "name": "Calf Raises",
   "timing": [
    0.1,
@@ -2441,7 +2441,7 @@
   }
  },
  {
-  "id": 17,
+  "key": "barbell-hip-thrusts",
   "name": "Hip Thrusts",
   "timing": [
    0.1,
@@ -2515,7 +2515,7 @@
   }
  },
  {
-  "id": 36,
+  "key": "dumbbell-bench-press",
   "name": "Dumbbell Bench Press",
   "timing": [
    0.1,
@@ -2582,7 +2582,7 @@
   }
  },
  {
-  "id": 56,
+  "key": "close-grip-bench-press",
   "name": "Close-Grip Bench Press",
   "timing": [
    0.1,
@@ -2649,7 +2649,7 @@
   }
  },
  {
-  "id": 37,
+  "key": "incline-dumbbell-press",
   "name": "Incline Dumbbell Press",
   "timing": [
    0.1,
@@ -2740,7 +2740,7 @@
   }
  },
  {
-  "id": 38,
+  "key": "barbell-decline-bench-press",
   "name": "Decline Bench Press",
   "timing": [
    0.1,
@@ -2816,7 +2816,7 @@
   }
  },
  {
-  "id": 15,
+  "key": "lying-leg-curls",
   "name": "Lying Leg Curls",
   "timing": [
    0.1,
@@ -2889,7 +2889,7 @@
   }
  },
  {
-  "id": 45,
+  "key": "single-arm-dumbbell-rows",
   "name": "Single-Arm Dumbbell Rows",
   "timing": [
    0.1,
@@ -2980,7 +2980,7 @@
   }
  },
  {
-  "id": 12,
+  "key": "leg-press",
   "name": "Leg Press",
   "timing": [
    0.1,
@@ -3070,7 +3070,7 @@
   }
  },
  {
-  "id": 31,
+  "key": "leg-extensions",
   "name": "Leg Extensions",
   "timing": [
    0.1,
@@ -3148,7 +3148,7 @@
   }
  },
  {
-  "id": 63,
+  "key": "seated-leg-curls",
   "name": "Seated Leg Curls",
   "timing": [
    0.1,
@@ -3230,7 +3230,7 @@
   }
  },
  {
-  "id": 68,
+  "key": "seated-calf-raises",
   "name": "Seated Calf Raises",
   "timing": [
    0.1,
@@ -3313,7 +3313,7 @@
   }
  },
  {
-  "id": 41,
+  "key": "machine-chest-press",
   "name": "Machine Chest Press",
   "timing": [
    0.1,
@@ -3392,7 +3392,7 @@
   }
  },
  {
-  "id": 44,
+  "key": "seated-cable-rows",
   "name": "Seated Cable Rows",
   "timing": [
    0.1,
@@ -3492,7 +3492,7 @@
   }
  },
  {
-  "id": 54,
+  "key": "concentration-curls",
   "name": "Concentration Curls",
   "timing": [
    0.1,
@@ -3569,7 +3569,7 @@
   }
  },
  {
-  "id": 19,
+  "key": "sit-ups",
   "name": "Sit-ups",
   "timing": [
    0.1,
@@ -3628,7 +3628,7 @@
   }
  },
  {
-  "id": 71,
+  "key": "crunches",
   "name": "Crunches",
   "timing": [
    0.1,
@@ -3687,7 +3687,7 @@
   }
  },
  {
-  "id": 65,
+  "key": "glute-bridges",
   "name": "Glute Bridges",
   "timing": [
    0.1,
@@ -3735,7 +3735,7 @@
   }
  },
  {
-  "id": 40,
+  "key": "push-ups",
   "name": "Push-ups",
   "timing": [
    0.1,
@@ -3785,7 +3785,7 @@
   }
  },
  {
-  "id": 69,
+  "key": "plank",
   "name": "Plank",
   "timing": [
    0.06,
@@ -3830,7 +3830,7 @@
   }
  },
  {
-  "id": 72,
+  "key": "cable-crunches",
   "name": "Cable Crunches",
   "timing": [
    0.1,
@@ -3893,7 +3893,7 @@
   }
  },
  {
-  "id": 75,
+  "key": "ab-wheel-rollouts",
   "name": "Ab Wheel Rollouts",
   "timing": [
    0.1,
@@ -3959,7 +3959,7 @@
   }
  },
  {
-  "id": 42,
+  "key": "chin-ups",
   "name": "Chin-ups",
   "timing": [
    0.1,
@@ -4044,7 +4044,7 @@
   }
  },
  {
-  "id": 74,
+  "key": "hanging-leg-raises",
   "name": "Hanging Leg Raises",
   "timing": [
    0.1,
@@ -4127,7 +4127,7 @@
   }
  },
  {
-  "id": 55,
+  "key": "dips",
   "name": "Dips",
   "timing": [
    0.1,
@@ -4198,7 +4198,7 @@
   }
  },
  {
-  "id": 8,
+  "key": "dumbbell-lateral-raises",
   "name": "Lateral Raises",
   "view": "front",
   "gear": [
@@ -4234,7 +4234,7 @@
   }
  },
  {
-  "id": 34,
+  "key": "cable-lateral-raises",
   "name": "Cable Lateral Raises",
   "view": "front",
   "timing": [
@@ -4308,7 +4308,7 @@
   }
  },
  {
-  "id": 25,
+  "key": "dumbbell-shrugs",
   "name": "Shrugs",
   "view": "front",
   "gear": [
@@ -4345,7 +4345,7 @@
   }
  },
  {
-  "id": 49,
+  "key": "arnold-press",
   "name": "Arnold Press",
   "view": "front",
   "legsFront": true,
@@ -4404,7 +4404,7 @@
   }
  },
  {
-  "id": 51,
+  "key": "dumbbell-rear-delt-flyes",
   "name": "Rear Delt Flyes",
   "view": "front",
   "gear": [
@@ -4446,7 +4446,7 @@
   }
  },
  {
-  "id": 39,
+  "key": "cable-crossovers",
   "name": "Cable Crossovers",
   "view": "front",
   "timing": [
@@ -4503,7 +4503,7 @@
   }
  },
  {
-  "id": 67,
+  "key": "machine-hip-abductions",
   "name": "Hip Abductions",
   "view": "front",
   "legsFront": true,
@@ -4569,7 +4569,7 @@
   }
  },
  {
-  "id": 70,
+  "key": "side-plank",
   "name": "Side Plank",
   "view": "front",
   "timing": [
@@ -4633,7 +4633,7 @@
   }
  },
  {
-  "id": 73,
+  "key": "russian-twists",
   "name": "Russian Twists",
   "view": "front",
   "legsFront": true,

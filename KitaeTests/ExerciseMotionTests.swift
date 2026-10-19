@@ -14,28 +14,22 @@ struct ExerciseMotionTests {
         return try ExerciseMotions.decode(Data(contentsOf: url))
     }
 
-    /// The starter exercises' names by id, from Seed.json.
-    private func starterNames() throws -> [Int: String] {
-        let url = try #require(Bundle.main.url(forResource: "Seed", withExtension: "json"))
-        let json = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
-        var names: [Int: String] = [:]
-        for exercise in try #require(json["exercises"] as? [[String: Any]]) {
-            names[try #require(exercise["id"] as? Int)] = try #require(exercise["name"] as? String)
-        }
-        return names
+    /// The starter exercises' names by library key, from Seed.json.
+    private func starterNames() throws -> [String: String] {
+        Dictionary(uniqueKeysWithValues: try Seed.bundled().exercises.map { ($0.key, $0.name) })
     }
 
     @Test func motionsLoadFromTheApp() {
-        #expect(!ExerciseMotions.byID.isEmpty)
+        #expect(!ExerciseMotions.all.isEmpty && ExerciseMotions.byKey.count == ExerciseMotions.all.count)
     }
 
     @Test func everyStarterExerciseHasOneByItsName() throws {
         let names = try starterNames()
         let list = try motions()
-        #expect(Set(list.map(\.id)).count == list.count)
-        #expect(Set(list.map(\.id)) == Set(names.keys))
+        #expect(Set(list.map(\.key)).count == list.count)
+        #expect(Set(list.map(\.key)) == Set(names.keys))
         for motion in list {
-            #expect(names[motion.id] == motion.name, "motion \(motion.id)")
+            #expect(names[motion.key] == motion.name, "\(motion.key)")
         }
     }
 

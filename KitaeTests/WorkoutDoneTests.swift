@@ -51,8 +51,8 @@ struct WorkoutDoneTests {
 
     @Test func aWorkoutsMusclesComeFromItsSetsButNotItsWarmUps() {
         let sets = [
-            DoneSet(exerciseID: 21, target: "Chest", isIsometric: false, reps: 10, weightKg: 60, type: .standard),
-            DoneSet(exerciseID: 21, target: "Chest", isIsometric: false, reps: 10, weightKg: 40, type: .warmup),
+            DoneSet(exerciseID: 21, libraryKey: "barbell-bench-press", target: "Chest", isIsometric: false, reps: 10, weightKg: 60, type: .standard),
+            DoneSet(exerciseID: 21, libraryKey: "barbell-bench-press", target: "Chest", isIsometric: false, reps: 10, weightKg: 40, type: .warmup),
         ]
         let volume = MuscleVolume(doneSets: sets)
         #expect(volume.totalSets == 1)

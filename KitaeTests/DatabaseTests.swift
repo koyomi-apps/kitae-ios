@@ -7,7 +7,9 @@ import Testing
 @testable import Kitae
 
 /// The database has to stay exactly like Kitae for Android's, so backups open in both apps.
-/// `RoomSchema8.json` is Room's schema file for version 8, copied from Kitae for Android.
+/// `RoomSchema9.json` is Room's schema file for version 9, written as Room writes it for the
+/// entities in `ExerciseLibrary`'s notes; `RoomSchema8.json` is version 8's, copied from Kitae
+/// for Android, for databases from before.
 struct SchemaTests {
     struct RoomSchema: Decodable {
         struct Database: Decodable {
@@ -32,7 +34,7 @@ struct SchemaTests {
     }
 
     private func roomSchema() throws -> RoomSchema.Database {
-        let url = try #require(Bundle(for: TestBundle.self).url(forResource: "RoomSchema8", withExtension: "json"))
+        let url = try #require(Bundle(for: TestBundle.self).url(forResource: "RoomSchema9", withExtension: "json"))
         return try JSONDecoder().decode(RoomSchema.self, from: Data(contentsOf: url)).database
     }
 
@@ -58,7 +60,7 @@ struct SchemaTests {
         }
         expected["room_master_table"] = "CREATE TABLE room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)"
         // Kitae's own tables, which Room on Android leaves alone.
-        for statement in BodyTables.statements {
+        for statement in BodyTables.statements + ExerciseLibrary.statements {
             let name = try #require(statement.firstMatch(of: #/`(\w+)`/#)?.1)
             expected[String(name)] = statement.replacingOccurrences(of: " IF NOT EXISTS", with: "")
         }
@@ -85,7 +87,7 @@ struct SchemaTests {
                 try String.fetchOne(db, sql: "SELECT identity_hash FROM room_master_table WHERE id = 42")
             )
         }
-        #expect(version == 8)
+        #expect(version == 9)
         #expect(hash == room.identityHash)
     }
 
@@ -102,7 +104,7 @@ struct SchemaTests {
 
     @Test func refusesADatabaseFromAnotherVersion() throws {
         let queue = try DatabaseQueue()
-        try queue.write { db in try db.execute(sql: "PRAGMA user_version = 9") }
+        try queue.write { db in try db.execute(sql: "PRAGMA user_version = 10") }
         #expect(throws: KitaeDatabaseError.self) { try KitaeDatabase(queue) }
     }
 

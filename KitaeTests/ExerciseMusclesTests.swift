@@ -13,27 +13,21 @@ struct ExerciseMusclesTests {
         return try ExerciseMuscles.decode(Data(contentsOf: url))
     }
 
-    /// The starter exercises' names by id, from Seed.json.
-    private func starterNames() throws -> [Int64: String] {
-        let url = try #require(Bundle.main.url(forResource: "Seed", withExtension: "json"))
-        let json = try #require(try JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
-        var names: [Int64: String] = [:]
-        for exercise in try #require(json["exercises"] as? [[String: Any]]) {
-            names[Int64(try #require(exercise["id"] as? Int))] = try #require(exercise["name"] as? String)
-        }
-        return names
+    /// The starter exercises' names by library key, from Seed.json.
+    private func starterNames() throws -> [String: String] {
+        Dictionary(uniqueKeysWithValues: try Seed.bundled().exercises.map { ($0.key, $0.name) })
     }
 
     @Test func everyStarterExerciseHasItsMusclesByItsName() throws {
         let names = try starterNames()
         let map = try map()
-        #expect(Set(map.exercises.map(\.id)) == Set(names.keys))
+        #expect(Set(map.exercises.map(\.key)) == Set(names.keys))
         for entry in map.exercises {
-            #expect(names[entry.id] == entry.name, "exercise \(entry.id)")
+            #expect(names[entry.key] == entry.name, "\(entry.key)")
             #expect(!entry.primary.isEmpty, "\(entry.name)")
             #expect(Set(entry.primary).isDisjoint(with: entry.secondary), "\(entry.name)")
         }
-        #expect(ExerciseMuscles.byID.count == names.count)
+        #expect(ExerciseMuscles.byKey.count == names.count)
     }
 
     @Test func everyMuscleIsOnTheMap() throws {
@@ -45,16 +39,16 @@ struct ExerciseMusclesTests {
 
     @Test func theAnimationsShadeTheMapsMuscles() throws {
         // Bench press: the chest most, with the front delts and triceps helping.
-        let bench = try #require(ExerciseMotions.byID[21]).muscles
+        let bench = try #require(ExerciseMotions.byKey["barbell-bench-press"]).muscles
         #expect(bench.primary == [.chest] && bench.secondary == [.frontDelts, .triceps])
         #expect(bench[.chest] == .primary && bench[.triceps] == .secondary && bench[.quads] == nil)
         // The traps show the upper back, and the glutes the abductors.
-        let rows = try #require(ExerciseMotions.byID[29]).muscles
+        let rows = try #require(ExerciseMotions.byKey["barbell-bent-over-rows"]).muscles
         #expect(rows[.traps] == .primary && rows[.rearDelts] == .secondary)
-        let abductions = try #require(ExerciseMotions.byID[67]).muscles
+        let abductions = try #require(ExerciseMotions.byKey["machine-hip-abductions"]).muscles
         #expect(abductions.primary == [.glutes] && abductions.secondary.isEmpty)
         // Every animation has a muscle in olive, and shades only muscles it has shapes for.
-        for motion in ExerciseMotions.byID.values {
+        for motion in ExerciseMotions.all {
             let muscles = motion.muscles
             #expect(!muscles.primary.isEmpty, "\(motion.name)")
             #expect(muscles.primary.isDisjoint(with: muscles.secondary), "\(motion.name)")
@@ -83,8 +77,8 @@ struct ExerciseMusclesTests {
     }
 
     @Test func aSetCountsOnceForPrimaryMusclesAndHalfForSecondary() {
-        let bench = Exercise(id: 21, name: "Bench Press", target: "Chest")
-        let curls = Exercise(id: 1, name: "Curls", target: "Biceps")
+        let bench = Exercise(id: 21, name: "Bench Press", target: "Chest", libraryKey: "barbell-bench-press")
+        let curls = Exercise(id: 1, name: "Curls", target: "Biceps", libraryKey: "dumbbell-curls")
         let volume = MuscleVolume([ExerciseSetCount(exercise: bench, sets: 6), ExerciseSetCount(exercise: curls, sets: 2)])
         #expect(volume.totalSets == 8)
         #expect(volume.sets[.chest] == 6 && volume.sets[.frontDelts] == 3 && volume.sets[.triceps] == 3)

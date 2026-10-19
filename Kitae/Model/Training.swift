@@ -92,6 +92,9 @@ nonisolated struct Exercise: Identifiable, Hashable, Sendable {
     var reference: String?
     /// How to do it, one step per line.
     var instructions: String?
+    /// One of Kitae's own exercises' lasting name, like "barbell-bench-press", by which its
+    /// animation, muscles and energy are found. People's own exercises have none.
+    var libraryKey: String?
 
     var muscle: MuscleGroup? { MuscleGroup(rawValue: target) }
 

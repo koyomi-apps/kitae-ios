@@ -25,8 +25,8 @@ nonisolated enum KitaeDatabaseError: Error, LocalizedError {
 }
 
 /// Where Kitae keeps plans, workouts and exercises: one SQLite file, laid out exactly like
-/// Kitae for Android's (see `Schema`), plus Kitae's own tables for the body (see `BodyTables`),
-/// which Kitae for Android leaves alone.
+/// Kitae for Android's (see `Schema`), plus Kitae's own tables for the body (see `BodyTables`)
+/// and its exercise library (see `ExerciseLibrary`), which Kitae for Android leaves alone.
 nonisolated final class KitaeDatabase: Sendable {
     let writer: any DatabaseWriter
 
@@ -91,27 +91,35 @@ nonisolated final class KitaeDatabase: Sendable {
             try db.execute(sql: "VACUUM")
         }
         try source.backup(to: writer)
-        // A backup from Kitae for Android, or from before the body tables, doesn't have them.
-        try writer.write { db in try BodyTables.create(db) }
+        // A backup from an older version, or from Kitae for Android, is brought up to date, and
+        // gets Kitae's own tables and any of Kitae's exercises it hasn't been given.
+        try writer.write { db in try Self.prepare(db) }
     }
 
     /// Makes the tables in a new database and adds the starter exercises and plan. No plan is
     /// followed until people pick one, as in Kitae for Android. An existing database has to be
-    /// version 8. Either way, Kitae's own tables are made if they aren't there.
+    /// version 8, which is brought up to 9, or 9. Either way, Kitae's own tables are made if
+    /// they aren't there, and Kitae's exercises it hasn't been given are added.
     private static func prepare(_ db: Database) throws {
         let version = try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0
-        if version == Schema.version {
+        let seed = try Seed.bundled()
+        if version == 0 {
+            let tables = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'") ?? 0
+            guard tables == 0 else { throw KitaeDatabaseError.notKitae }
+            try Schema.create(db)
+            try seed.insert(db)
+        } else {
+            guard let expected = Schema.identityHashes[version] else {
+                throw KitaeDatabaseError.unsupportedVersion(version)
+            }
             let hash = try String.fetchOne(db, sql: "SELECT identity_hash FROM room_master_table WHERE id = 42")
-            guard hash == Schema.identityHash else { throw KitaeDatabaseError.notKitae }
-            try BodyTables.create(db)
-            return
+            guard hash == expected else { throw KitaeDatabaseError.notKitae }
+            if version == 8 {
+                try Schema.migrate8(db, keys: seed.starterKeys)
+            }
         }
-        guard version == 0 else { throw KitaeDatabaseError.unsupportedVersion(version) }
-        let tables = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'") ?? 0
-        guard tables == 0 else { throw KitaeDatabaseError.notKitae }
-
-        try Schema.create(db)
         try BodyTables.create(db)
-        try Seed.bundled().insert(db)
+        try ExerciseLibrary.create(db, seed: seed)
+        try ExerciseLibrary.sync(db, library: seed.exercises)
     }
 }

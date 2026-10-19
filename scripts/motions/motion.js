@@ -100,9 +100,9 @@ let WORK = new Map();
 function motion(j) {
   const front = j.view === 'front';
   return {
-    id: j.id, name: j.name, view: front ? 'front' : 'side', legsFront: j.legsFront ?? false,
+    key: j.key, name: j.name, view: front ? 'front' : 'side', legsFront: j.legsFront ?? false,
     gear: (j.gear || []).map(gearOf), shadowWidth: j.shadowWidth ?? 40,
-    muscles: figureMuscles(WORK.get(j.id)), timing: j.timing || [0.08, 0.5, 0.58, 0.96],
+    muscles: figureMuscles(WORK.get(j.key)), timing: j.timing || [0.08, 0.5, 0.58, 0.96],
     seconds: j.seconds ?? 2.4, shift: j.shift ?? 0, zoom: j.zoom ?? 1, shadow: j.shadow ? V(j.shadow) : v(4, 0),
     from: front ? frontPose(j.from) : pose(j.from), to: front ? frontPose(j.to) : pose(j.to),
   };
@@ -665,7 +665,7 @@ function card(m, t, theme, x, y, w, h, still = false) {
 
 // Reads the animations, and the muscle map's file for their muscles.
 function load(file, musclesFile = require('path').join(__dirname, '../../Kitae/Exercises/Muscles/ExerciseMuscles.json')) {
-  WORK = new Map(JSON.parse(fs.readFileSync(musclesFile, 'utf8')).exercises.map(e => [e.id, e]));
+  WORK = new Map(JSON.parse(fs.readFileSync(musclesFile, 'utf8')).exercises.map(e => [e.key, e]));
   return JSON.parse(fs.readFileSync(file, 'utf8')).map(motion);
 }
 function render(svg, file, scale = 1) {

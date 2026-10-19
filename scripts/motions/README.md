@@ -1,7 +1,8 @@
 # Exercise animations
 
 `Kitae/Exercises/Motion/ExerciseMotions.json` holds each exercise's animation: its start and end
-poses and the gear it uses, keyed by the starter exercises' ids. `make.js` writes it (edit the
+poses and the gear it uses, keyed by the exercises' library keys (Seed.json's `key`, the
+database's `exercises.libraryKey`). `make.js` writes it (edit the
 poses there, not in the JSON). `sheet.js` and `zoom.js` draw it as pictures, so poses can be
 checked without building the app. They draw with `motion.js`, which matches `FigureRig.swift` and
 `FigurePainter.swift` step for step: a change to one needs the same change in the other.
@@ -15,14 +16,14 @@ adductors aren't seen.
     npm install          # only needed for the pictures
     node make.js
     node check.js ../../Kitae/Exercises/Motion/ExerciseMotions.json
-    node sheet.js ../../Kitae/Exercises/Motion/ExerciseMotions.json sheet.png light 21,22
-    node zoom.js ../../Kitae/Exercises/Motion/ExerciseMotions.json zoom.png 21:0 21:0.55 21:still
+    node sheet.js ../../Kitae/Exercises/Motion/ExerciseMotions.json sheet.png light barbell-bench-press,barbell-incline-bench-press
+    node zoom.js ../../Kitae/Exercises/Motion/ExerciseMotions.json zoom.png barbell-bench-press:0 barbell-bench-press:0.55 barbell-bench-press:still
 
 `check.js` runs every loop and reports limbs that stretch, hands that can't reach what they hold
 and anything below the floor (a bar trailing straight arms mid-lift is fine). `sheet.js` draws a
-row per exercise (all of them, or the ids given, in that order): the start, the middle of the move,
+row per exercise (all of them, or the keys given, in that order): the start, the middle of the move,
 the end and the Reduce Motion picture, in `light` or `dark`. `zoom.js` draws chosen moments,
-`id:t` with `t` from 0 to 1 or `still`, at twice the size.
+`key:t` with `t` from 0 to 1 or `still`, at twice the size.
 
 ## Poses
 
@@ -52,7 +53,7 @@ starter exercise the muscles it works most (primary) and the ones that help (sec
 maps the way the app does, in its colours:
 
     node muscles.js
-    node muscle-sheet.js ../../Kitae/Exercises/Muscles/ExerciseMuscles.json muscles.png light 21,47
+    node muscle-sheet.js ../../Kitae/Exercises/Muscles/ExerciseMuscles.json muscles.png light barbell-bench-press,barbell-deadlift
     node muscle-sheet.js ../../Kitae/Exercises/Muscles/ExerciseMuscles.json muscles.png dark all-muscles
 
 The picture is 100 units wide and 222 tall, facing the viewer, with y growing downward. Each

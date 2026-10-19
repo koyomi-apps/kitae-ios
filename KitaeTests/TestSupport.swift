@@ -3,6 +3,7 @@
 
 import Foundation
 import GRDB
+import Testing
 @testable import Kitae
 
 extension KitaeDatabase {
@@ -19,6 +20,56 @@ extension KitaeDatabase {
         return database
     }
 }
+
+extension KitaeDatabase {
+    /// Makes `queue` a database as Kitae made it before library keys: Room's version 8 tables,
+    /// from its schema file, with the starter exercises and plan.
+    static func makeVersion8(_ queue: DatabaseQueue) throws {
+        struct RoomSchema: Decodable {
+            struct Database: Decodable {
+                var entities: [Entity]
+                var setupQueries: [String]
+            }
+            struct Entity: Decodable {
+                var tableName: String
+                var createSql: String
+                var indices: [Index]?
+            }
+            struct Index: Decodable {
+                var createSql: String
+            }
+            var database: Database
+        }
+        let url = try #require(Bundle(for: TestSupportBundle.self).url(forResource: "RoomSchema8", withExtension: "json"))
+        let room = try JSONDecoder().decode(RoomSchema.self, from: Data(contentsOf: url)).database
+        let seed = try Seed.bundled()
+        try queue.write { db in
+            for entity in room.entities {
+                try db.execute(sql: entity.createSql.replacingOccurrences(of: "${TABLE_NAME}", with: entity.tableName))
+                for index in entity.indices ?? [] {
+                    try db.execute(sql: index.createSql.replacingOccurrences(of: "${TABLE_NAME}", with: entity.tableName))
+                }
+            }
+            for query in room.setupQueries {
+                try db.execute(sql: query)
+            }
+            for (type, modifier) in Schema.setTypeModifiers {
+                try db.execute(sql: "INSERT INTO `set_type` (`type`, `modifier`) VALUES (?, ?)", arguments: [type.rawValue, modifier])
+            }
+            for exercise in seed.exercises {
+                guard let id = exercise.id else { continue }
+                try db.execute(
+                    sql: "INSERT INTO `exercises` (`id`, `name`, `target`, `isIsometric`, `instructions`) VALUES (?, ?, ?, ?, ?)",
+                    arguments: [id, exercise.name, exercise.target, exercise.isIsometric, exercise.instructions]
+                )
+            }
+            try db.execute(sql: "PRAGMA user_version = 8")
+        }
+    }
+}
+
+/// Finds the test bundle's resources.
+private final class TestSupportBundle {}
 
 extension AppModel {
     /// A model on `database` that keeps nothing outside it: no settings, backups, Lock Screen

@@ -278,7 +278,7 @@ struct ExerciseDetailView: View {
                 .font(.kitaeDisplay(28, relativeTo: .title2))
                 .foregroundStyle(.ink)
                 .accessibilityAddTraits(.isHeader)
-            if let motion = ExerciseMotions.motion(for: exercise.id) {
+            if let motion = ExerciseMotions.motion(for: exercise) {
                 // Lined up with the cards above, 16 points from the edges.
                 ExerciseMotionView(motion: motion)
                     .padding(.horizontal, -8)

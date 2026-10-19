@@ -303,9 +303,9 @@ final class BackupTests {
     @Test func backupsFromOtherVersionsAreRefused() throws {
         let target = try KitaeDatabase.inMemory()
         #expect(throws: BackupError.olderVersion) { try Backups.restore(from: try backup(atVersion: 7), into: target) }
-        #expect(throws: BackupError.newerVersion) { try Backups.restore(from: try backup(atVersion: 9), into: target) }
-        // The version this app has goes in.
-        #expect(try Backups.restore(from: try backup(atVersion: 8), into: target) == nil)
+        #expect(throws: BackupError.newerVersion) { try Backups.restore(from: try backup(atVersion: Schema.version + 1), into: target) }
+        // The version this app has goes in. (Version 8's is in LibraryTests.)
+        #expect(try Backups.restore(from: try backup(atVersion: Schema.version), into: target) == nil)
     }
 
     @Test func whatWasThereIsSavedBeforeRestoring() throws {
@@ -314,7 +314,7 @@ final class BackupTests {
         let before = try history(current)
         let safety = try subfolder("safety")
 
-        let fresh = try backup(atVersion: 8)
+        let fresh = try backup(atVersion: Schema.version)
         _ = try Backups.restore(from: fresh, into: current, safetyFolder: safety, currentPreferences: ["theme": .string("Dark")])
         #expect(try history(current).isEmpty)
 

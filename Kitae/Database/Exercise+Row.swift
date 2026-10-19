@@ -13,7 +13,8 @@ nonisolated extension Exercise {
             isIsometric: row["isIsometric"],
             restSeconds: row["restSeconds"],
             reference: row["reference"],
-            instructions: row["instructions"]
+            instructions: row["instructions"],
+            libraryKey: row["libraryKey"]
         )
     }
 }

@@ -6,10 +6,10 @@
 const M = require('./motion');
 const list = M.load(process.argv[2]);
 const out = [];
-const near = (a, b, what, m, i) => { if (Math.abs(a - b) > 0.02) out.push(`${m.id} ${m.name}: ${what} ${a.toFixed(2)} vs ${b.toFixed(2)} at ${i}`); };
+const near = (a, b, what, m, i) => { if (Math.abs(a - b) > 0.02) out.push(`${m.key}: ${what} ${a.toFixed(2)} vs ${b.toFixed(2)} at ${i}`); };
 for (const m of list) {
   const seen = new Set();
-  const say = s => { if (!seen.has(s)) { seen.add(s); out.push(`${m.id} ${m.name}: ${s}`); } };
+  const say = s => { if (!seen.has(s)) { seen.add(s); out.push(`${m.key}: ${s}`); } };
   for (let i = 0; i <= 20; i++) {
     const t = M.phase(i / 20, m.timing);
     if (m.view === 'front') {

@@ -9,9 +9,9 @@ struct MotionGallery: View {
     var body: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: 18) {
-                ForEach(ExerciseMotions.byID.values.sorted { $0.id < $1.id }) { motion in
+                ForEach(ExerciseMotions.all) { motion in
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("\(motion.id) · \(motion.name)")
+                        Text("\(motion.name) · \(motion.key)")
                             .font(.kitaeMono(13, relativeTo: .footnote, bold: true))
                             .foregroundStyle(.inkSoft)
                             .padding(.horizontal, 8)
@@ -23,7 +23,7 @@ struct MotionGallery: View {
         }
         .background(Color.paper)
         .onAppear {
-            DebugLaunch.note("motions appeared, \(ExerciseMotions.byID.count) animations")
+            DebugLaunch.note("motions appeared, \(ExerciseMotions.all.count) animations")
         }
     }
 }

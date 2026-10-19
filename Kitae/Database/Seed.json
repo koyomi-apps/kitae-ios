@@ -2,6 +2,7 @@
  "exercises": [
   {
    "id": 1,
+   "key": "dumbbell-curls",
    "name": "Curls",
    "target": "Biceps",
    "isIsometric": false,
@@ -9,6 +10,7 @@
   },
   {
    "id": 2,
+   "key": "barbell-curls",
    "name": "Barbell Curls",
    "target": "Biceps",
    "isIsometric": false,
@@ -16,6 +18,7 @@
   },
   {
    "id": 3,
+   "key": "ez-bar-preacher-curls",
    "name": "Preacher Curls",
    "target": "Biceps",
    "isIsometric": false,
@@ -23,6 +26,7 @@
   },
   {
    "id": 4,
+   "key": "incline-dumbbell-curls",
    "name": "Incline Bicep Curls",
    "target": "Biceps",
    "isIsometric": false,
@@ -30,6 +34,7 @@
   },
   {
    "id": 5,
+   "key": "tricep-pushdowns",
    "name": "Tricep Push Down",
    "target": "Triceps",
    "isIsometric": false,
@@ -37,6 +42,7 @@
   },
   {
    "id": 6,
+   "key": "ez-bar-skull-crushers",
    "name": "Skull-Crushers",
    "target": "Triceps",
    "isIsometric": false,
@@ -44,6 +50,7 @@
   },
   {
    "id": 7,
+   "key": "dumbbell-overhead-tricep-extensions",
    "name": "Overhead Extensions",
    "target": "Triceps",
    "isIsometric": false,
@@ -51,6 +58,7 @@
   },
   {
    "id": 8,
+   "key": "dumbbell-lateral-raises",
    "name": "Lateral Raises",
    "target": "Shoulders",
    "isIsometric": false,
@@ -58,6 +66,7 @@
   },
   {
    "id": 9,
+   "key": "dumbbell-shoulder-press",
    "name": "Shoulder Press",
    "target": "Shoulders",
    "isIsometric": false,
@@ -65,6 +74,7 @@
   },
   {
    "id": 10,
+   "key": "face-pulls",
    "name": "Face Pulls",
    "target": "Shoulders",
    "isIsometric": false,
@@ -72,6 +82,7 @@
   },
   {
    "id": 11,
+   "key": "barbell-back-squats",
    "name": "Squats",
    "target": "Quads",
    "isIsometric": false,
@@ -79,6 +90,7 @@
   },
   {
    "id": 12,
+   "key": "leg-press",
    "name": "Leg Press",
    "target": "Quads",
    "isIsometric": false,
@@ -86,6 +98,7 @@
   },
   {
    "id": 13,
+   "key": "hack-squats",
    "name": "Hack Squats",
    "target": "Quads",
    "isIsometric": false,
@@ -93,6 +106,7 @@
   },
   {
    "id": 14,
+   "key": "barbell-stiff-legged-deadlift",
    "name": "Stiff Legged Deadlift",
    "target": "Hamstrings",
    "isIsometric": false,
@@ -100,6 +114,7 @@
   },
   {
    "id": 15,
+   "key": "lying-leg-curls",
    "name": "Lying Leg Curls",
    "target": "Hamstrings",
    "isIsometric": false,
@@ -107,6 +122,7 @@
   },
   {
    "id": 16,
+   "key": "standing-calf-raises",
    "name": "Calf Raises",
    "target": "Calves",
    "isIsometric": false,
@@ -114,6 +130,7 @@
   },
   {
    "id": 17,
+   "key": "barbell-hip-thrusts",
    "name": "Hip Thrusts",
    "target": "Glutes",
    "isIsometric": false,
@@ -121,6 +138,7 @@
   },
   {
    "id": 18,
+   "key": "dumbbell-lunges",
    "name": "Lunges",
    "target": "Glutes",
    "isIsometric": false,
@@ -128,6 +146,7 @@
   },
   {
    "id": 19,
+   "key": "sit-ups",
    "name": "Sit-ups",
    "target": "Core",
    "isIsometric": false,
@@ -135,6 +154,7 @@
   },
   {
    "id": 20,
+   "key": "lying-leg-raises",
    "name": "Leg Raises",
    "target": "Core",
    "isIsometric": false,
@@ -142,6 +162,7 @@
   },
   {
    "id": 21,
+   "key": "barbell-bench-press",
    "name": "Bench Press",
    "target": "Chest",
    "isIsometric": false,
@@ -149,6 +170,7 @@
   },
   {
    "id": 22,
+   "key": "barbell-incline-bench-press",
    "name": "Incline Bench",
    "target": "Chest",
    "isIsometric": false,
@@ -156,6 +178,7 @@
   },
   {
    "id": 23,
+   "key": "pec-deck",
    "name": "Pec Dec",
    "target": "Chest",
    "isIsometric": false,
@@ -163,6 +186,7 @@
   },
   {
    "id": 24,
+   "key": "dumbbell-flyes",
    "name": "Chest Fly",
    "target": "Chest",
    "isIsometric": false,
@@ -170,6 +194,7 @@
   },
   {
    "id": 25,
+   "key": "dumbbell-shrugs",
    "name": "Shrugs",
    "target": "Traps",
    "isIsometric": false,
@@ -177,6 +202,7 @@
   },
   {
    "id": 26,
+   "key": "lat-pulldowns",
    "name": "Lat Pull-down",
    "target": "Lats",
    "isIsometric": false,
@@ -184,6 +210,7 @@
   },
   {
    "id": 27,
+   "key": "pull-ups",
    "name": "Pull-ups",
    "target": "Lats",
    "isIsometric": false,
@@ -191,6 +218,7 @@
   },
   {
    "id": 28,
+   "key": "lat-prayers",
    "name": "Lat Prayers",
    "target": "Lats",
    "isIsometric": false,
@@ -198,6 +226,7 @@
   },
   {
    "id": 29,
+   "key": "barbell-bent-over-rows",
    "name": "Bent-over Rows",
    "target": "UpperBack",
    "isIsometric": false,
@@ -205,6 +234,7 @@
   },
   {
    "id": 30,
+   "key": "chest-supported-dumbbell-rows",
    "name": "Chest-Supported Rows",
    "target": "UpperBack",
    "isIsometric": false,
@@ -212,6 +242,7 @@
   },
   {
    "id": 31,
+   "key": "leg-extensions",
    "name": "Leg Extensions",
    "target": "Quads",
    "isIsometric": false,
@@ -219,6 +250,7 @@
   },
   {
    "id": 32,
+   "key": "behind-the-back-cable-curls",
    "name": "Behind-the-Back Bicep Curls",
    "target": "Biceps",
    "isIsometric": false,
@@ -226,6 +258,7 @@
   },
   {
    "id": 33,
+   "key": "smith-machine-squats",
    "name": "Smith-Squats",
    "target": "Quads",
    "isIsometric": false,
@@ -233,6 +266,7 @@
   },
   {
    "id": 34,
+   "key": "cable-lateral-raises",
    "name": "Cable Lateral Raises",
    "target": "Shoulders",
    "isIsometric": false,
@@ -240,6 +274,7 @@
   },
   {
    "id": 35,
+   "key": "barbell-upright-rows",
    "name": "Upright Rows",
    "target": "Shoulders",
    "isIsometric": false,
@@ -247,6 +282,7 @@
   },
   {
    "id": 36,
+   "key": "dumbbell-bench-press",
    "name": "Dumbbell Bench Press",
    "target": "Chest",
    "isIsometric": false,
@@ -254,6 +290,7 @@
   },
   {
    "id": 37,
+   "key": "incline-dumbbell-press",
    "name": "Incline Dumbbell Press",
    "target": "Chest",
    "isIsometric": false,
@@ -261,6 +298,7 @@
   },
   {
    "id": 38,
+   "key": "barbell-decline-bench-press",
    "name": "Decline Bench Press",
    "target": "Chest",
    "isIsometric": false,
@@ -268,6 +306,7 @@
   },
   {
    "id": 39,
+   "key": "cable-crossovers",
    "name": "Cable Crossovers",
    "target": "Chest",
    "isIsometric": false,
@@ -275,6 +314,7 @@
   },
   {
    "id": 40,
+   "key": "push-ups",
    "name": "Push-ups",
    "target": "Chest",
    "isIsometric": false,
@@ -282,6 +322,7 @@
   },
   {
    "id": 41,
+   "key": "machine-chest-press",
    "name": "Machine Chest Press",
    "target": "Chest",
    "isIsometric": false,
@@ -289,6 +330,7 @@
   },
   {
    "id": 42,
+   "key": "chin-ups",
    "name": "Chin-ups",
    "target": "Lats",
    "isIsometric": false,
@@ -296,6 +338,7 @@
   },
   {
    "id": 43,
+   "key": "straight-arm-pulldowns",
    "name": "Straight-Arm Pulldowns",
    "target": "Lats",
    "isIsometric": false,
@@ -303,6 +346,7 @@
   },
   {
    "id": 44,
+   "key": "seated-cable-rows",
    "name": "Seated Cable Rows",
    "target": "UpperBack",
    "isIsometric": false,
@@ -310,6 +354,7 @@
   },
   {
    "id": 45,
+   "key": "single-arm-dumbbell-rows",
    "name": "Single-Arm Dumbbell Rows",
    "target": "UpperBack",
    "isIsometric": false,
@@ -317,6 +362,7 @@
   },
   {
    "id": 46,
+   "key": "t-bar-rows",
    "name": "T-Bar Rows",
    "target": "UpperBack",
    "isIsometric": false,
@@ -324,6 +370,7 @@
   },
   {
    "id": 47,
+   "key": "barbell-deadlift",
    "name": "Deadlift",
    "target": "UpperBack",
    "isIsometric": false,
@@ -331,6 +378,7 @@
   },
   {
    "id": 48,
+   "key": "barbell-overhead-press",
    "name": "Overhead Press",
    "target": "Shoulders",
    "isIsometric": false,
@@ -338,6 +386,7 @@
   },
   {
    "id": 49,
+   "key": "arnold-press",
    "name": "Arnold Press",
    "target": "Shoulders",
    "isIsometric": false,
@@ -345,6 +394,7 @@
   },
   {
    "id": 50,
+   "key": "dumbbell-front-raises",
    "name": "Front Raises",
    "target": "Shoulders",
    "isIsometric": false,
@@ -352,6 +402,7 @@
   },
   {
    "id": 51,
+   "key": "dumbbell-rear-delt-flyes",
    "name": "Rear Delt Flyes",
    "target": "Shoulders",
    "isIsometric": false,
@@ -359,6 +410,7 @@
   },
   {
    "id": 52,
+   "key": "hammer-curls",
    "name": "Hammer Curls",
    "target": "Biceps",
    "isIsometric": false,
@@ -366,6 +418,7 @@
   },
   {
    "id": 53,
+   "key": "cable-curls",
    "name": "Cable Curls",
    "target": "Biceps",
    "isIsometric": false,
@@ -373,6 +426,7 @@
   },
   {
    "id": 54,
+   "key": "concentration-curls",
    "name": "Concentration Curls",
    "target": "Biceps",
    "isIsometric": false,
@@ -380,6 +434,7 @@
   },
   {
    "id": 55,
+   "key": "dips",
    "name": "Dips",
    "target": "Triceps",
    "isIsometric": false,
@@ -387,6 +442,7 @@
   },
   {
    "id": 56,
+   "key": "close-grip-bench-press",
    "name": "Close-Grip Bench Press",
    "target": "Triceps",
    "isIsometric": false,
@@ -394,6 +450,7 @@
   },
   {
    "id": 57,
+   "key": "dumbbell-tricep-kickbacks",
    "name": "Tricep Kickbacks",
    "target": "Triceps",
    "isIsometric": false,
@@ -401,6 +458,7 @@
   },
   {
    "id": 58,
+   "key": "barbell-front-squats",
    "name": "Front Squats",
    "target": "Quads",
    "isIsometric": false,
@@ -408,6 +466,7 @@
   },
   {
    "id": 59,
+   "key": "dumbbell-bulgarian-split-squats",
    "name": "Bulgarian Split Squats",
    "target": "Quads",
    "isIsometric": false,
@@ -415,6 +474,7 @@
   },
   {
    "id": 60,
+   "key": "goblet-squats",
    "name": "Goblet Squats",
    "target": "Quads",
    "isIsometric": false,
@@ -422,6 +482,7 @@
   },
   {
    "id": 61,
+   "key": "wall-sit",
    "name": "Wall Sit",
    "target": "Quads",
    "isIsometric": true,
@@ -429,6 +490,7 @@
   },
   {
    "id": 62,
+   "key": "barbell-romanian-deadlift",
    "name": "Romanian Deadlift",
    "target": "Hamstrings",
    "isIsometric": false,
@@ -436,6 +498,7 @@
   },
   {
    "id": 63,
+   "key": "seated-leg-curls",
    "name": "Seated Leg Curls",
    "target": "Hamstrings",
    "isIsometric": false,
@@ -443,6 +506,7 @@
   },
   {
    "id": 64,
+   "key": "good-mornings",
    "name": "Good Mornings",
    "target": "Hamstrings",
    "isIsometric": false,
@@ -450,6 +514,7 @@
   },
   {
    "id": 65,
+   "key": "glute-bridges",
    "name": "Glute Bridges",
    "target": "Glutes",
    "isIsometric": false,
@@ -457,6 +522,7 @@
   },
   {
    "id": 66,
+   "key": "cable-glute-kickbacks",
    "name": "Cable Kickbacks",
    "target": "Glutes",
    "isIsometric": false,
@@ -464,6 +530,7 @@
   },
   {
    "id": 67,
+   "key": "machine-hip-abductions",
    "name": "Hip Abductions",
    "target": "Glutes",
    "isIsometric": false,
@@ -471,6 +538,7 @@
   },
   {
    "id": 68,
+   "key": "seated-calf-raises",
    "name": "Seated Calf Raises",
    "target": "Calves",
    "isIsometric": false,
@@ -478,6 +546,7 @@
   },
   {
    "id": 69,
+   "key": "plank",
    "name": "Plank",
    "target": "Core",
    "isIsometric": true,
@@ -485,6 +554,7 @@
   },
   {
    "id": 70,
+   "key": "side-plank",
    "name": "Side Plank",
    "target": "Core",
    "isIsometric": true,
@@ -492,6 +562,7 @@
   },
   {
    "id": 71,
+   "key": "crunches",
    "name": "Crunches",
    "target": "Core",
    "isIsometric": false,
@@ -499,6 +570,7 @@
   },
   {
    "id": 72,
+   "key": "cable-crunches",
    "name": "Cable Crunches",
    "target": "Core",
    "isIsometric": false,
@@ -506,6 +578,7 @@
   },
   {
    "id": 73,
+   "key": "russian-twists",
    "name": "Russian Twists",
    "target": "Core",
    "isIsometric": false,
@@ -513,6 +586,7 @@
   },
   {
    "id": 74,
+   "key": "hanging-leg-raises",
    "name": "Hanging Leg Raises",
    "target": "Core",
    "isIsometric": false,
@@ -520,6 +594,7 @@
   },
   {
    "id": 75,
+   "key": "ab-wheel-rollouts",
    "name": "Ab Wheel Rollouts",
    "target": "Core",
    "isIsometric": false,

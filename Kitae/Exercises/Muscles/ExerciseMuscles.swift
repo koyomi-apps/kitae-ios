@@ -26,8 +26,8 @@ nonisolated struct MuscleWork: Hashable, Sendable {
     }
 }
 
-/// The muscle map's body, from the front and from the back, and every starter exercise's
-/// muscles, as `scripts/motions/muscles.js` writes them to `ExerciseMuscles.json`.
+/// The muscle map's body, from the front and from the back, and each of Kitae's exercises'
+/// muscles by library key, as `scripts/motions/muscles.js` writes them to `ExerciseMuscles.json`.
 nonisolated struct MuscleMap: Decodable, Sendable {
     /// A closed shape: its first point, then for each point after it a cubic Bézier's two
     /// control points and the point, all in one list.
@@ -39,7 +39,7 @@ nonisolated struct MuscleMap: Decodable, Sendable {
     }
 
     struct Entry: Decodable, Sendable {
-        let id: Int64
+        let key: String
         let name: String
         let primary: [Muscle]
         let secondary: [Muscle]
@@ -81,7 +81,7 @@ nonisolated struct MuscleMap: Decodable, Sendable {
     }
 }
 
-/// Every starter exercise's muscles, and what to show for people's own exercises.
+/// Each of Kitae's exercises' muscles, and what to show for people's own exercises.
 nonisolated enum ExerciseMuscles {
     static let map: MuscleMap? = {
         guard let url = Bundle.main.url(forResource: "ExerciseMuscles", withExtension: "json"),
@@ -93,19 +93,20 @@ nonisolated enum ExerciseMuscles {
         try JSONDecoder().decode(MuscleMap.self, from: data)
     }
 
-    static let byID: [Int64: MuscleWork] = Dictionary(
-        (map?.exercises ?? []).map { ($0.id, MuscleWork(primary: $0.primary, secondary: $0.secondary)) },
+    /// By library key.
+    static let byKey: [String: MuscleWork] = Dictionary(
+        (map?.exercises ?? []).map { ($0.key, MuscleWork(primary: $0.primary, secondary: $0.secondary)) },
         uniquingKeysWith: { first, _ in first }
     )
 
-    /// A starter exercise's own muscles, or for people's own exercises, their muscle group.
+    /// One of Kitae's exercises' own muscles, or for people's own exercises, their muscle group.
     static func work(for exercise: Exercise) -> MuscleWork? {
-        work(exerciseID: exercise.id, target: exercise.target)
+        work(key: exercise.libraryKey, target: exercise.target)
     }
 
-    /// The same, from an exercise's id and its muscle group as it's stored, like "Chest".
-    static func work(exerciseID: Int64, target: String) -> MuscleWork? {
-        if let work = byID[exerciseID] { return work }
+    /// The same, from an exercise's library key and its muscle group as it's stored, like "Chest".
+    static func work(key: String?, target: String) -> MuscleWork? {
+        if let key, let work = byKey[key] { return work }
         guard let group = MuscleGroup(rawValue: target) else { return nil }
         return MuscleWork(primary: group.muscles, secondary: [])
     }

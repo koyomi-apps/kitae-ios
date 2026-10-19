@@ -19,7 +19,7 @@ nonisolated struct MuscleVolume: Equatable, Sendable {
     /// From a workout's done sets.
     init(doneSets: [DoneSet]) {
         for set in doneSets where set.type != .warmup {
-            add(1, of: ExerciseMuscles.work(exerciseID: set.exerciseID, target: set.target))
+            add(1, of: ExerciseMuscles.work(key: set.libraryKey, target: set.target))
         }
     }
 

@@ -15,6 +15,15 @@ nonisolated struct MuscleWork: Hashable, Sendable {
             .map { index, muscle in index == 0 ? muscle.name : muscle.name.lowercased() }
             .joined(separator: ", ")
     }
+
+    /// What VoiceOver reads for the muscles, like "Works most: Chest. Helped by: Front delts, triceps".
+    var spoken: String {
+        var parts = ["Works most: \(Self.list(primary))"]
+        if !secondary.isEmpty {
+            parts.append("Helped by: \(Self.list(secondary))")
+        }
+        return parts.joined(separator: ". ")
+    }
 }
 
 /// The muscle map's body, from the front and from the back, and every starter exercise's

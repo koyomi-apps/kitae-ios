@@ -30,7 +30,7 @@ struct MuscleMapView: View {
         .frame(maxWidth: .infinity)
         .background(.card, in: .rect(cornerRadius: 24))
         .accessibilityElement(children: .ignore)
-        .accessibilityLabel(spoken)
+        .accessibilityLabel(work.spoken)
     }
 
     @ViewBuilder
@@ -51,15 +51,6 @@ struct MuscleMapView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-    }
-
-    /// "Works most: chest. Helped by: front delts, triceps".
-    private var spoken: String {
-        var parts = ["Works most: \(MuscleWork.list(work.primary))"]
-        if !work.secondary.isEmpty {
-            parts.append("Helped by: \(MuscleWork.list(work.secondary))")
-        }
-        return parts.joined(separator: ". ")
     }
 }
 

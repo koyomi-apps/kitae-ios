@@ -63,6 +63,12 @@ struct ExerciseMusclesTests {
         }
     }
 
+    @Test func theMusclesAreSpokenByWhatTheyDo() {
+        let bench = MuscleWork(primary: [.chest], secondary: [.frontDelts, .triceps])
+        #expect(bench.spoken == "Works most: Chest. Helped by: Front delts, triceps")
+        #expect(MuscleWork(primary: [.abs, .obliques], secondary: []).spoken == "Works most: Abs, obliques")
+    }
+
     @Test func peoplesOwnExercisesShowTheirGroup() {
         for group in MuscleGroup.allCases {
             #expect(!group.muscles.isEmpty, "\(group)")

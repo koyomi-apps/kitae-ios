@@ -66,21 +66,26 @@ struct WorkoutView: View {
         let labels = setLabels(for: exercise.sets.map(\.type))
         return VStack(alignment: .leading, spacing: 6) {
             HStack {
-                NavigationLink(value: AppRoute.exercise(exercise.id)) {
-                    HStack(alignment: .firstTextBaseline, spacing: 6) {
-                        Text(exercise.exercise.name)
-                            .font(.kitaeDisplay(26, relativeTo: .title2))
-                            .foregroundStyle(.olive)
-                            .multilineTextAlignment(.leading)
-                        Image(systemName: "chevron.forward")
-                            .font(.system(size: 12, weight: .bold))
-                            .foregroundStyle(.inkFaint)
+                VStack(alignment: .leading, spacing: 3) {
+                    NavigationLink(value: AppRoute.exercise(exercise.id)) {
+                        HStack(alignment: .firstTextBaseline, spacing: 6) {
+                            Text(exercise.exercise.name)
+                                .font(.kitaeDisplay(26, relativeTo: .title2))
+                                .foregroundStyle(.olive)
+                                .multilineTextAlignment(.leading)
+                            Image(systemName: "chevron.forward")
+                                .font(.system(size: 12, weight: .bold))
+                                .foregroundStyle(.inkFaint)
+                        }
+                        .contentShape(.rect)
                     }
-                    .contentShape(.rect)
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(.isHeader)
+                    .accessibilityHint("Shows how to do it and how it's gone")
+                    if let work = ExerciseMuscles.work(for: exercise.exercise) {
+                        MuscleLine(work: work)
+                    }
                 }
-                .buttonStyle(.plain)
-                .accessibilityAddTraits(.isHeader)
-                .accessibilityHint("Shows how to do it and how it's gone")
                 Spacer()
                 Button {
                     focus = nil

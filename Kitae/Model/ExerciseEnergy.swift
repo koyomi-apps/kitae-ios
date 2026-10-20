@@ -217,6 +217,13 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         "dumbbell-squats": .init(perKilogram: squat, bodyShare: 0.85, loadFactor: 2), // Dumbbell Squats
         "bodyweight-squats": .init(perKilogram: squat, bodyShare: 0.85), // Bodyweight Squats
         "barbell-box-squats": .init(perKilogram: squat, bodyShare: 0.85), // Box Squats
+        "dumbbell-romanian-deadlift": .init(perKilogram: hinge, bodyShare: 0.55, loadFactor: 2), // Dumbbell Romanian Deadlift
+        // The free leg sinks as the body rises, taking back some of the lift.
+        "dumbbell-single-leg-romanian-deadlift": .init(perKilogram: hinge, bodyShare: 0.4, sides: 2), // Single-Leg Romanian Deadlift
+        "standing-leg-curls": .init(perKilogram: legMachine, bodyShare: 0.05, sides: 2), // Standing Leg Curls
+        // The body above the knees, most of its weight, falls and rises about two thirds as far as
+        // a squat moves it.
+        "nordic-hamstring-curls": .init(perKilogram: squat * 0.7, bodyShare: 0.85), // Nordic Curls
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

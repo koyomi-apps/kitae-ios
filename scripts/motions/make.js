@@ -160,6 +160,15 @@ const sidesArm = { upper: 0, bend: 4 };
 const lungeBottom = { hip: [-4, -55], lean: 4, head: 2, ankle: [24, -7.4], foot: 0 };
 // Step-ups: the near foot on a bench.
 const STEP = [30, BENCH - 7.4];
+// Hinges with the arms hanging straight down from the shoulders.
+const hangingArms = { upper: 0, bend: 3 };
+// A standing leg curl machine: a frame ahead, a pad in front of the thighs, handles to hold.
+const standingCurl = { hip: [0, -100.6], lean: 6, head: 2, thigh: 178, farThigh: 180, farShin: 180, farFoot: 0,
+  arm: { hand: [34, -114], elbow: 1 } };
+// Nordic curls: kneeling with the knee pinned, the body straight from the knees as it falls forward.
+const NORDIC_KNEE = [-6, -6.6];
+// The hip of a kneeling pose pinned at `knee`, for its thigh's angle.
+const kneelHip = (knee, thigh) => { const d = M.dir(thigh); return [r1(knee[0] - d.x * 46.5), r1(knee[1] - d.y * 46.5)]; };
 const assistedPullUps = [{ kind: 'post', from: [-96, -2], to: [-96, -236], width: 7 }, { kind: 'post', from: [-96, -228], to: [6, -228], width: 3 },
   { kind: 'bar', at: [6, -228] }, { kind: 'pad', on: 'shins', anchor: [-96, -79] }];
 
@@ -1078,6 +1087,34 @@ const motions = [
     gear: [{ kind: 'pad', from: [-74, -50.5], to: [-30, -50.5], legs: [-64, -40] }, { kind: 'barbell', on: 'back' }],
     from: { hip: [-2, -99.6], lean: 4, head: 1.8, arm: barOnBack },
     to: { hip: [-40, -57], lean: 36, head: 18, arm: barOnBackLow },
+  },
+
+  // The library's hamstrings exercises
+  {
+    key: 'dumbbell-romanian-deadlift', name: 'Dumbbell Romanian Deadlift', gear: [{ kind: 'dumbbells' }],
+    timing: [0.08, 0.5, 0.58, 0.94], shift: 10,
+    from: { hip: [-1, -98], lean: 3, head: 1, arm: hangingArms },
+    to: { hip: [-30, -86], lean: 72, head: 46, arm: hangingArms },
+  },
+  {
+    // On the near leg, the far leg rising behind in line with the body.
+    key: 'dumbbell-single-leg-romanian-deadlift', name: 'Single-Leg Romanian Deadlift', gear: [{ kind: 'dumbbells', one: true }],
+    timing: [0.08, 0.5, 0.58, 0.94], shift: 16,
+    from: { hip: [-1, -99.6], lean: 3, head: 1, ankle: [0, -7.4], farThigh: 180, farShin: 180, farFoot: 0, arm: hangingArms },
+    to: { hip: [-14, -96], lean: 78, head: 56, ankle: [0, -7.4], farThigh: 258, farShin: 258, farFoot: 85, arm: hangingArms },
+  },
+  {
+    key: 'standing-leg-curls', name: 'Standing Leg Curls', timing: [0.1, 0.45, 0.55, 0.95], shift: -12,
+    gear: [{ kind: 'post', from: [44, -2], to: [44, -150], width: 7 }, { kind: 'pad', from: [13, -64], to: [13, -96] },
+      { kind: 'handle' }, { kind: 'roller', on: 'calf' }],
+    from: { ...standingCurl, shin: 180, foot: 4 },
+    to: { ...standingCurl, shin: 296, foot: 112 },
+  },
+  {
+    key: 'nordic-hamstring-curls', name: 'Nordic Curls', timing: [0.1, 0.55, 0.62, 0.95], shift: -30,
+    gear: [{ kind: 'roller', on: 'calf' }],
+    from: { hip: kneelHip(NORDIC_KNEE, 180), kneeAt: NORDIC_KNEE, thigh: 180, shin: 270, foot: 166, lean: 0, head: 0, arm: { upper: 20, bend: 70 } },
+    to: { hip: kneelHip(NORDIC_KNEE, 248), kneeAt: NORDIC_KNEE, thigh: 248, shin: 270, foot: 166, lean: 68, head: 40, arm: { upper: 75, bend: 10 } },
   },
 ];
 

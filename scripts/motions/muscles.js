@@ -303,6 +303,10 @@ const EXERCISES = {
     'dumbbell-squats': ['Dumbbell Squats', 'quads glutes', 'adductors'],
     'bodyweight-squats': ['Bodyweight Squats', 'quads glutes', 'adductors'],
     'barbell-box-squats': ['Box Squats', 'quads glutes', 'hamstrings adductors lowerBack'],
+    'dumbbell-romanian-deadlift': ['Dumbbell Romanian Deadlift', 'hamstrings glutes', 'lowerBack forearms'],
+    'dumbbell-single-leg-romanian-deadlift': ['Single-Leg Romanian Deadlift', 'hamstrings glutes', 'lowerBack'],
+    'standing-leg-curls': ['Standing Leg Curls', 'hamstrings', 'calves'],
+    'nordic-hamstring-curls': ['Nordic Curls', 'hamstrings', 'calves'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

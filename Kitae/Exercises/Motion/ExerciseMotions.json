@@ -8825,5 +8825,240 @@
     "elbow": -1
    }
   }
+ },
+ {
+  "key": "dumbbell-romanian-deadlift",
+  "name": "Dumbbell Romanian Deadlift",
+  "gear": [
+   {
+    "kind": "dumbbells"
+   }
+  ],
+  "timing": [
+   0.08,
+   0.5,
+   0.58,
+   0.94
+  ],
+  "shift": 10,
+  "from": {
+   "hip": [
+    -1,
+    -98
+   ],
+   "lean": 3,
+   "head": 1,
+   "arm": {
+    "upper": 0,
+    "bend": 3
+   }
+  },
+  "to": {
+   "hip": [
+    -30,
+    -86
+   ],
+   "lean": 72,
+   "head": 46,
+   "arm": {
+    "upper": 0,
+    "bend": 3
+   }
+  }
+ },
+ {
+  "key": "dumbbell-single-leg-romanian-deadlift",
+  "name": "Single-Leg Romanian Deadlift",
+  "gear": [
+   {
+    "kind": "dumbbells",
+    "one": true
+   }
+  ],
+  "timing": [
+   0.08,
+   0.5,
+   0.58,
+   0.94
+  ],
+  "shift": 16,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 3,
+   "head": 1,
+   "ankle": [
+    0,
+    -7.4
+   ],
+   "farThigh": 180,
+   "farShin": 180,
+   "farFoot": 0,
+   "arm": {
+    "upper": 0,
+    "bend": 3
+   }
+  },
+  "to": {
+   "hip": [
+    -14,
+    -96
+   ],
+   "lean": 78,
+   "head": 56,
+   "ankle": [
+    0,
+    -7.4
+   ],
+   "farThigh": 258,
+   "farShin": 258,
+   "farFoot": 85,
+   "arm": {
+    "upper": 0,
+    "bend": 3
+   }
+  }
+ },
+ {
+  "key": "standing-leg-curls",
+  "name": "Standing Leg Curls",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -12,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     44,
+     -2
+    ],
+    "to": [
+     44,
+     -150
+    ],
+    "width": 7
+   },
+   {
+    "kind": "pad",
+    "from": [
+     13,
+     -64
+    ],
+    "to": [
+     13,
+     -96
+    ]
+   },
+   {
+    "kind": "handle"
+   },
+   {
+    "kind": "roller",
+    "on": "calf"
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -100.6
+   ],
+   "lean": 6,
+   "head": 2,
+   "thigh": 178,
+   "farThigh": 180,
+   "farShin": 180,
+   "farFoot": 0,
+   "arm": {
+    "hand": [
+     34,
+     -114
+    ],
+    "elbow": 1
+   },
+   "shin": 180,
+   "foot": 4
+  },
+  "to": {
+   "hip": [
+    0,
+    -100.6
+   ],
+   "lean": 6,
+   "head": 2,
+   "thigh": 178,
+   "farThigh": 180,
+   "farShin": 180,
+   "farFoot": 0,
+   "arm": {
+    "hand": [
+     34,
+     -114
+    ],
+    "elbow": 1
+   },
+   "shin": 296,
+   "foot": 112
+  }
+ },
+ {
+  "key": "nordic-hamstring-curls",
+  "name": "Nordic Curls",
+  "timing": [
+   0.1,
+   0.55,
+   0.62,
+   0.95
+  ],
+  "shift": -30,
+  "gear": [
+   {
+    "kind": "roller",
+    "on": "calf"
+   }
+  ],
+  "from": {
+   "hip": [
+    -6,
+    -53.1
+   ],
+   "kneeAt": [
+    -6,
+    -6.6
+   ],
+   "thigh": 180,
+   "shin": 270,
+   "foot": 166,
+   "lean": 0,
+   "head": 0,
+   "arm": {
+    "upper": 20,
+    "bend": 70
+   }
+  },
+  "to": {
+   "hip": [
+    37.1,
+    -24
+   ],
+   "kneeAt": [
+    -6,
+    -6.6
+   ],
+   "thigh": 248,
+   "shin": 270,
+   "foot": 166,
+   "lean": 68,
+   "head": 40,
+   "arm": {
+    "upper": 75,
+    "bend": 10
+   }
+  }
  }
 ]

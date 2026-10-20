@@ -1178,6 +1178,38 @@
    "isIsometric": false,
    "usesWeight": true,
    "instructions": "Set a box or bench behind you at about knee height and rest a barbell across your upper back.\nPush your hips back and sit down until you're resting on the box, shins about upright.\nPause for a moment without relaxing, then drive up through your feet to stand.\nSit back onto the box under control rather than dropping onto it."
+  },
+  {
+   "key": "dumbbell-romanian-deadlift",
+   "name": "Dumbbell Romanian Deadlift",
+   "target": "Hamstrings",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall holding a dumbbell in each hand in front of your thighs, knees slightly bent.\nPush your hips back and lower the dumbbells down the front of your legs, keeping your back flat.\nGo down until you feel a strong stretch in your hamstrings, usually around the middle of your shins.\nDrive your hips forward to stand back up, squeezing your glutes at the top."
+  },
+  {
+   "key": "dumbbell-single-leg-romanian-deadlift",
+   "name": "Single-Leg Romanian Deadlift",
+   "target": "Hamstrings",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand on one leg with a slight bend in the knee, holding a dumbbell in one hand.\nHinge forward at the hip, letting your free leg rise behind you in line with your body.\nLower until your body is about level with the floor or you feel a stretch in your standing hamstring.\nDrive your hips forward to stand back up, keeping your hips level, and switch legs after the set."
+  },
+  {
+   "key": "standing-leg-curls",
+   "name": "Standing Leg Curls",
+   "target": "Hamstrings",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand at the machine with your thighs against the front pad, the lower pad behind one ankle, and hold the handles.\nCurl your heel up towards your glutes, keeping your thigh still against the pad.\nSqueeze at the top, then lower slowly until your leg is straight.\nDon't lean back or swing the weight, and switch legs after the set."
+  },
+  {
+   "key": "nordic-hamstring-curls",
+   "name": "Nordic Curls",
+   "target": "Hamstrings",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Kneel on a mat with your ankles held down under a sturdy pad or by a partner, upright from knees to head.\nKeeping your hips straight, lower your body forward as slowly as you can, resisting with your hamstrings.\nWhen you can't hold it any longer, catch yourself with your hands and push off lightly to help yourself back up.\nThey're very hard, so start with a few slow reps, and only use your hands as much as you need."
   }
  ],
  "plans": [

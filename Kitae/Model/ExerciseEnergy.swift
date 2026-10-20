@@ -157,6 +157,16 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         "band-pull-aparts": .init(perKilogram: raise, bodyShare: 0.03), // Band Pull-Aparts
         "dumbbell-upright-rows": .init(perKilogram: arms, bodyShare: 0.04, loadFactor: 2), // Dumbbell Upright Rows
         "cable-upright-rows": .init(perKilogram: arms, bodyShare: 0.04), // Cable Upright Rows
+        "ez-bar-curls": .init(perKilogram: arms, bodyShare: 0.02), // EZ-Bar Curls
+        "dumbbell-preacher-curls": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Dumbbell Preacher Curls
+        "machine-preacher-curls": .init(perKilogram: arms, bodyShare: 0.02), // Machine Preacher Curls
+        "dumbbell-spider-curls": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Spider Curls
+        "dumbbell-zottman-curls": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Zottman Curls
+        "cable-hammer-curls": .init(perKilogram: arms, bodyShare: 0.02), // Cable Hammer Curls
+        "barbell-reverse-curls": .init(perKilogram: arms, bodyShare: 0.02), // Reverse Curls
+        // The weight moves only as far as the hand turns, about a fifth as far as in a curl.
+        "dumbbell-wrist-curls": .init(perKilogram: arms * 0.2, bodyShare: 0, loadFactor: 2), // Wrist Curls
+        "dumbbell-reverse-wrist-curls": .init(perKilogram: arms * 0.2, bodyShare: 0, loadFactor: 2), // Reverse Wrist Curls
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

@@ -858,6 +858,78 @@
    "isIsometric": false,
    "usesWeight": true,
    "instructions": "Set the pulley low with a straight bar and stand facing the machine, holding the bar in front of your thighs with a narrow grip.\nPull the bar up along your body to about chest height, leading with your elbows.\nLower it slowly back down.\nStop when your elbows reach shoulder height, or lower if your shoulders feel pinched."
+  },
+  {
+   "key": "ez-bar-curls",
+   "name": "EZ-Bar Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall holding an EZ bar on its angled grips, palms facing forward and arms straight.\nKeep your elbows at your sides and curl the bar up towards your shoulders.\nSqueeze your biceps at the top, then lower slowly until your arms are straight.\nDon't swing your body to lift the weight."
+  },
+  {
+   "key": "dumbbell-preacher-curls",
+   "name": "Dumbbell Preacher Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit at a preacher bench with the backs of your upper arms on the pad and a dumbbell in each hand.\nCurl the dumbbells up towards your shoulders, keeping your upper arms on the pad.\nLower them slowly until your arms are almost straight.\nDon't let the weights drop at the bottom, where your elbows are most stretched."
+  },
+  {
+   "key": "machine-preacher-curls",
+   "name": "Machine Preacher Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Adjust the seat so your armpits rest at the top of the pad, then sit with the backs of your upper arms on it and hold the handles.\nCurl the handles up towards your shoulders, keeping your upper arms on the pad.\nLower them slowly until your arms are almost straight.\nKeep your back straight and don't lift your elbows off the pad."
+  },
+  {
+   "key": "dumbbell-spider-curls",
+   "name": "Spider Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Lie chest-down on a bench set to about 45 degrees, with your arms hanging straight down and a dumbbell in each hand.\nKeep your upper arms still and curl the dumbbells up towards your shoulders.\nSqueeze your biceps at the top, then lower slowly until your arms are straight.\nKeep your chest on the pad so you can't swing the weight."
+  },
+  {
+   "key": "dumbbell-zottman-curls",
+   "name": "Zottman Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall with a dumbbell in each hand, palms facing forward.\nCurl the dumbbells up towards your shoulders, keeping your elbows at your sides.\nAt the top, turn your wrists so your palms face down, then lower the weights slowly.\nTurn your palms back to face forward at the bottom before the next rep."
+  },
+  {
+   "key": "cable-hammer-curls",
+   "name": "Cable Hammer Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Attach a rope to a low pulley and stand facing it, holding an end of the rope in each hand with your palms facing each other.\nKeep your elbows at your sides and curl the rope up towards your shoulders.\nLower it slowly until your arms are straight.\nKeep your palms facing each other throughout."
+  },
+  {
+   "key": "barbell-reverse-curls",
+   "name": "Reverse Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall holding a barbell with an overhand grip, palms facing down and hands about shoulder-width apart.\nKeep your elbows at your sides and curl the bar up towards your shoulders.\nLower it slowly until your arms are straight.\nUse a lighter weight than for regular curls, and keep your wrists straight."
+  },
+  {
+   "key": "dumbbell-wrist-curls",
+   "name": "Wrist Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit on a bench with your forearms resting on your thighs, palms up, and your hands just past your knees holding a dumbbell in each.\nLet your wrists bend back so the dumbbells lower towards the floor.\nCurl your wrists up as far as they go, keeping your forearms on your thighs.\nMove only at the wrists, slowly and with a light weight."
+  },
+  {
+   "key": "dumbbell-reverse-wrist-curls",
+   "name": "Reverse Wrist Curls",
+   "target": "Biceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit on a bench with your forearms resting on your thighs, palms down, and your hands just past your knees holding a dumbbell in each.\nLet your hands drop slowly towards the floor.\nLift the backs of your hands up as far as they go, keeping your forearms on your thighs.\nMove only at the wrists, with a lighter weight than for wrist curls."
   }
  ],
  "plans": [

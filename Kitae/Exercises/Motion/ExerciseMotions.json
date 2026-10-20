@@ -6289,5 +6289,550 @@
     "elbow": 1
    }
   }
+ },
+ {
+  "key": "ez-bar-curls",
+  "name": "EZ-Bar Curls",
+  "gear": [
+   {
+    "kind": "ezbar"
+   }
+  ],
+  "timing": [
+   0.1,
+   0.42,
+   0.52,
+   0.95
+  ],
+  "shift": -8,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 3,
+    "bend": 6
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 14,
+    "bend": 125
+   }
+  }
+ },
+ {
+  "key": "dumbbell-preacher-curls",
+  "name": "Dumbbell Preacher Curls",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -8,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -32,
+     -48
+    ],
+    "to": [
+     4,
+     -48
+    ],
+    "legs": [
+     -14
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     6,
+     -92.8
+    ],
+    "to": [
+     31.5,
+     -69.9
+    ],
+    "thick": 9,
+    "front": true,
+    "legs": [
+     18.8
+    ]
+   },
+   {
+    "kind": "dumbbells"
+   }
+  ],
+  "from": {
+   "hip": [
+    -12,
+    -58
+   ],
+   "lean": 22,
+   "head": 12,
+   "ankle": [
+    40,
+    -7.4
+   ],
+   "arm": {
+    "upper": 48,
+    "bend": 12
+   }
+  },
+  "to": {
+   "hip": [
+    -12,
+    -58
+   ],
+   "lean": 22,
+   "head": 12,
+   "ankle": [
+    40,
+    -7.4
+   ],
+   "arm": {
+    "upper": 48,
+    "bend": 118
+   }
+  }
+ },
+ {
+  "key": "machine-preacher-curls",
+  "name": "Machine Preacher Curls",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -8,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -32,
+     -48
+    ],
+    "to": [
+     4,
+     -48
+    ],
+    "legs": [
+     -14
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     6,
+     -92.8
+    ],
+    "to": [
+     31.5,
+     -69.9
+    ],
+    "thick": 9,
+    "front": true,
+    "legs": [
+     18.8
+    ]
+   },
+   {
+    "kind": "handle"
+   }
+  ],
+  "from": {
+   "hip": [
+    -12,
+    -58
+   ],
+   "lean": 22,
+   "head": 12,
+   "ankle": [
+    40,
+    -7.4
+   ],
+   "arm": {
+    "upper": 48,
+    "bend": 12
+   }
+  },
+  "to": {
+   "hip": [
+    -12,
+    -58
+   ],
+   "lean": 22,
+   "head": 12,
+   "ankle": [
+    40,
+    -7.4
+   ],
+   "arm": {
+    "upper": 48,
+    "bend": 118
+   }
+  }
+ },
+ {
+  "key": "dumbbell-spider-curls",
+  "name": "Spider Curls",
+  "timing": [
+   0.1,
+   0.42,
+   0.52,
+   0.95
+  ],
+  "shift": 14,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -18.8,
+     -66.9
+    ],
+    "to": [
+     19,
+     -96.5
+    ]
+   },
+   {
+    "kind": "post",
+    "from": [
+     5.3,
+     -75
+    ],
+    "to": [
+     5.3,
+     -2
+    ],
+    "width": 4
+   },
+   {
+    "kind": "dumbbells"
+   }
+  ],
+  "from": {
+   "hip": [
+    -24,
+    -80
+   ],
+   "lean": 52,
+   "head": 70,
+   "ankle": [
+    -74,
+    -7.4
+   ],
+   "arm": {
+    "upper": 0,
+    "bend": 6
+   }
+  },
+  "to": {
+   "hip": [
+    -24,
+    -80
+   ],
+   "lean": 52,
+   "head": 70,
+   "ankle": [
+    -74,
+    -7.4
+   ],
+   "arm": {
+    "upper": 6,
+    "bend": 130
+   }
+  }
+ },
+ {
+  "key": "dumbbell-zottman-curls",
+  "name": "Zottman Curls",
+  "gear": [
+   {
+    "kind": "dumbbells"
+   }
+  ],
+  "timing": [
+   0.1,
+   0.42,
+   0.52,
+   0.95
+  ],
+  "shift": -6,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 3,
+    "bend": 6
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 14,
+    "bend": 136
+   }
+  }
+ },
+ {
+  "key": "cable-hammer-curls",
+  "name": "Cable Hammer Curls",
+  "timing": [
+   0.1,
+   0.42,
+   0.52,
+   0.95
+  ],
+  "shift": -18,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     50,
+     -2
+    ],
+    "to": [
+     50,
+     -196
+    ],
+    "width": 7
+   },
+   {
+    "kind": "cable",
+    "from": [
+     50,
+     -18
+    ],
+    "handle": "rope"
+   }
+  ],
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": -1,
+   "head": 0,
+   "arm": {
+    "upper": 3,
+    "bend": 6
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": -1,
+   "head": 0,
+   "arm": {
+    "upper": 12,
+    "bend": 132
+   }
+  }
+ },
+ {
+  "key": "barbell-reverse-curls",
+  "name": "Reverse Curls",
+  "gear": [
+   {
+    "kind": "barbell",
+    "radius": 15
+   }
+  ],
+  "timing": [
+   0.1,
+   0.42,
+   0.52,
+   0.95
+  ],
+  "shift": -8,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 3,
+    "bend": 6
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 12,
+    "bend": 118
+   }
+  }
+ },
+ {
+  "key": "dumbbell-wrist-curls",
+  "name": "Wrist Curls",
+  "timing": [
+   0.1,
+   0.42,
+   0.52,
+   0.95
+  ],
+  "shift": -10,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -40,
+     -48
+    ],
+    "to": [
+     10,
+     -48
+    ],
+    "legs": [
+     -16
+    ]
+   },
+   {
+    "kind": "dumbbells"
+   }
+  ],
+  "from": {
+   "hip": [
+    -8,
+    -58
+   ],
+   "lean": 30,
+   "head": 40,
+   "ankle": [
+    34,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     40,
+     -70
+    ],
+    "elbow": 1,
+    "flex": -50
+   }
+  },
+  "to": {
+   "hip": [
+    -8,
+    -58
+   ],
+   "lean": 30,
+   "head": 40,
+   "ankle": [
+    34,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     40,
+     -70
+    ],
+    "elbow": 1,
+    "flex": 45
+   }
+  }
+ },
+ {
+  "key": "dumbbell-reverse-wrist-curls",
+  "name": "Reverse Wrist Curls",
+  "timing": [
+   0.1,
+   0.42,
+   0.52,
+   0.95
+  ],
+  "shift": -10,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -40,
+     -48
+    ],
+    "to": [
+     10,
+     -48
+    ],
+    "legs": [
+     -16
+    ]
+   },
+   {
+    "kind": "dumbbells"
+   }
+  ],
+  "from": {
+   "hip": [
+    -8,
+    -58
+   ],
+   "lean": 30,
+   "head": 40,
+   "ankle": [
+    34,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     40,
+     -70
+    ],
+    "elbow": 1,
+    "flex": -45
+   }
+  },
+  "to": {
+   "hip": [
+    -8,
+    -58
+   ],
+   "lean": 30,
+   "head": 40,
+   "ankle": [
+    34,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     40,
+     -70
+    ],
+    "elbow": 1,
+    "flex": 35
+   }
+  }
  }
 ]

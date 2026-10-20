@@ -110,6 +110,11 @@ const landminePress = { hip: [-6, -99.4], lean: 8, head: 4 };
 // A pike: straight legs from the feet at `legs` degrees, the body folded at the hips to `lean`.
 const PIKE_FEET = [-49.4, -12], PIKE_HANDS = [44.3, -5];
 const pike = (legs, lean) => ({ hip: lineHip(PIKE_FEET, legs), lean, thigh: legs + 180, shin: legs + 180, foot: legs + 30 });
+const preacherBench = [{ kind: 'pad', from: [-32, SEAT], to: [4, SEAT], legs: [-14] },
+  { kind: 'pad', ...preacherArm, thick: 9, front: true, legs: [r1((preacherArm.from[0] + preacherArm.to[0]) / 2)] }];
+// Seated, leaning forward with the forearms along the thighs and the wrists just past the knees.
+const wristCurl = { hip: [-8, -58], lean: 30, head: 40, ankle: [34, -7.4] };
+const WRIST_ON_KNEE = [40, -70];
 
 // The front view: the figure facing the viewer. Standing hip height puts the feet on the floor.
 const fstand = { hip: [0, -100.2] };
@@ -773,6 +778,62 @@ const motions = [
     gear: [{ kind: 'band' }],
     from: { ...fstand, arm: { hand: [12, -142], elbow: 1, upperLength: 0.45, foreLength: 0.45 } },
     to: { ...fstand, arm: { hand: [80, -150], elbow: 1 } },
+  },
+
+  // The library's biceps and forearm exercises
+  {
+    key: 'ez-bar-curls', name: 'EZ-Bar Curls', gear: [{ kind: 'ezbar' }],
+    timing: [0.1, 0.42, 0.52, 0.95], shift: -8,
+    from: { ...stand, arm: { upper: 3, bend: 6 } },
+    to: { ...stand, arm: { upper: 14, bend: 125 } },
+  },
+  {
+    key: 'dumbbell-preacher-curls', name: 'Dumbbell Preacher Curls', timing: [0.1, 0.45, 0.55, 0.95], shift: -8,
+    gear: [...preacherBench, { kind: 'dumbbells' }],
+    from: { ...preacher, arm: { upper: 48, bend: 12 } },
+    to: { ...preacher, arm: { upper: 48, bend: 118 } },
+  },
+  {
+    key: 'machine-preacher-curls', name: 'Machine Preacher Curls', timing: [0.1, 0.45, 0.55, 0.95], shift: -8,
+    gear: [...preacherBench, { kind: 'handle' }],
+    from: { ...preacher, arm: { upper: 48, bend: 12 } },
+    to: { ...preacher, arm: { upper: 48, bend: 118 } },
+  },
+  {
+    key: 'dumbbell-spider-curls', name: 'Spider Curls', timing: [0.1, 0.42, 0.52, 0.95], shift: 14,
+    gear: [frontPad(prone, -4, 44), postDown(on(prone, 20, 22)), { kind: 'dumbbells' }],
+    from: { ...prone, arm: { upper: 0, bend: 6 } },
+    to: { ...prone, arm: { upper: 6, bend: 130 } },
+  },
+  {
+    key: 'dumbbell-zottman-curls', name: 'Zottman Curls', gear: [{ kind: 'dumbbells' }],
+    timing: [0.1, 0.42, 0.52, 0.95], shift: -6,
+    from: { ...stand, arm: { upper: 3, bend: 6 } },
+    to: { ...stand, arm: { upper: 14, bend: 136 } },
+  },
+  {
+    key: 'cable-hammer-curls', name: 'Cable Hammer Curls', timing: [0.1, 0.42, 0.52, 0.95], shift: -18,
+    gear: [{ kind: 'post', from: [50, -2], to: [50, -196], width: 7 }, { kind: 'cable', from: [50, -18], handle: 'rope' }],
+    from: { ...stand, lean: -1, arm: { upper: 3, bend: 6 } },
+    to: { ...stand, lean: -1, arm: { upper: 12, bend: 132 } },
+  },
+  {
+    key: 'barbell-reverse-curls', name: 'Reverse Curls', gear: [{ kind: 'barbell', radius: 15 }],
+    timing: [0.1, 0.42, 0.52, 0.95], shift: -8,
+    from: { ...stand, arm: { upper: 3, bend: 6 } },
+    to: { ...stand, arm: { upper: 12, bend: 118 } },
+  },
+  {
+    key: 'dumbbell-wrist-curls', name: 'Wrist Curls', timing: [0.1, 0.42, 0.52, 0.95], shift: -10,
+    gear: [{ kind: 'pad', from: [-40, -48], to: [10, -48], legs: [-16] }, { kind: 'dumbbells' }],
+    from: { ...wristCurl, arm: { hand: WRIST_ON_KNEE, elbow: 1, flex: -50 } },
+    to: { ...wristCurl, arm: { hand: WRIST_ON_KNEE, elbow: 1, flex: 45 } },
+  },
+  {
+    key: 'dumbbell-reverse-wrist-curls', name: 'Reverse Wrist Curls', timing: [0.1, 0.42, 0.52, 0.95], shift: -10,
+    gear: [{ kind: 'pad', from: [-40, -48], to: [10, -48], legs: [-16] }, { kind: 'dumbbells' }],
+    from: { ...wristCurl, arm: { hand: WRIST_ON_KNEE, elbow: 1, flex: -45 } },
+    to: { ...wristCurl, arm: { hand: WRIST_ON_KNEE, elbow: 1, flex: 35 } },
   },
 ];
 

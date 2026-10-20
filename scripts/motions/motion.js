@@ -71,8 +71,8 @@ const hexagon = (c, r, deg) => polygon([0, 1, 2, 3, 4, 5].map(i => add(c, mul(di
 // Data, as ExerciseMotion.swift decodes it.
 const V = a => v(a[0], a[1]);
 function arm(a) {
-  return 'upper' in a ? { kind: 'swing', upper: a.upper, bend: a.bend ?? 0, upperLength: a.upperLength ?? 1 }
-    : { kind: 'reach', hand: V(a.hand), onTorso: a.on === 'torso', scale: a.scale ?? 1, elbow: a.elbow ?? -1, upperLength: a.upperLength ?? 1 };
+  return 'upper' in a ? { kind: 'swing', upper: a.upper, bend: a.bend ?? 0, upperLength: a.upperLength ?? 1, flex: a.flex ?? 0 }
+    : { kind: 'reach', hand: V(a.hand), onTorso: a.on === 'torso', scale: a.scale ?? 1, elbow: a.elbow ?? -1, upperLength: a.upperLength ?? 1, flex: a.flex ?? 0 };
 }
 function pose(j) {
   return {
@@ -108,8 +108,8 @@ function motion(j) {
   };
 }
 function lerpArm(a, b, t) {
-  if (a.kind === 'swing' && b.kind === 'swing') return { kind: 'swing', upper: lerp(a.upper, b.upper, t), bend: lerp(a.bend, b.bend, t), upperLength: lerp(a.upperLength, b.upperLength, t) };
-  if (a.kind === 'reach' && b.kind === 'reach') return { ...a, hand: lerpV(a.hand, b.hand, t), scale: lerp(a.scale, b.scale, t), upperLength: lerp(a.upperLength, b.upperLength, t) };
+  if (a.kind === 'swing' && b.kind === 'swing') return { kind: 'swing', upper: lerp(a.upper, b.upper, t), bend: lerp(a.bend, b.bend, t), upperLength: lerp(a.upperLength, b.upperLength, t), flex: lerp(a.flex, b.flex, t) };
+  if (a.kind === 'reach' && b.kind === 'reach') return { ...a, hand: lerpV(a.hand, b.hand, t), scale: lerp(a.scale, b.scale, t), upperLength: lerp(a.upperLength, b.upperLength, t), flex: lerp(a.flex, b.flex, t) };
   return t < 0.5 ? a : b;
 }
 function lerpPose(a, b, t) {
@@ -153,11 +153,11 @@ function figure(p) {
     const shoulder = add(shoulderAt, o);
     if (ap.kind === 'swing') {
       const elbow = add(shoulder, mul(dir(180 - ap.upper), BODY.upperArm * ap.upperLength));
-      return { shoulder, elbow, wrist: add(elbow, mul(dir(180 - ap.upper - ap.bend), BODY.forearm)), scale: 1 };
+      return { shoulder, elbow, wrist: add(elbow, mul(dir(180 - ap.upper - ap.bend), BODY.forearm)), scale: 1, flex: ap.flex };
     }
     const target = add(ap.onTorso ? torso(ap.hand.x, ap.hand.y) : ap.hand, o);
     const elbow = joint(shoulder, target, BODY.upperArm * ap.scale * ap.upperLength, BODY.forearm * ap.scale, ap.elbow);
-    return { shoulder, elbow, wrist: add(elbow, mul(unit(sub(target, elbow)), BODY.forearm * ap.scale)), scale: ap.scale };
+    return { shoulder, elbow, wrist: add(elbow, mul(unit(sub(target, elbow)), BODY.forearm * ap.scale)), scale: ap.scale, flex: ap.flex };
   };
   const spineAt = a => rotate(spine, p.curl * Math.PI / 180 * smooth01((a - 10) / 16));
   return {
@@ -193,7 +193,9 @@ function legShape(l) {
 function armShape(a) {
   const ud = unit(sub(a.elbow, a.shoulder)), fd = unit(sub(a.wrist, a.elbow));
   const fore = add(lerpV(a.elbow, a.wrist, 0.3), mul(front(fd), 0.4));
-  const grip = add(a.wrist, mul(fd, 6.5 * Math.max(a.scale, 0.8)));
+  // The hand carries on from the forearm, bent at the wrist by `flex` degrees toward its front.
+  const fl = a.flex * Math.PI / 180, hd = unit(add(mul(fd, Math.cos(fl)), mul(front(fd), Math.sin(fl))));
+  const grip = add(a.wrist, mul(hd, 6.5 * Math.max(a.scale, 0.8)));
   const bent = Math.acos(Math.min(1, Math.max(-1, ud.x * fd.x + ud.y * fd.y))) * 180 / Math.PI;
   const k = Math.min(1, bent / 130);
   return {

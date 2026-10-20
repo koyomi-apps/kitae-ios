@@ -189,38 +189,40 @@ nonisolated enum FigureShapes {
 nonisolated enum ArmPose: Equatable, Sendable, Decodable {
     /// The upper arm swung forward from hanging by `upper` degrees, the elbow bent by `bend`.
     /// `upperLength` shortens the upper arm when it points toward the viewer, as in a press.
-    case swing(upper: Double, bend: Double, upperLength: Double)
+    /// `flex` bends the hand at the wrist, in degrees toward the front of the forearm.
+    case swing(upper: Double, bend: Double, upperLength: Double, flex: Double = 0)
     /// The hand at a point: on the body (along the spine, then out the front) when `onTorso`,
     /// otherwise in the scene. `scale` shortens an arm that reaches out sideways, `upperLength`
     /// shortens just its upper half, and `elbow` picks the side the elbow goes to.
-    case reach(hand: Vec, onTorso: Bool, scale: Double, upperLength: Double, elbow: Double)
+    case reach(hand: Vec, onTorso: Bool, scale: Double, upperLength: Double, elbow: Double, flex: Double = 0)
 
-    nonisolated private enum Keys: String, CodingKey { case upper, bend, upperLength, hand, on, scale, elbow }
+    nonisolated private enum Keys: String, CodingKey { case upper, bend, upperLength, hand, on, scale, elbow, flex }
 
     init(from decoder: Decoder) throws {
         let c = try decoder.container(keyedBy: Keys.self)
         let upperLength = try c.decodeIfPresent(Double.self, forKey: .upperLength) ?? 1
+        let flex = try c.decodeIfPresent(Double.self, forKey: .flex) ?? 0
         if c.contains(.upper) {
             self = .swing(upper: try c.decode(Double.self, forKey: .upper),
                           bend: try c.decodeIfPresent(Double.self, forKey: .bend) ?? 0,
-                          upperLength: upperLength)
+                          upperLength: upperLength, flex: flex)
         } else {
             self = .reach(hand: try c.decode(Vec.self, forKey: .hand),
                           onTorso: try c.decodeIfPresent(String.self, forKey: .on) == "torso",
                           scale: try c.decodeIfPresent(Double.self, forKey: .scale) ?? 1,
                           upperLength: upperLength,
-                          elbow: try c.decodeIfPresent(Double.self, forKey: .elbow) ?? -1)
+                          elbow: try c.decodeIfPresent(Double.self, forKey: .elbow) ?? -1, flex: flex)
         }
     }
 
     static func lerp(_ a: ArmPose, _ b: ArmPose, _ t: Double) -> ArmPose {
         switch (a, b) {
-        case let (.swing(u1, b1, l1), .swing(u2, b2, l2)):
+        case let (.swing(u1, b1, l1, f1), .swing(u2, b2, l2, f2)):
             return .swing(upper: FigureMath.lerp(u1, u2, t), bend: FigureMath.lerp(b1, b2, t),
-                          upperLength: FigureMath.lerp(l1, l2, t))
-        case let (.reach(h1, o1, s1, l1, e1), .reach(h2, _, s2, l2, _)):
+                          upperLength: FigureMath.lerp(l1, l2, t), flex: FigureMath.lerp(f1, f2, t))
+        case let (.reach(h1, o1, s1, l1, e1, f1), .reach(h2, _, s2, l2, _, f2)):
             return .reach(hand: .lerp(h1, h2, t), onTorso: o1, scale: FigureMath.lerp(s1, s2, t),
-                          upperLength: FigureMath.lerp(l1, l2, t), elbow: e1)
+                          upperLength: FigureMath.lerp(l1, l2, t), elbow: e1, flex: FigureMath.lerp(f1, f2, t))
         default:
             return t < 0.5 ? a : b
         }
@@ -230,7 +232,7 @@ nonisolated enum ArmPose: Equatable, Sendable, Decodable {
     var kind: String {
         switch self {
         case .swing: "swing"
-        case let .reach(_, onTorso, _, _, _): onTorso ? "torso" : "scene"
+        case let .reach(_, onTorso, _, _, _, _): onTorso ? "torso" : "scene"
         }
     }
 }
@@ -351,6 +353,8 @@ nonisolated struct Figure {
     nonisolated struct Arm {
         var shoulder, elbow, wrist: Vec
         var scale: Double
+        /// How far the hand bends at the wrist, in degrees toward the front of the forearm.
+        var flex = 0.0
     }
 
     let pose: FigurePose
@@ -398,16 +402,16 @@ nonisolated struct Figure {
         func arm(_ pose: ArmPose, _ o: Vec) -> Arm {
             let shoulder = shoulderPoint + o
             switch pose {
-            case let .swing(upper, bend, upperLength):
+            case let .swing(upper, bend, upperLength, flex):
                 let elbow = shoulder + Vec.direction(180 - upper) * (FigureBody.upperArm * upperLength)
                 let wrist = elbow + Vec.direction(180 - upper - bend) * FigureBody.forearm
-                return Arm(shoulder: shoulder, elbow: elbow, wrist: wrist, scale: 1)
-            case let .reach(hand, onTorso, scale, upperLength, side):
+                return Arm(shoulder: shoulder, elbow: elbow, wrist: wrist, scale: 1, flex: flex)
+            case let .reach(hand, onTorso, scale, upperLength, side, flex):
                 let target = (onTorso ? torso(hand.x, hand.y) : hand) + o
                 let elbow = FigureMath.joint(from: shoulder, to: target, FigureBody.upperArm * scale * upperLength,
                                              FigureBody.forearm * scale, bend: side)
                 let wrist = elbow + (target - elbow).unit * (FigureBody.forearm * scale)
-                return Arm(shoulder: shoulder, elbow: elbow, wrist: wrist, scale: scale)
+                return Arm(shoulder: shoulder, elbow: elbow, wrist: wrist, scale: scale, flex: flex)
             }
         }
         let far = FigureBody.farOffset

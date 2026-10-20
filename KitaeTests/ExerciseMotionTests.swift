@@ -128,6 +128,18 @@ struct ExerciseMotionTests {
         #expect(mid.arm == .swing(upper: 10, bend: 60, upperLength: 0.75))
     }
 
+    @Test func aWristBendsTheHandAndWhatItHolds() throws {
+        let json = Data(#"{"hand": [40, -70], "elbow": 1, "flex": 40}"#.utf8)
+        let bent = try JSONDecoder().decode(ArmPose.self, from: json)
+        #expect(bent == .reach(hand: Vec(40, -70), onTorso: false, scale: 1, upperLength: 1, elbow: 1, flex: 40))
+        let straight = ArmPose.reach(hand: Vec(40, -70), onTorso: false, scale: 1, upperLength: 1, elbow: 1)
+        #expect(ArmPose.lerp(straight, bent, 0.5) == .reach(hand: Vec(40, -70), onTorso: false, scale: 1, upperLength: 1, elbow: 1, flex: 20))
+        // The wrist stays put; only the hand turns.
+        let pose = FigurePose(hip: Vec(-8, -58), lean: 30, arm: bent)
+        #expect(Figure(pose).nearArm.wrist == Figure(FigurePose(hip: Vec(-8, -58), lean: 30, arm: straight)).nearArm.wrist)
+        #expect(Figure(pose).nearArm.flex == 40)
+    }
+
     @Test func aKneelingPoseStaysOnItsKnee() {
         let knee = Vec(-6, -6.6)
         for thigh in [160.0, 200, 245] {

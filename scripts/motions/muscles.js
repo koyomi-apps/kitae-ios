@@ -263,6 +263,15 @@ const EXERCISES = {
     'band-pull-aparts': ['Band Pull-Aparts', 'rearDelts', 'upperBack traps'],
     'dumbbell-upright-rows': ['Dumbbell Upright Rows', 'sideDelts traps', 'frontDelts biceps'],
     'cable-upright-rows': ['Cable Upright Rows', 'sideDelts traps', 'frontDelts biceps'],
+    'ez-bar-curls': ['EZ-Bar Curls', 'biceps', 'forearms'],
+    'dumbbell-preacher-curls': ['Dumbbell Preacher Curls', 'biceps', 'forearms'],
+    'machine-preacher-curls': ['Machine Preacher Curls', 'biceps', 'forearms'],
+    'dumbbell-spider-curls': ['Spider Curls', 'biceps', 'forearms'],
+    'dumbbell-zottman-curls': ['Zottman Curls', 'biceps forearms', ''],
+    'cable-hammer-curls': ['Cable Hammer Curls', 'biceps forearms', ''],
+    'barbell-reverse-curls': ['Reverse Curls', 'forearms', 'biceps'],
+    'dumbbell-wrist-curls': ['Wrist Curls', 'forearms', ''],
+    'dumbbell-reverse-wrist-curls': ['Reverse Wrist Curls', 'forearms', ''],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

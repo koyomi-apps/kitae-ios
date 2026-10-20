@@ -393,7 +393,9 @@ nonisolated private struct ArmShape {
         arm = a
         let ud = (a.elbow - a.shoulder).unit, fd = (a.wrist - a.elbow).unit
         let fore = Vec.lerp(a.elbow, a.wrist, 0.3) + fd.front * 0.4
-        grip = a.wrist + fd * (6.5 * max(a.scale, 0.8))
+        // The hand carries on from the forearm, bent at the wrist by `flex` degrees toward its front.
+        let flex = a.flex * .pi / 180, hd = (fd * cos(flex) + fd.front * sin(flex)).unit
+        grip = a.wrist + hd * (6.5 * max(a.scale, 0.8))
         upper = FigureShapes.capsule(a.shoulder, a.elbow, 6.8, 4.5)
         forearm = FigureShapes.union(FigureShapes.capsule(a.elbow, fore, 4.5, 5.0),
                                      FigureShapes.capsule(fore, a.wrist, 5.0, 3.3))

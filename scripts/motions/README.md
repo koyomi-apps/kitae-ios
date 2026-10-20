@@ -32,7 +32,8 @@ gives the hip, the spine's `lean` (0 upright, 90 face down, -90 face up), and ei
 leg reaches for or `thigh` and `shin` angles (0 up, 90 forward, 180 down). Arms either `swing`
 (`upper` degrees forward from hanging and `bend` at the elbow) or reach for a `hand` point, in the
 scene or on the body (`on: "torso"`: along the spine, then out the front). `scale` and
-`upperLength` shorten arms that point toward the viewer. `curl` bends the spine above the waist
+`upperLength` shorten arms that point toward the viewer, and `flex` bends the hand at the wrist, in degrees
+toward the front of the forearm (a wrist curl). `curl` bends the spine above the waist
 and `shrug` lifts the shoulders. The far arm and leg copy the near ones a little behind them,
 unless `farArm`, `farAnkle` or `farThigh` and `farShin` say otherwise. A kneeling pose can pin its
 knee (`kneeAt`) so the hip follows the thigh's angle.

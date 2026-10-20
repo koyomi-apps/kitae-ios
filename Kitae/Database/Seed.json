@@ -1106,6 +1106,78 @@
    "isIsometric": true,
    "usesWeight": true,
    "instructions": "Pick up a heavy dumbbell in each hand and stand tall with them at your sides.\nWalk with short, steady steps, keeping your shoulders back and your core braced.\nKeep the weights still at your sides and don't lean to either side.\nWalk for the set time, then set the dumbbells down with a flat back."
+  },
+  {
+   "key": "trap-bar-deadlift",
+   "name": "Trap Bar Deadlift",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand in the middle of a trap bar with your feet hip-width apart and grip the handles at your sides.\nBend your hips and knees to reach the handles, chest up and back flat.\nPush the floor away to stand up tall, keeping your arms straight.\nLower the bar the same way, bending your hips and knees together, until the plates touch the floor."
+  },
+  {
+   "key": "barbell-lunges",
+   "name": "Barbell Lunges",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Rest a barbell across your upper back, holding it with your hands just wider than your shoulders.\nStand with one foot well in front of the other, the back heel raised.\nLower your back knee towards the floor until your front thigh is about level with it, then push back up through your front foot.\nKeep your chest up and your front knee over your foot, and switch legs halfway through the set."
+  },
+  {
+   "key": "dumbbell-walking-lunges",
+   "name": "Walking Lunges",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall with a dumbbell in each hand at your sides.\nTake a long step forward and lower your back knee towards the floor until your front thigh is about level with it.\nPush through your front foot to stand up, bringing your back leg through to step straight into the next lunge.\nKeep your chest up and your front knee over your foot as you walk."
+  },
+  {
+   "key": "dumbbell-reverse-lunges",
+   "name": "Reverse Lunges",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall with a dumbbell in each hand at your sides.\nTake a long step back and lower your back knee towards the floor until your front thigh is about level with it.\nPush through your front foot to bring your back foot forward and stand up again.\nAlternate legs, keeping your chest up and your weight on the front foot."
+  },
+  {
+   "key": "dumbbell-split-squats",
+   "name": "Split Squats",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Hold a dumbbell in each hand and stand with one foot well in front of the other, the back heel raised.\nKeeping your feet where they are, lower your back knee towards the floor until your front thigh is about level with it.\nPush up through your front foot without fully straightening your legs at the top.\nKeep your chest up, and switch legs after the set."
+  },
+  {
+   "key": "dumbbell-step-ups",
+   "name": "Step-ups",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand in front of a sturdy bench or box with a dumbbell in each hand, and put one foot flat on top.\nPush through that foot to step up until you're standing tall on the bench, bringing your other foot up beside it.\nStep back down with the same leg you brought up, under control.\nPush with the top foot rather than jumping off the bottom one, and switch legs after the set."
+  },
+  {
+   "key": "dumbbell-squats",
+   "name": "Dumbbell Squats",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand with your feet about shoulder-width apart, holding a dumbbell in each hand at your sides.\nPush your hips back and bend your knees to sit down between your heels, chest up.\nGo down until your thighs are about level with the floor, letting the dumbbells hang straight down.\nPush through your whole foot to stand back up."
+  },
+  {
+   "key": "bodyweight-squats",
+   "name": "Bodyweight Squats",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Stand with your feet about shoulder-width apart, toes turned out a little.\nPush your hips back and bend your knees, raising your arms in front of you for balance.\nGo down until your thighs are about level with the floor, keeping your heels down and chest up.\nPush through your whole foot to stand back up."
+  },
+  {
+   "key": "barbell-box-squats",
+   "name": "Box Squats",
+   "target": "Quads",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set a box or bench behind you at about knee height and rest a barbell across your upper back.\nPush your hips back and sit down until you're resting on the box, shins about upright.\nPause for a moment without relaxing, then drive up through your feet to stand.\nSit back onto the box under control rather than dropping onto it."
   }
  ],
  "plans": [

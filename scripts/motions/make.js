@@ -152,6 +152,14 @@ const invertedBar = on(straightBody(INVERTED_HEELS, -54), 37, 16.5);
 // A farmer's carry walks: one stride and the next, the back foot on its toes.
 const carryStride = { hip: [0, -99], lean: 3, head: 0, arm: { upper: 2, bend: 4 } };
 const FRONT_FOOT = [16, -7.4], BACK_FOOT = [-18, -11];
+// Squats and lunges for the legs. The back squat's hands on the bar.
+const barOnBack = { hand: [48.6, -13], on: 'torso', scale: 0.75, elbow: -1 };
+const barOnBackLow = { hand: [46.4, -11.2], on: 'torso', scale: 0.75, elbow: -1 };
+const sidesArm = { upper: 0, bend: 4 };
+// A lunge's bottom: the near foot ahead, the far knee near the floor.
+const lungeBottom = { hip: [-4, -55], lean: 4, head: 2, ankle: [24, -7.4], foot: 0 };
+// Step-ups: the near foot on a bench.
+const STEP = [30, BENCH - 7.4];
 const assistedPullUps = [{ kind: 'post', from: [-96, -2], to: [-96, -236], width: 7 }, { kind: 'post', from: [-96, -228], to: [6, -228], width: 3 },
   { kind: 'bar', at: [6, -228] }, { kind: 'pad', on: 'shins', anchor: [-96, -79] }];
 
@@ -1014,6 +1022,62 @@ const motions = [
     timing: [0, 0.5, 0.5, 1], seconds: 1.3, shift: 0,
     from: { ...carryStride, ankle: FRONT_FOOT, foot: 0, farAnkle: BACK_FOOT, farFoot: 26 },
     to: { ...carryStride, ankle: BACK_FOOT, foot: 26, farAnkle: FRONT_FOOT, farFoot: 0 },
+  },
+
+  // The library's quads exercises
+  {
+    key: 'trap-bar-deadlift', name: 'Trap Bar Deadlift', gear: [{ kind: 'trapbar' }],
+    timing: [0.1, 0.48, 0.58, 0.95], shift: 4,
+    from: { hip: hipBelow([2, -23.5 - 61], 42), lean: 42, head: 16, arm: { hand: [1, -23.5], elbow: -1 } },
+    to: { ...stand, arm: { hand: [1, -86.5], elbow: -1 } },
+  },
+  {
+    key: 'barbell-lunges', name: 'Barbell Lunges', gear: [{ kind: 'barbell', on: 'back' }],
+    timing: [0.08, 0.5, 0.58, 0.94], shift: 4,
+    from: { hip: [-4, -95], lean: 2, head: 0, ankle: [24, -7.4], farAnkle: [-31.5, -16.4], farFoot: 35, arm: barOnBack },
+    to: { hip: [-4, -55], lean: 4, head: 0, ankle: [24, -7.4], farAnkle: [-31.5, -16.4], farFoot: 35, arm: barOnBackLow },
+  },
+  {
+    // Out of the lunge onto the front foot, the back knee coming through for the next step.
+    key: 'dumbbell-walking-lunges', name: 'Walking Lunges', gear: [{ kind: 'dumbbells', profile: true }],
+    timing: [0.08, 0.5, 0.58, 0.94], shift: -6,
+    from: { ...lungeBottom, farThigh: 155.8, farShin: 274.7, farFoot: 35, arm: sidesArm },
+    to: { hip: [23, -99.6], lean: 1.5, head: 0, ankle: [24, -7.4], foot: 0, farThigh: 95, farShin: 182, farFoot: 30, arm: sidesArm },
+  },
+  {
+    key: 'dumbbell-reverse-lunges', name: 'Reverse Lunges', gear: [{ kind: 'dumbbells', profile: true }],
+    timing: [0.08, 0.5, 0.58, 0.94], shift: 16,
+    from: { ...stand, ankle: [0, -7.4], foot: 0, farAnkle: [0, -7.4], farFoot: 0, arm: sidesArm },
+    to: { ...lungeBottom, hip: [-28, -55], ankle: [0, -7.4], farAnkle: [-55.5, -16.4], farFoot: 35, arm: sidesArm },
+  },
+  {
+    key: 'dumbbell-split-squats', name: 'Split Squats', gear: [{ kind: 'dumbbells', profile: true }],
+    timing: [0.08, 0.5, 0.58, 0.94], shift: 4,
+    from: { hip: [-6, -94], lean: 0, head: 0, ankle: [26, -7.4], farAnkle: [-36, -16.4], farFoot: 38, arm: sidesArm },
+    to: { hip: [-6, -52], lean: 2, head: 0, ankle: [26, -7.4], farAnkle: [-36, -16.4], farFoot: 38, arm: sidesArm },
+  },
+  {
+    key: 'dumbbell-step-ups', name: 'Step-ups', timing: [0.08, 0.5, 0.58, 0.94], zoom: 0.8, shift: -16,
+    gear: [{ kind: 'pad', from: [10, BENCH], to: [92, BENCH], legs: [20, 82] }, { kind: 'dumbbells', profile: true }],
+    from: { hip: [-8, -99], lean: 4, head: 0, ankle: STEP, foot: 0, farAnkle: [-14, -7.4], farFoot: 0, arm: sidesArm },
+    to: { hip: [28, -146.6], lean: 2, head: 0, ankle: STEP, foot: 0, farAnkle: STEP, farFoot: 0, arm: sidesArm },
+  },
+  {
+    key: 'dumbbell-squats', name: 'Dumbbell Squats', gear: [{ kind: 'dumbbells', profile: true }],
+    timing: [0.08, 0.52, 0.58, 0.94], shift: 12,
+    from: { ...stand, arm: sidesArm },
+    to: { hip: [-32, -57], lean: 34, head: 14, arm: sidesArm },
+  },
+  {
+    key: 'bodyweight-squats', name: 'Bodyweight Squats', timing: [0.08, 0.52, 0.58, 0.94], shift: 10,
+    from: { ...stand, arm: sidesArm },
+    to: { hip: [-32, -57], lean: 34, head: 16, arm: { upper: 90, bend: 4 } },
+  },
+  {
+    key: 'barbell-box-squats', name: 'Box Squats', timing: [0.08, 0.52, 0.6, 0.94], shift: 22,
+    gear: [{ kind: 'pad', from: [-74, -50.5], to: [-30, -50.5], legs: [-64, -40] }, { kind: 'barbell', on: 'back' }],
+    from: { hip: [-2, -99.6], lean: 4, head: 1.8, arm: barOnBack },
+    to: { hip: [-40, -57], lean: 36, head: 18, arm: barOnBackLow },
   },
 ];
 

@@ -8314,5 +8314,516 @@
    ],
    "farFoot": 0
   }
+ },
+ {
+  "key": "trap-bar-deadlift",
+  "name": "Trap Bar Deadlift",
+  "gear": [
+   {
+    "kind": "trapbar"
+   }
+  ],
+  "timing": [
+   0.1,
+   0.48,
+   0.58,
+   0.95
+  ],
+  "shift": 4,
+  "from": {
+   "hip": [
+    -29.7,
+    -48.5
+   ],
+   "lean": 42,
+   "head": 16,
+   "arm": {
+    "hand": [
+     1,
+     -23.5
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "hand": [
+     1,
+     -86.5
+    ],
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "barbell-lunges",
+  "name": "Barbell Lunges",
+  "gear": [
+   {
+    "kind": "barbell",
+    "on": "back"
+   }
+  ],
+  "timing": [
+   0.08,
+   0.5,
+   0.58,
+   0.94
+  ],
+  "shift": 4,
+  "from": {
+   "hip": [
+    -4,
+    -95
+   ],
+   "lean": 2,
+   "head": 0,
+   "ankle": [
+    24,
+    -7.4
+   ],
+   "farAnkle": [
+    -31.5,
+    -16.4
+   ],
+   "farFoot": 35,
+   "arm": {
+    "hand": [
+     48.6,
+     -13
+    ],
+    "on": "torso",
+    "scale": 0.75,
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -55
+   ],
+   "lean": 4,
+   "head": 0,
+   "ankle": [
+    24,
+    -7.4
+   ],
+   "farAnkle": [
+    -31.5,
+    -16.4
+   ],
+   "farFoot": 35,
+   "arm": {
+    "hand": [
+     46.4,
+     -11.2
+    ],
+    "on": "torso",
+    "scale": 0.75,
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "dumbbell-walking-lunges",
+  "name": "Walking Lunges",
+  "gear": [
+   {
+    "kind": "dumbbells",
+    "profile": true
+   }
+  ],
+  "timing": [
+   0.08,
+   0.5,
+   0.58,
+   0.94
+  ],
+  "shift": -6,
+  "from": {
+   "hip": [
+    -4,
+    -55
+   ],
+   "lean": 4,
+   "head": 2,
+   "ankle": [
+    24,
+    -7.4
+   ],
+   "foot": 0,
+   "farThigh": 155.8,
+   "farShin": 274.7,
+   "farFoot": 35,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  },
+  "to": {
+   "hip": [
+    23,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "ankle": [
+    24,
+    -7.4
+   ],
+   "foot": 0,
+   "farThigh": 95,
+   "farShin": 182,
+   "farFoot": 30,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  }
+ },
+ {
+  "key": "dumbbell-reverse-lunges",
+  "name": "Reverse Lunges",
+  "gear": [
+   {
+    "kind": "dumbbells",
+    "profile": true
+   }
+  ],
+  "timing": [
+   0.08,
+   0.5,
+   0.58,
+   0.94
+  ],
+  "shift": 16,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "ankle": [
+    0,
+    -7.4
+   ],
+   "foot": 0,
+   "farAnkle": [
+    0,
+    -7.4
+   ],
+   "farFoot": 0,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  },
+  "to": {
+   "hip": [
+    -28,
+    -55
+   ],
+   "lean": 4,
+   "head": 2,
+   "ankle": [
+    0,
+    -7.4
+   ],
+   "foot": 0,
+   "farAnkle": [
+    -55.5,
+    -16.4
+   ],
+   "farFoot": 35,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  }
+ },
+ {
+  "key": "dumbbell-split-squats",
+  "name": "Split Squats",
+  "gear": [
+   {
+    "kind": "dumbbells",
+    "profile": true
+   }
+  ],
+  "timing": [
+   0.08,
+   0.5,
+   0.58,
+   0.94
+  ],
+  "shift": 4,
+  "from": {
+   "hip": [
+    -6,
+    -94
+   ],
+   "lean": 0,
+   "head": 0,
+   "ankle": [
+    26,
+    -7.4
+   ],
+   "farAnkle": [
+    -36,
+    -16.4
+   ],
+   "farFoot": 38,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  },
+  "to": {
+   "hip": [
+    -6,
+    -52
+   ],
+   "lean": 2,
+   "head": 0,
+   "ankle": [
+    26,
+    -7.4
+   ],
+   "farAnkle": [
+    -36,
+    -16.4
+   ],
+   "farFoot": 38,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  }
+ },
+ {
+  "key": "dumbbell-step-ups",
+  "name": "Step-ups",
+  "timing": [
+   0.08,
+   0.5,
+   0.58,
+   0.94
+  ],
+  "zoom": 0.8,
+  "shift": -16,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     10,
+     -47
+    ],
+    "to": [
+     92,
+     -47
+    ],
+    "legs": [
+     20,
+     82
+    ]
+   },
+   {
+    "kind": "dumbbells",
+    "profile": true
+   }
+  ],
+  "from": {
+   "hip": [
+    -8,
+    -99
+   ],
+   "lean": 4,
+   "head": 0,
+   "ankle": [
+    30,
+    -54.4
+   ],
+   "foot": 0,
+   "farAnkle": [
+    -14,
+    -7.4
+   ],
+   "farFoot": 0,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  },
+  "to": {
+   "hip": [
+    28,
+    -146.6
+   ],
+   "lean": 2,
+   "head": 0,
+   "ankle": [
+    30,
+    -54.4
+   ],
+   "foot": 0,
+   "farAnkle": [
+    30,
+    -54.4
+   ],
+   "farFoot": 0,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  }
+ },
+ {
+  "key": "dumbbell-squats",
+  "name": "Dumbbell Squats",
+  "gear": [
+   {
+    "kind": "dumbbells",
+    "profile": true
+   }
+  ],
+  "timing": [
+   0.08,
+   0.52,
+   0.58,
+   0.94
+  ],
+  "shift": 12,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  },
+  "to": {
+   "hip": [
+    -32,
+    -57
+   ],
+   "lean": 34,
+   "head": 14,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  }
+ },
+ {
+  "key": "bodyweight-squats",
+  "name": "Bodyweight Squats",
+  "timing": [
+   0.08,
+   0.52,
+   0.58,
+   0.94
+  ],
+  "shift": 10,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 0,
+    "bend": 4
+   }
+  },
+  "to": {
+   "hip": [
+    -32,
+    -57
+   ],
+   "lean": 34,
+   "head": 16,
+   "arm": {
+    "upper": 90,
+    "bend": 4
+   }
+  }
+ },
+ {
+  "key": "barbell-box-squats",
+  "name": "Box Squats",
+  "timing": [
+   0.08,
+   0.52,
+   0.6,
+   0.94
+  ],
+  "shift": 22,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -74,
+     -50.5
+    ],
+    "to": [
+     -30,
+     -50.5
+    ],
+    "legs": [
+     -64,
+     -40
+    ]
+   },
+   {
+    "kind": "barbell",
+    "on": "back"
+   }
+  ],
+  "from": {
+   "hip": [
+    -2,
+    -99.6
+   ],
+   "lean": 4,
+   "head": 1.8,
+   "arm": {
+    "hand": [
+     48.6,
+     -13
+    ],
+    "on": "torso",
+    "scale": 0.75,
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -40,
+    -57
+   ],
+   "lean": 36,
+   "head": 18,
+   "arm": {
+    "hand": [
+     46.4,
+     -11.2
+    ],
+    "on": "torso",
+    "scale": 0.75,
+    "elbow": -1
+   }
+  }
  }
 ]

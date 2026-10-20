@@ -44,6 +44,8 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
         case barbell
         /// A barbell with smaller plates.
         case ezbar
+        /// A trap bar in the hands: its frame front to back through the grip, a plate at the grip.
+        case trapbar
         /// In the hands, or held at the chest (`on` "chest") for a goblet squat.
         case dumbbells
         /// A bench, seat or pad: its top edge from `from` to `to`, `thick` deep, with legs down to the

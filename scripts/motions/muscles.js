@@ -294,6 +294,15 @@ const EXERCISES = {
     'inverted-rows': ['Inverted Rows', 'upperBack lats', 'rearDelts biceps'],
     'barbell-shrugs': ['Barbell Shrugs', 'traps', 'forearms'],
     'dumbbell-farmers-carry': ["Farmer's Carry", 'traps forearms', 'abs obliques'],
+    'trap-bar-deadlift': ['Trap Bar Deadlift', 'quads glutes', 'hamstrings lowerBack traps forearms'],
+    'barbell-lunges': ['Barbell Lunges', 'quads glutes', 'hamstrings adductors'],
+    'dumbbell-walking-lunges': ['Walking Lunges', 'quads glutes', 'hamstrings adductors'],
+    'dumbbell-reverse-lunges': ['Reverse Lunges', 'glutes quads', 'hamstrings adductors'],
+    'dumbbell-split-squats': ['Split Squats', 'quads glutes', 'adductors'],
+    'dumbbell-step-ups': ['Step-ups', 'quads glutes', 'hamstrings'],
+    'dumbbell-squats': ['Dumbbell Squats', 'quads glutes', 'adductors'],
+    'bodyweight-squats': ['Bodyweight Squats', 'quads glutes', 'adductors'],
+    'barbell-box-squats': ['Box Squats', 'quads glutes', 'hamstrings adductors lowerBack'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

@@ -316,6 +316,12 @@ nonisolated struct FigurePainter: Sendable {
         for g in motion.gear(.ezbar) {
             plate(nearArm.grip, g.radius ?? 12.5)
         }
+        // A trap bar's frame runs front to back through the near handle, its plate at the handle.
+        for g in motion.gear(.trapbar) {
+            let at = nearArm.grip
+            fill(FigureShapes.capsule(at - Vec(28, 0), at + Vec(28, 0), 2.4, 2.4), c.gear)
+            plate(at, g.radius ?? 17)
+        }
         for g in motion.gear(.wheel) {
             plate(nearArm.grip, g.radius ?? 8)
         }

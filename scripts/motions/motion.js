@@ -416,6 +416,12 @@ function paint(m, F, c) {
   for (const g of gears('barbell')) if (g.on === 'hips') plate(F.torso(-1, 12), g.radius ?? 17);
   for (const g of gears('wheel')) plate(nearArm.grip, g.radius ?? 8);
   for (const g of gears('ezbar')) plate(nearArm.grip, g.radius ?? 12.5);
+  // A trap bar's frame runs front to back through the near handle, its plate at the handle.
+  for (const g of gears('trapbar')) {
+    const at = nearArm.grip;
+    fill(capsule(v(at.x - 28, at.y), v(at.x + 28, at.y), 2.4, 2.4), c.gear);
+    plate(at, g.radius ?? 17);
+  }
   if (hasDumbbells) dumbbell(nearArm, true);
   for (const g of gears('cable')) {
     const end = bodyPoint(g.on ?? 'hands');

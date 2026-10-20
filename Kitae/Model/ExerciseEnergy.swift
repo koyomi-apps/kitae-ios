@@ -207,6 +207,16 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         // Walking at a moderate pace, about 3.5 METs, with the weights counted like body weight,
         // as in Pandolf et al.'s (1977) equation for walking with a load.
         "dumbbell-farmers-carry": .init(perKilogram: 0, bodyShare: 0, holdMETs: 3.5, carryFactor: 2), // Farmer's Carry
+        "trap-bar-deadlift": .init(perKilogram: 0.0124, bodyShare: 0.6), // Trap Bar Deadlift
+        "barbell-lunges": .init(perKilogram: squat, bodyShare: 0.85), // Barbell Lunges
+        "dumbbell-walking-lunges": .init(perKilogram: squat, bodyShare: 0.85, loadFactor: 2), // Walking Lunges
+        "dumbbell-reverse-lunges": .init(perKilogram: squat, bodyShare: 0.85, loadFactor: 2), // Reverse Lunges
+        "dumbbell-split-squats": .init(perKilogram: squat, bodyShare: 0.8, loadFactor: 2, sides: 2), // Split Squats
+        // Each step lifts the whole body the bench's height, about as far as a squat moves it.
+        "dumbbell-step-ups": .init(perKilogram: squat, bodyShare: 0.95, loadFactor: 2, sides: 2), // Step-ups
+        "dumbbell-squats": .init(perKilogram: squat, bodyShare: 0.85, loadFactor: 2), // Dumbbell Squats
+        "bodyweight-squats": .init(perKilogram: squat, bodyShare: 0.85), // Bodyweight Squats
+        "barbell-box-squats": .init(perKilogram: squat, bodyShare: 0.85), // Box Squats
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

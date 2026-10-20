@@ -21,12 +21,16 @@ nonisolated struct ExerciseSession: Identifiable, Hashable, Sendable {
 
     var heaviest: SetDraft? { heaviestSet(workSets) }
 
+    /// On an assisted machine: the set with the least help.
+    var leastHelp: SetDraft? { leastHelpSet(workSets) }
+
     var mostReps: Int { workSets.map(\.reps).max() ?? 0 }
 
-    /// The set to show for it: the heaviest, or the one with the most reps when the exercise
-    /// doesn't use weight.
-    func best(usesWeight: Bool) -> SetDraft? {
-        usesWeight ? heaviest : workSets.max { $0.reps < $1.reps }
+    /// The set to show for it: the heaviest, the one with the least help on an assisted
+    /// machine, or the one with the most reps when the exercise doesn't use weight.
+    func best(usesWeight: Bool, assisted: Bool = false) -> SetDraft? {
+        guard usesWeight else { return workSets.max { $0.reps < $1.reps } }
+        return assisted ? leastHelp : heaviest
     }
 }
 
@@ -35,14 +39,25 @@ nonisolated func heaviestSet(_ sets: [SetDraft]) -> SetDraft? {
     sets.max { ($0.weightKg, $0.reps) < ($1.weightKg, $1.reps) }
 }
 
+/// On an assisted machine, whose weight is the help it gives: the set with the least help,
+/// and of those, the one with the most reps.
+nonisolated func leastHelpSet(_ sets: [SetDraft]) -> SetDraft? {
+    sets.max { (-$0.weightKg, $0.reps) < (-$1.weightKg, $1.reps) }
+}
+
 /// How an exercise went over its last workouts, for the chart on its page: the heaviest set
-/// each time, or the most reps or longest hold when it's done without weight. Kitae for
-/// Android's progress chart.
+/// each time, the least help on an assisted machine, or the most reps or longest hold when it's
+/// done without weight. Kitae for Android's progress chart.
 nonisolated struct ExerciseProgress: Hashable, Sendable {
     enum Measure: Hashable, Sendable {
         case weight
+        /// An assisted machine's help, which goes down as people get stronger.
+        case help
         case reps
         case seconds
+
+        /// Kilograms, of weight or of help.
+        var isWeight: Bool { self == .weight || self == .help }
     }
 
     struct Point: Identifiable, Hashable, Sendable {
@@ -61,20 +76,23 @@ nonisolated struct ExerciseProgress: Hashable, Sendable {
     var points: [Point]
 
     /// `history` is newest first, as `Exercises.history` reads it.
-    init(history: [ExerciseSession], isIsometric: Bool, usesWeight: Bool = true) {
+    init(history: [ExerciseSession], isIsometric: Bool, usesWeight: Bool = true, assisted: Bool = false) {
         let recent = history.prefix(Self.maxPoints).reversed()
         let byWeight = usesWeight && recent.contains { ($0.heaviest?.weightKg ?? 0) > 0 }
-        measure = byWeight ? .weight : isIsometric ? .seconds : .reps
+        let measure: Measure = byWeight ? (assisted ? .help : .weight) : isIsometric ? .seconds : .reps
+        self.measure = measure
         points = recent.map { session in
-            Point(
-                id: session.id,
-                date: session.date,
-                value: byWeight ? session.heaviest?.weightKg ?? 0 : Double(session.mostReps)
-            )
+            let value: Double
+            switch measure {
+            case .weight: value = session.heaviest?.weightKg ?? 0
+            case .help: value = session.leastHelp?.weightKg ?? 0
+            case .reps, .seconds: value = Double(session.mostReps)
+            }
+            return Point(id: session.id, date: session.date, value: value)
         }
     }
 
-    /// The last value less the first.
+    /// The last value less the first; less help shows as a drop.
     var change: Double {
         (points.last?.value ?? 0) - (points.first?.value ?? 0)
     }
@@ -82,19 +100,22 @@ nonisolated struct ExerciseProgress: Hashable, Sendable {
 
 /// An exercise's best sets ever.
 nonisolated struct ExerciseRecords: Hashable, Sendable {
-    /// The heaviest set, with the most reps among the heaviest.
-    var heaviest: SetDraft?
-    /// The set with the most reps, or the longest hold, and the heaviest of those.
+    /// The heaviest set, or on an assisted machine the one with the least help, with the most
+    /// reps among those.
+    var best: SetDraft?
+    /// The set with the most reps, or the longest hold, and the heaviest of those (on an
+    /// assisted machine, the one with the least help).
     var mostReps: SetDraft?
     var workoutCount: Int
-    /// The day of the workout with the heaviest set, the latest if it was lifted more than once.
-    var heaviestDate: Int?
+    /// The day of the workout with the best set, the latest if it was done more than once.
+    var bestDate: Int?
 
-    init(history: [ExerciseSession]) {
+    init(history: [ExerciseSession], assisted: Bool = false) {
         let sets = history.flatMap(\.workSets)
-        heaviest = heaviestSet(sets)
-        heaviestDate = heaviest.flatMap { best in history.first { $0.workSets.contains(best) }?.date }
-        mostReps = sets.max { ($0.reps, $0.weightKg) < ($1.reps, $1.weightKg) }
+        best = assisted ? leastHelpSet(sets) : heaviestSet(sets)
+        bestDate = best.flatMap { best in history.first { $0.workSets.contains(best) }?.date }
+        let load = { (set: SetDraft) in assisted ? -set.weightKg : set.weightKg }
+        mostReps = sets.max { ($0.reps, load($0)) < ($1.reps, load($1)) }
         workoutCount = history.count
     }
 }

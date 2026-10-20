@@ -16,8 +16,9 @@ struct ExercisePage {
     init(exercise: Exercise, history: [ExerciseSession]) {
         self.exercise = exercise
         self.history = history
-        progress = ExerciseProgress(history: history, isIsometric: exercise.isIsometric, usesWeight: exercise.usesWeight)
-        records = ExerciseRecords(history: history)
+        progress = ExerciseProgress(history: history, isIsometric: exercise.isIsometric, usesWeight: exercise.usesWeight,
+                                    assisted: exercise.isAssisted)
+        records = ExerciseRecords(history: history, assisted: exercise.isAssisted)
     }
 }
 
@@ -125,7 +126,7 @@ struct ExerciseDetailView: View {
                     .font(.footnote.weight(.semibold))
                     .foregroundStyle(.olive)
             }
-            ProgressChart(values: values, minimumStep: progress.measure == .weight ? 0.5 : 1) { value in
+            ProgressChart(values: values, minimumStep: progress.measure.isWeight ? 0.5 : 1) { value in
                 axisLabel(value, progress.measure)
             }
             .frame(height: 132)
@@ -156,6 +157,7 @@ struct ExerciseDetailView: View {
     private func measureName(_ measure: ExerciseProgress.Measure) -> String {
         switch measure {
         case .weight: "heaviest set"
+        case .help: "least help"
         case .reps: "most reps"
         case .seconds: "longest hold"
         }
@@ -163,7 +165,7 @@ struct ExerciseDetailView: View {
 
     /// A value in the unit people see: pounds when Settings says so.
     private func display(_ value: Double, _ measure: ExerciseProgress.Measure) -> Double {
-        measure == .weight ? model.weightFormatter.unit.fromKilograms(value) : value
+        measure.isWeight ? model.weightFormatter.unit.fromKilograms(value) : value
     }
 
     private func axisLabel(_ value: Double, _ measure: ExerciseProgress.Measure) -> String {
@@ -172,22 +174,25 @@ struct ExerciseDetailView: View {
         return model.weightFormatter.number(value)
     }
 
-    /// "+7.5 kg since August".
+    /// "+7.5 kg since August", or on an assisted machine "5 kg less help since August".
     private func changeLabel(_ progress: ExerciseProgress) -> String {
         guard let first = progress.points.first, let last = progress.points.last else { return "" }
         let since = sinceLabel(first.date, last.date)
         let change = display(progress.change, progress.measure)
         guard abs(change) >= 0.01 else { return "No change since \(since)" }
-        let sign = change > 0 ? "+" : "−"
         let amount: String
         switch progress.measure {
-        case .weight:
+        case .weight, .help:
             amount = "\(model.weightFormatter.number(abs(change))) \(model.weightFormatter.unit.symbol)"
         case .reps:
             amount = counted(Int(abs(change).rounded()), "rep", "reps")
         case .seconds:
             amount = "\(Int(abs(change).rounded()))s"
         }
+        if progress.measure == .help {
+            return "\(amount) \(change < 0 ? "less" : "more") help since \(since)"
+        }
+        let sign = change > 0 ? "+" : "−"
         return "\(sign)\(amount) since \(since)"
     }
 
@@ -203,7 +208,7 @@ struct ExerciseDetailView: View {
     /// "Your heaviest set went from 15 kg on Aug 3 to 22.5 kg on Oct 7".
     private func chartDescription(_ progress: ExerciseProgress) -> String {
         guard let first = progress.points.first, let last = progress.points.last else { return "" }
-        let unit = progress.measure == .weight ? " \(model.weightFormatter.unit.symbol)" : ""
+        let unit = progress.measure.isWeight ? " \(model.weightFormatter.unit.symbol)" : ""
         let from = axisLabel(display(first.value, progress.measure), progress.measure)
         let to = axisLabel(display(last.value, progress.measure), progress.measure)
         return "Your \(measureName(progress.measure)) went from \(from)\(unit) on \(HistoryDates.dayAndMonth(first.date)) to \(to)\(unit) on \(HistoryDates.dayAndMonth(last.date))"
@@ -217,12 +222,13 @@ struct ExerciseDetailView: View {
         let records = page.records
         return HStack(spacing: 10) {
             switch page.progress.measure {
-            case .weight:
-                if let heaviest = records.heaviest {
+            case .weight, .help:
+                if let best = records.best {
+                    let isHelp = page.progress.measure == .help
                     tile(
-                        "Heaviest set",
-                        formatter.weightFirst(reps: heaviest.reps, kilograms: heaviest.weightKg, isIsometric: isIsometric),
-                        note: bodyWeightNote(heaviest.weightKg, on: records.heaviestDate)
+                        isHelp ? "Least help" : "Heaviest set",
+                        formatter.weightFirst(reps: best.reps, kilograms: best.weightKg, isIsometric: isIsometric),
+                        note: isHelp ? nil : bodyWeightNote(best.weightKg, on: records.bestDate)
                     )
                 }
                 if let most = records.mostReps {

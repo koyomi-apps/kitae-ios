@@ -25,6 +25,9 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
     /// For holds, whose reps are seconds: METs while holding.
     var holdMETs: Double?
 
+    /// The weight logged is an assisted machine's help, which comes off the body's weight.
+    var isAssisted: Bool { loadFactor < 0 }
+
     /// The most a set counts for, against typing slips.
     static let mostReps = 300
     static let mostKilograms = 600.0

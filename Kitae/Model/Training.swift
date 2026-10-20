@@ -106,6 +106,12 @@ nonisolated struct Exercise: Identifiable, Hashable, Sendable {
         usesWeight ? kilograms : 0
     }
 
+    /// Whether the weight logged is an assisted machine's help, as on assisted dips, so less of
+    /// it is better: Kitae's exercises whose energy takes it off the body's weight.
+    var isAssisted: Bool {
+        libraryKey.flatMap { ExerciseEnergy.starters[$0] }?.isAssisted ?? false
+    }
+
     /// The instructions as steps, without numbers typed in front of them. Kitae for
     /// Android's exercise page reads them the same way.
     var steps: [String] {

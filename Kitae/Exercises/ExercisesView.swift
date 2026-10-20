@@ -75,7 +75,7 @@ struct ExercisesView: View {
                 Text(exercise.name)
                     .foregroundStyle(.ink)
                 Spacer(minLength: 8)
-                if let set = lastSessions[exercise.id]?.best(usesWeight: exercise.usesWeight) {
+                if let set = lastSessions[exercise.id]?.best(usesWeight: exercise.usesWeight, assisted: exercise.isAssisted) {
                     let text = model.weightFormatter.weightFirst(reps: set.reps, kilograms: exercise.weight(set.weightKg), isIsometric: exercise.isIsometric)
                     Text(text)
                         .font(.kitaeMono(12, relativeTo: .caption))

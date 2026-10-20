@@ -174,9 +174,31 @@ struct ExerciseTests {
         #expect(sessions.first?.best(usesWeight: false) == SetDraft(reps: 9, weightKg: 52.5))
 
         let records = ExerciseRecords(history: Array(sessions))
-        #expect(records.heaviest?.weightKg == 52.5)
+        #expect(records.best?.weightKg == 52.5)
         #expect(records.mostReps == SetDraft(reps: 10, weightKg: 47.5))
         #expect(records.workoutCount == 14)
+    }
+
+    @Test func lessHelpIsProgressOnAnAssistedMachine() {
+        // Assisted dips with 30, then 25, then 20 kg of help.
+        let sessions = [
+            ExerciseSession(id: 3, date: 3, sets: [SetDraft(reps: 8, weightKg: 20), SetDraft(reps: 10, weightKg: 25)]),
+            ExerciseSession(id: 2, date: 2, sets: [SetDraft(reps: 8, weightKg: 25)]),
+            ExerciseSession(id: 1, date: 1, sets: [SetDraft(reps: 8, weightKg: 30)]),
+        ]
+        #expect(sessions.first?.best(usesWeight: true, assisted: true) == SetDraft(reps: 8, weightKg: 20))
+        let progress = ExerciseProgress(history: sessions, isIsometric: false, assisted: true)
+        #expect(progress.measure == .help)
+        #expect(progress.points.map(\.value) == [30, 25, 20])
+        #expect(progress.change == -10)
+        let records = ExerciseRecords(history: sessions, assisted: true)
+        #expect(records.best == SetDraft(reps: 8, weightKg: 20))
+        #expect(records.bestDate == 3)
+        #expect(records.mostReps == SetDraft(reps: 10, weightKg: 25))
+        // Kitae's assisted dips are assisted; its dips and people's own exercises aren't.
+        #expect(Exercise(id: 1, name: "Assisted Dips", target: "Triceps", libraryKey: "assisted-dips").isAssisted)
+        #expect(!Exercise(id: 2, name: "Dips", target: "Triceps", libraryKey: "dips").isAssisted)
+        #expect(!Exercise(id: 3, name: "Assisted Dips", target: "Triceps").isAssisted)
     }
 
     @Test func chartAxesUseRoundSteps() {

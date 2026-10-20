@@ -139,6 +139,24 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         "incline-push-ups": .init(perKilogram: 0.014, bodyShare: 0.48), // Incline Push-ups
         "decline-push-ups": .init(perKilogram: 0.014, bodyShare: 0.72), // Decline Push-ups
         "chest-dips": .init(perKilogram: arms, bodyShare: 0.95), // Chest Dips
+        "seated-barbell-shoulder-press": .init(perKilogram: arms, bodyShare: 0.05), // Seated Barbell Shoulder Press
+        "machine-shoulder-press": .init(perKilogram: arms, bodyShare: 0.05), // Machine Shoulder Press
+        "smith-machine-shoulder-press": .init(perKilogram: arms, bodyShare: 0.05), // Smith Machine Shoulder Press
+        // The legs' dip and drive lift the body a little each rep too.
+        "barbell-push-press": .init(perKilogram: arms, bodyShare: 0.25), // Push Press
+        // The hand lifts the plates on the bar's end as far as itself; one arm at a time.
+        "landmine-press": .init(perKilogram: arms, bodyShare: 0.03, sides: 2), // Landmine Press
+        // About 60% of the body's weight on the hands: where the body's centre of mass sits
+        // between hands and feet in the figure, scaled to Ebben et al.'s 64% for a push-up.
+        "pike-push-ups": .init(perKilogram: 0.014, bodyShare: 0.6), // Pike Push-ups
+        "machine-lateral-raises": .init(perKilogram: raise, bodyShare: 0.03), // Machine Lateral Raises
+        "cable-front-raises": .init(perKilogram: raise, bodyShare: 0.03), // Cable Front Raises
+        "plate-front-raises": .init(perKilogram: raise, bodyShare: 0.03), // Plate Front Raises
+        "reverse-pec-deck": .init(perKilogram: raise, bodyShare: 0.03), // Reverse Pec Deck
+        "cable-rear-delt-flyes": .init(perKilogram: raise, bodyShare: 0.03, loadFactor: 2), // Cable Rear Delt Flyes
+        "band-pull-aparts": .init(perKilogram: raise, bodyShare: 0.03), // Band Pull-Aparts
+        "dumbbell-upright-rows": .init(perKilogram: arms, bodyShare: 0.04, loadFactor: 2), // Dumbbell Upright Rows
+        "cable-upright-rows": .init(perKilogram: arms, bodyShare: 0.04), // Cable Upright Rows
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

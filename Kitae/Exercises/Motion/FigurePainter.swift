@@ -287,6 +287,11 @@ nonisolated struct FigurePainter: Sendable {
         if motion.gear(.dumbbells).contains(where: { $0.on == "chest" }) {
             goblet()
         }
+        // A weight plate held upright in both hands, seen edge-on.
+        for g in motion.gear(.plate) {
+            let at = nearArm.grip, r = g.radius ?? 12
+            fill(FigureShapes.capsule(at - Vec(0, r), at + Vec(0, r), 2.6, 2.6), c.gear)
+        }
 
         // The near side.
         leg(LegShape(f.nearLeg), c.body, far: false)

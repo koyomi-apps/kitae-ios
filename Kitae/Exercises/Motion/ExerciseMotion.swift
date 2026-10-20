@@ -68,10 +68,12 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
         case tbar
         /// An ab wheel in the hands.
         case wheel
-        /// A weight plate held face-on in both hands (front view).
+        /// A weight plate held in both hands: face-on from the front, upright and edge-on from the side.
         case plate
         /// Pads on the outside of the knees (front view).
         case kneepads
+        /// A resistance band stretched between the hands (front view).
+        case band
     }
 
     var kind: Kind

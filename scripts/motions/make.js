@@ -103,6 +103,13 @@ const inclinePress = { hip: [-4, -60], lean: -12, head: -4, ankle: [38, -7.4] };
 const straightBody = (ankle, lean) => ({ hip: lineHip(ankle, lean), lean, thigh: 180 + lean, shin: 180 + lean, foot: lean });
 const DECLINE_TOES = [-70, -67.7];
 const chestDipLegs = { thigh: 200, shin: 248, farThigh: 194, farShin: 242 };
+const seatedPress = { hip: [-4, -60], lean: -2, head: 0, ankle: [38, -7.4] };
+const pressSeat = [{ kind: 'pad', from: [-24, -50], to: [12, -50], legs: [-6] }, backPad(seatedPress, 72, 4)];
+const facingPad = { hip: [-4, -60], lean: 4, head: 2, ankle: [38, -7.4] };
+const landminePress = { hip: [-6, -99.4], lean: 8, head: 4 };
+// A pike: straight legs from the feet at `legs` degrees, the body folded at the hips to `lean`.
+const PIKE_FEET = [-49.4, -12], PIKE_HANDS = [44.3, -5];
+const pike = (legs, lean) => ({ hip: lineHip(PIKE_FEET, legs), lean, thigh: legs + 180, shin: legs + 180, foot: legs + 30 });
 
 // The front view: the figure facing the viewer. Standing hip height puts the feet on the floor.
 const fstand = { hip: [0, -100.2] };
@@ -680,6 +687,92 @@ const motions = [
       { kind: 'cable', from: [76, -24], side: 1 }, { kind: 'cable', from: [-76, -24], side: -1 }],
     from: { ...fstand, arm: { hand: [52, -88], elbow: -1 } },
     to: { ...fstand, arm: { hand: [10, -136], elbow: -1 } },
+  },
+
+  // The library's shoulder exercises
+  {
+    key: 'seated-barbell-shoulder-press', name: 'Seated Barbell Shoulder Press', timing: [0.1, 0.48, 0.56, 0.95], zoom: 0.9, shift: -4,
+    gear: [...pressSeat, { kind: 'barbell', radius: 15 }],
+    from: { ...seatedPress, head: -6, arm: { upper: 50, bend: 120 } },
+    to: { ...seatedPress, arm: { upper: 176, bend: 2 } },
+  },
+  {
+    key: 'machine-shoulder-press', name: 'Machine Shoulder Press', timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.9, shift: -4,
+    gear: [...pressSeat, { kind: 'handle' }],
+    from: { ...seatedPress, arm: { upper: 62, bend: 118, upperLength: 0.45 } },
+    to: { ...seatedPress, arm: { upper: 172, bend: 6, upperLength: 1 } },
+  },
+  {
+    key: 'smith-machine-shoulder-press', name: 'Smith Machine Shoulder Press', timing: [0.1, 0.48, 0.56, 0.95], zoom: 0.9, shift: -4,
+    gear: [smithRail(24), ...pressSeat, { kind: 'barbell', radius: 15 }],
+    from: { ...seatedPress, head: -6, arm: { hand: [24, -114], elbow: 1 } },
+    to: { ...seatedPress, arm: { hand: reachAbove(shoulder(seatedPress), 24), elbow: 1 } },
+  },
+  {
+    key: 'barbell-push-press', name: 'Push Press', gear: [{ kind: 'barbell', radius: 15 }],
+    timing: [0.1, 0.4, 0.55, 0.95], zoom: 0.84, shift: -8,
+    from: { hip: [-6, -91], lean: 3, head: -6, arm: { upper: 50, bend: 120 } },
+    to: { ...stand, arm: { upper: 176, bend: 2 } },
+  },
+  {
+    key: 'landmine-press', name: 'Landmine Press', gear: [{ kind: 'tbar', anchor: [118, -4], radius: 12 }],
+    timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.84, shift: -30,
+    from: { ...landminePress, arm: { hand: [12.2, -143], elbow: 1 }, farArm: { upper: 4, bend: 8 } },
+    to: { ...landminePress, arm: { hand: [55.3, -167], elbow: 1 }, farArm: { upper: 4, bend: 8 } },
+  },
+  {
+    key: 'pike-push-ups', name: 'Pike Push-ups', timing: [0.1, 0.5, 0.58, 0.95], shift: -2, shadow: [0, 0], shadowWidth: 76,
+    from: { ...pike(32, 127.7), arm: { hand: PIKE_HANDS, elbow: 1 } },
+    to: { ...pike(46, 156), arm: { hand: PIKE_HANDS, elbow: 1 } },
+  },
+  {
+    key: 'cable-front-raises', name: 'Cable Front Raises', timing: [0.1, 0.45, 0.55, 0.95], shift: 4,
+    gear: [{ kind: 'post', from: [-54, -2], to: [-54, -196], width: 7 }, { kind: 'cable', from: [-54, -18], handle: 'bar' }],
+    from: { ...stand, arm: { upper: 8, bend: 6 } },
+    to: { ...stand, arm: { upper: 88, bend: 8 } },
+  },
+  {
+    key: 'plate-front-raises', name: 'Plate Front Raises', gear: [{ kind: 'plate', radius: 12 }],
+    timing: [0.1, 0.45, 0.55, 0.95], shift: -16,
+    from: { ...stand, arm: { upper: 10, bend: 6 } },
+    to: { ...stand, arm: { upper: 90, bend: 8 } },
+  },
+  {
+    key: 'reverse-pec-deck', name: 'Reverse Pec Deck', timing: [0.1, 0.45, 0.55, 0.95], shift: -6,
+    gear: [{ kind: 'pad', from: [-24, -50], to: [12, -50], legs: [-6] }, frontPad(facingPad, 18, 52), { kind: 'handle' }],
+    from: { ...facingPad, arm: { hand: [40, -112], elbow: 1 } },
+    to: { ...facingPad, arm: { hand: [-16, -114], scale: 0.4, elbow: 1 } },
+  },
+  {
+    key: 'dumbbell-upright-rows', name: 'Dumbbell Upright Rows', gear: [{ kind: 'dumbbells' }],
+    timing: [0.1, 0.45, 0.55, 0.95], shift: -4,
+    from: { ...stand, arm: { hand: [9, -85.5], elbow: -1 } },
+    to: { ...stand, arm: { hand: [12, -128], upperLength: 0.42, elbow: 1 } },
+  },
+  {
+    key: 'cable-upright-rows', name: 'Cable Upright Rows', timing: [0.1, 0.45, 0.55, 0.95], shift: -20,
+    gear: [{ kind: 'post', from: [50, -2], to: [50, -196], width: 7 }, { kind: 'cable', from: [50, -18], handle: 'bar' }],
+    from: { ...stand, arm: { hand: [9, -85.5], elbow: -1 } },
+    to: { ...stand, arm: { hand: [12, -128], upperLength: 0.42, elbow: 1 } },
+  },
+  {
+    key: 'machine-lateral-raises', name: 'Machine Lateral Raises', view: 'front', legsFront: true, timing: [0.1, 0.45, 0.55, 0.95],
+    gear: [{ kind: 'pad', from: [-24, -46], to: [24, -46], legs: [0] }, { kind: 'handle' }],
+    from: { hip: [0, -55], thigh: 90, thighLength: 0.36, shin: 2, arm: { upper: 10, bend: 20 } },
+    to: { hip: [0, -55], thigh: 90, thighLength: 0.36, shin: 2, arm: { upper: 88, bend: 20 } },
+  },
+  {
+    key: 'cable-rear-delt-flyes', name: 'Cable Rear Delt Flyes', view: 'front', timing: [0.1, 0.45, 0.55, 0.95],
+    gear: [{ kind: 'post', from: [76, -2], to: [76, -206], width: 7 }, { kind: 'post', from: [-76, -2], to: [-76, -206], width: 7 },
+      { kind: 'cable', from: [76, -150], side: -1 }, { kind: 'cable', from: [-76, -150], side: 1 }],
+    from: { ...fstand, arm: { hand: [-8, -146], elbow: 1, upperLength: 0.5, foreLength: 0.5 } },
+    to: { ...fstand, arm: { hand: [80, -150], elbow: 1 } },
+  },
+  {
+    key: 'band-pull-aparts', name: 'Band Pull-Aparts', view: 'front', timing: [0.1, 0.45, 0.55, 0.95],
+    gear: [{ kind: 'band' }],
+    from: { ...fstand, arm: { hand: [12, -142], elbow: 1, upperLength: 0.45, foreLength: 0.45 } },
+    to: { ...fstand, arm: { hand: [80, -150], elbow: 1 } },
   },
 ];
 

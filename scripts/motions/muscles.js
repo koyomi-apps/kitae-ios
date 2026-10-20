@@ -249,6 +249,20 @@ const EXERCISES = {
     'incline-push-ups': ['Incline Push-ups', 'chest', 'frontDelts triceps'],
     'decline-push-ups': ['Decline Push-ups', 'chest', 'frontDelts triceps abs'],
     'chest-dips': ['Chest Dips', 'chest', 'triceps frontDelts'],
+    'seated-barbell-shoulder-press': ['Seated Barbell Shoulder Press', 'frontDelts', 'sideDelts triceps traps'],
+    'machine-shoulder-press': ['Machine Shoulder Press', 'frontDelts', 'sideDelts triceps traps'],
+    'smith-machine-shoulder-press': ['Smith Machine Shoulder Press', 'frontDelts', 'sideDelts triceps traps'],
+    'barbell-push-press': ['Push Press', 'frontDelts', 'sideDelts triceps traps quads glutes'],
+    'landmine-press': ['Landmine Press', 'frontDelts', 'chest triceps'],
+    'pike-push-ups': ['Pike Push-ups', 'frontDelts', 'triceps sideDelts traps'],
+    'machine-lateral-raises': ['Machine Lateral Raises', 'sideDelts', 'frontDelts traps'],
+    'cable-front-raises': ['Cable Front Raises', 'frontDelts', 'sideDelts chest'],
+    'plate-front-raises': ['Plate Front Raises', 'frontDelts', 'sideDelts chest'],
+    'reverse-pec-deck': ['Reverse Pec Deck', 'rearDelts', 'upperBack traps'],
+    'cable-rear-delt-flyes': ['Cable Rear Delt Flyes', 'rearDelts', 'upperBack traps'],
+    'band-pull-aparts': ['Band Pull-Aparts', 'rearDelts', 'upperBack traps'],
+    'dumbbell-upright-rows': ['Dumbbell Upright Rows', 'sideDelts traps', 'frontDelts biceps'],
+    'cable-upright-rows': ['Cable Upright Rows', 'sideDelts traps', 'frontDelts biceps'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

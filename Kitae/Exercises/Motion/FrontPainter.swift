@@ -175,6 +175,10 @@ nonisolated extension FigurePainter {
             fill(FigureShapes.circle(pulley, 4.2), c.gear)
             fill(FigureShapes.circle(pulley, 1.7), c.prop)
         }
+        // A band stretched between the hands, in front of the body.
+        if !motion.gear(.band).isEmpty {
+            fill(FigureShapes.capsule(grip(side: 1), grip(side: -1), 1.2, 1.2), c.gear)
+        }
 
         // The arms, the -x one first. From the front the three delts are one shoulder cap, shaded
         // as the most worked of them.

@@ -5422,5 +5422,872 @@
     "elbow": -1
    }
   }
+ },
+ {
+  "key": "seated-barbell-shoulder-press",
+  "name": "Seated Barbell Shoulder Press",
+  "timing": [
+   0.1,
+   0.48,
+   0.56,
+   0.95
+  ],
+  "zoom": 0.9,
+  "shift": -4,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -24,
+     -50
+    ],
+    "to": [
+     12,
+     -50
+    ],
+    "legs": [
+     -6
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -19,
+     -131.5
+    ],
+    "to": [
+     -17.6,
+     -63.5
+    ]
+   },
+   {
+    "kind": "barbell",
+    "radius": 15
+   }
+  ],
+  "from": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": -2,
+   "head": -6,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "upper": 50,
+    "bend": 120
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": -2,
+   "head": 0,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "upper": 176,
+    "bend": 2
+   }
+  }
+ },
+ {
+  "key": "machine-shoulder-press",
+  "name": "Machine Shoulder Press",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "zoom": 0.9,
+  "shift": -4,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -24,
+     -50
+    ],
+    "to": [
+     12,
+     -50
+    ],
+    "legs": [
+     -6
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -19,
+     -131.5
+    ],
+    "to": [
+     -17.6,
+     -63.5
+    ]
+   },
+   {
+    "kind": "handle"
+   }
+  ],
+  "from": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": -2,
+   "head": 0,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "upper": 62,
+    "bend": 118,
+    "upperLength": 0.45
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": -2,
+   "head": 0,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "upper": 172,
+    "bend": 6,
+    "upperLength": 1
+   }
+  }
+ },
+ {
+  "key": "smith-machine-shoulder-press",
+  "name": "Smith Machine Shoulder Press",
+  "timing": [
+   0.1,
+   0.48,
+   0.56,
+   0.95
+  ],
+  "zoom": 0.9,
+  "shift": -4,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     24,
+     -2
+    ],
+    "to": [
+     24,
+     -204
+    ],
+    "width": 6
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -24,
+     -50
+    ],
+    "to": [
+     12,
+     -50
+    ],
+    "legs": [
+     -6
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -19,
+     -131.5
+    ],
+    "to": [
+     -17.6,
+     -63.5
+    ]
+   },
+   {
+    "kind": "barbell",
+    "radius": 15
+   }
+  ],
+  "from": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": -2,
+   "head": -6,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     24,
+     -114
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": -2,
+   "head": 0,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     24,
+     -161
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "barbell-push-press",
+  "name": "Push Press",
+  "gear": [
+   {
+    "kind": "barbell",
+    "radius": 15
+   }
+  ],
+  "timing": [
+   0.1,
+   0.4,
+   0.55,
+   0.95
+  ],
+  "zoom": 0.84,
+  "shift": -8,
+  "from": {
+   "hip": [
+    -6,
+    -91
+   ],
+   "lean": 3,
+   "head": -6,
+   "arm": {
+    "upper": 50,
+    "bend": 120
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 176,
+    "bend": 2
+   }
+  }
+ },
+ {
+  "key": "landmine-press",
+  "name": "Landmine Press",
+  "gear": [
+   {
+    "kind": "tbar",
+    "anchor": [
+     118,
+     -4
+    ],
+    "radius": 12
+   }
+  ],
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "zoom": 0.84,
+  "shift": -30,
+  "from": {
+   "hip": [
+    -6,
+    -99.4
+   ],
+   "lean": 8,
+   "head": 4,
+   "arm": {
+    "hand": [
+     12.2,
+     -143
+    ],
+    "elbow": 1
+   },
+   "farArm": {
+    "upper": 4,
+    "bend": 8
+   }
+  },
+  "to": {
+   "hip": [
+    -6,
+    -99.4
+   ],
+   "lean": 8,
+   "head": 4,
+   "arm": {
+    "hand": [
+     55.3,
+     -167
+    ],
+    "elbow": 1
+   },
+   "farArm": {
+    "upper": 4,
+    "bend": 8
+   }
+  }
+ },
+ {
+  "key": "pike-push-ups",
+  "name": "Pike Push-ups",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": -2,
+  "shadow": [
+   0,
+   0
+  ],
+  "shadowWidth": 76,
+  "from": {
+   "hip": [
+    0,
+    -91
+   ],
+   "lean": 127.7,
+   "thigh": 212,
+   "shin": 212,
+   "foot": 62,
+   "arm": {
+    "hand": [
+     44.3,
+     -5
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    17.6,
+    -76.7
+   ],
+   "lean": 156,
+   "thigh": 226,
+   "shin": 226,
+   "foot": 76,
+   "arm": {
+    "hand": [
+     44.3,
+     -5
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "cable-front-raises",
+  "name": "Cable Front Raises",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": 4,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -54,
+     -2
+    ],
+    "to": [
+     -54,
+     -196
+    ],
+    "width": 7
+   },
+   {
+    "kind": "cable",
+    "from": [
+     -54,
+     -18
+    ],
+    "handle": "bar"
+   }
+  ],
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 8,
+    "bend": 6
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 88,
+    "bend": 8
+   }
+  }
+ },
+ {
+  "key": "plate-front-raises",
+  "name": "Plate Front Raises",
+  "gear": [
+   {
+    "kind": "plate",
+    "radius": 12
+   }
+  ],
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -16,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 10,
+    "bend": 6
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 90,
+    "bend": 8
+   }
+  }
+ },
+ {
+  "key": "reverse-pec-deck",
+  "name": "Reverse Pec Deck",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -6,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -24,
+     -50
+    ],
+    "to": [
+     12,
+     -50
+    ],
+    "legs": [
+     -6
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     10.7,
+     -77
+    ],
+    "to": [
+     13.1,
+     -110.9
+    ]
+   },
+   {
+    "kind": "handle"
+   }
+  ],
+  "from": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": 4,
+   "head": 2,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     40,
+     -112
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": 4,
+   "head": 2,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -16,
+     -114
+    ],
+    "scale": 0.4,
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "dumbbell-upright-rows",
+  "name": "Dumbbell Upright Rows",
+  "gear": [
+   {
+    "kind": "dumbbells"
+   }
+  ],
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -4,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "hand": [
+     9,
+     -85.5
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "hand": [
+     12,
+     -128
+    ],
+    "upperLength": 0.42,
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "cable-upright-rows",
+  "name": "Cable Upright Rows",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -20,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     50,
+     -2
+    ],
+    "to": [
+     50,
+     -196
+    ],
+    "width": 7
+   },
+   {
+    "kind": "cable",
+    "from": [
+     50,
+     -18
+    ],
+    "handle": "bar"
+   }
+  ],
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "hand": [
+     9,
+     -85.5
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "hand": [
+     12,
+     -128
+    ],
+    "upperLength": 0.42,
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "machine-lateral-raises",
+  "name": "Machine Lateral Raises",
+  "view": "front",
+  "legsFront": true,
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -24,
+     -46
+    ],
+    "to": [
+     24,
+     -46
+    ],
+    "legs": [
+     0
+    ]
+   },
+   {
+    "kind": "handle"
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -55
+   ],
+   "thigh": 90,
+   "thighLength": 0.36,
+   "shin": 2,
+   "arm": {
+    "upper": 10,
+    "bend": 20
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -55
+   ],
+   "thigh": 90,
+   "thighLength": 0.36,
+   "shin": 2,
+   "arm": {
+    "upper": 88,
+    "bend": 20
+   }
+  }
+ },
+ {
+  "key": "cable-rear-delt-flyes",
+  "name": "Cable Rear Delt Flyes",
+  "view": "front",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     76,
+     -2
+    ],
+    "to": [
+     76,
+     -206
+    ],
+    "width": 7
+   },
+   {
+    "kind": "post",
+    "from": [
+     -76,
+     -2
+    ],
+    "to": [
+     -76,
+     -206
+    ],
+    "width": 7
+   },
+   {
+    "kind": "cable",
+    "from": [
+     76,
+     -150
+    ],
+    "side": -1
+   },
+   {
+    "kind": "cable",
+    "from": [
+     -76,
+     -150
+    ],
+    "side": 1
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -100.2
+   ],
+   "arm": {
+    "hand": [
+     -8,
+     -146
+    ],
+    "elbow": 1,
+    "upperLength": 0.5,
+    "foreLength": 0.5
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -100.2
+   ],
+   "arm": {
+    "hand": [
+     80,
+     -150
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "band-pull-aparts",
+  "name": "Band Pull-Aparts",
+  "view": "front",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "gear": [
+   {
+    "kind": "band"
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -100.2
+   ],
+   "arm": {
+    "hand": [
+     12,
+     -142
+    ],
+    "elbow": 1,
+    "upperLength": 0.45,
+    "foreLength": 0.45
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -100.2
+   ],
+   "arm": {
+    "hand": [
+     80,
+     -150
+    ],
+    "elbow": 1
+   }
+  }
  }
 ]

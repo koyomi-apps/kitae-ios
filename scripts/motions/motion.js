@@ -394,6 +394,11 @@ function paint(m, F, c) {
     fill(capsule(add(mid, mul(d, -g.length / 2)), add(mid, mul(d, g.length / 2)), h, h), c.prop);
   }
   if (gears('dumbbells').some(d => d.on === 'chest')) goblet();
+  // A weight plate held upright in both hands, seen edge-on.
+  for (const g of gears('plate')) {
+    const at = nearArm.grip, r = g.radius ?? 12;
+    fill(capsule(v(at.x, at.y - r), v(at.x, at.y + r), 2.6, 2.6), c.gear);
+  }
 
   leg(nearLeg, c.body, near);
   armDraw(nearArm, c.body, near);
@@ -605,6 +610,8 @@ function paintFront(m, F, c) {
     fill(capsule(g.from, end, 0.8, 0.8), c.gear);
     fill(circle(g.from, 4.2), c.gear); fill(circle(g.from, 1.7), c.prop);
   }
+  // A band stretched between the hands, in front of the body.
+  if (gears('band').length) fill(capsule(sideGrip(1), sideGrip(-1), 1.2, 1.2), c.gear);
 
   // From the front the three delts are one shoulder cap, shaded as the most worked of them.
   const delts = ['frontDelts', 'sideDelts', 'rearDelts'];

@@ -746,6 +746,118 @@
    "isIsometric": false,
    "usesWeight": false,
    "instructions": "Support yourself on parallel bars with straight arms, then lean forward and bend your knees behind you.\nLower yourself by bending your elbows, letting them move out a little, until you feel a stretch in your chest.\nPush back up until your arms are straight, staying leaned forward.\nOnly go as low as your shoulders are comfortable. Use an assisted machine if you need to."
+  },
+  {
+   "key": "seated-barbell-shoulder-press",
+   "name": "Seated Barbell Shoulder Press",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit on a bench with an upright back, holding a barbell at the front of your shoulders with a grip a little wider than shoulder-width.\nPress the bar straight up until your arms are straight, moving your head back slightly to let it pass.\nLower it slowly back to the front of your shoulders.\nKeep your back against the pad and your core tight."
+  },
+  {
+   "key": "machine-shoulder-press",
+   "name": "Machine Shoulder Press",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Adjust the seat so the handles are level with your shoulders, then sit with your back against the pad.\nPress the handles up until your arms are straight, without locking your elbows hard.\nLower them slowly until your hands are back at shoulder height.\nKeep your back against the pad and your feet flat on the floor."
+  },
+  {
+   "key": "smith-machine-shoulder-press",
+   "name": "Smith Machine Shoulder Press",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set an upright bench under the Smith machine so the bar lowers just in front of your face.\nGrip the bar a little wider than shoulder-width and twist it to unhook it.\nLower it to about chin height, then press it back up until your arms are straight.\nKeep your back against the bench, and twist the bar back onto its hooks when you're done."
+  },
+  {
+   "key": "barbell-push-press",
+   "name": "Push Press",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand with your feet about hip-width apart and a barbell at the front of your shoulders, gripping it a little wider than shoulder-width.\nDip by bending your knees a little, keeping your torso upright.\nDrive up through your legs and use that push to press the bar over your head until your arms are straight.\nLower the bar back to your shoulders, bending your knees slightly to soften the catch."
+  },
+  {
+   "key": "landmine-press",
+   "name": "Landmine Press",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set one end of a barbell in a landmine or a corner and stand facing it, holding the other end at your shoulder in one hand.\nPress the bar up and forward until your arm is straight.\nLower it slowly back to your shoulder.\nBrace your core so you don't lean back, and do the same number of reps with each arm."
+  },
+  {
+   "key": "pike-push-ups",
+   "name": "Pike Push-ups",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Start in a push-up position, then walk your feet in and lift your hips so your body makes an upside-down V.\nBend your elbows to lower the top of your head towards the floor, just in front of your hands.\nPush back up until your arms are straight.\nKeep your hips high throughout. Put your feet on a box to make them harder."
+  },
+  {
+   "key": "machine-lateral-raises",
+   "name": "Machine Lateral Raises",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Adjust the seat so your shoulders line up with the machine's pivots, then sit with the pads against the outside of your arms.\nRaise your arms out to the sides until they're level with your shoulders.\nLower them slowly back down.\nLead with your elbows and keep your shoulders down."
+  },
+  {
+   "key": "cable-front-raises",
+   "name": "Cable Front Raises",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set the pulley low with a straight bar and stand facing away from it, the cable between your legs and the bar in front of your thighs.\nWith your arms straight or slightly bent, raise the bar in front of you to shoulder height.\nLower it slowly back to your thighs.\nKeep your torso still and don't swing the weight up."
+  },
+  {
+   "key": "plate-front-raises",
+   "name": "Plate Front Raises",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall holding a weight plate by its sides in front of your thighs.\nWith your arms straight or slightly bent, raise the plate in front of you to about eye level.\nLower it slowly back down.\nKeep your torso still and don't lean back."
+  },
+  {
+   "key": "reverse-pec-deck",
+   "name": "Reverse Pec Deck",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit facing the machine with your chest against the pad and the handles in front of you at shoulder height.\nWith a slight bend in your elbows, pull the handles out and back until your arms are in line with your shoulders.\nSqueeze your shoulder blades together, then return slowly.\nKeep your chest against the pad and your shoulders down."
+  },
+  {
+   "key": "cable-rear-delt-flyes",
+   "name": "Cable Rear Delt Flyes",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set both pulleys at shoulder height and stand in the middle, holding the left cable in your right hand and the right cable in your left, arms crossed in front of you.\nWith a slight bend in your elbows, pull your arms out to the sides until they're in line with your shoulders.\nReturn slowly to the crossed position.\nKeep your arms at shoulder height and your torso still."
+  },
+  {
+   "key": "band-pull-aparts",
+   "name": "Band Pull-Aparts",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Stand tall holding a resistance band in front of you at shoulder height, hands about shoulder-width apart and arms straight.\nPull the band apart by moving your arms out to the sides until it touches your chest.\nReturn slowly, keeping tension on the band.\nSqueeze your shoulder blades together and keep your shoulders down."
+  },
+  {
+   "key": "dumbbell-upright-rows",
+   "name": "Dumbbell Upright Rows",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall holding a dumbbell in each hand in front of your thighs, palms facing you.\nPull the dumbbells up along your body to about chest height, leading with your elbows.\nLower them slowly back down.\nStop when your elbows reach shoulder height, or lower if your shoulders feel pinched."
+  },
+  {
+   "key": "cable-upright-rows",
+   "name": "Cable Upright Rows",
+   "target": "Shoulders",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set the pulley low with a straight bar and stand facing the machine, holding the bar in front of your thighs with a narrow grip.\nPull the bar up along your body to about chest height, leading with your elbows.\nLower it slowly back down.\nStop when your elbows reach shoulder height, or lower if your shoulders feel pinched."
   }
  ],
  "plans": [

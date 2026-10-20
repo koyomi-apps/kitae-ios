@@ -128,6 +128,15 @@ const kneelOnPad = { thigh: 186, shin: 271, foot: 125 };
 const assistedDips = [{ kind: 'post', from: [-96, -2], to: [-96, -222], width: 7 }, { kind: 'post', from: [-96, -112], to: [2, -112], width: 4 },
   { kind: 'bar', at: [2, -112] }, { kind: 'pad', on: 'shins', anchor: [-95, -82] }];
 const DIAMOND_HANDS = [64, -5];
+// Lat pull-downs: a close grip leans back a little more; one arm at a time stays more upright.
+const pulldownSeat = [{ kind: 'pad', from: [-26, SEAT], to: [10, SEAT], legs: [-8] }, { kind: 'roller', on: 'thigh' }];
+const closePulldown = { hip: [-4, -58], lean: -18, head: -14, ankle: [34, -7.4] };
+const closeTop = reachAbove(shoulder(closePulldown), shoulder(closePulldown)[0] + 5, 60);
+const oneArmPulldown = { hip: [-4, -58], lean: -12, head: -12, ankle: [34, -7.4] };
+const oneArmTop = reachAbove(shoulder(oneArmPulldown), shoulder(oneArmPulldown)[0] + 6, 60);
+// The assisted machine for pull-ups: its handles overhead, the knee pad's pivot on the column.
+const assistedPullUps = [{ kind: 'post', from: [-96, -2], to: [-96, -236], width: 7 }, { kind: 'post', from: [-96, -228], to: [6, -228], width: 3 },
+  { kind: 'bar', at: [6, -228] }, { kind: 'pad', on: 'shins', anchor: [-96, -79] }];
 
 // The front view: the figure facing the viewer. Standing hip height puts the feet on the floor.
 const fstand = { hip: [0, -100.2] };
@@ -896,6 +905,40 @@ const motions = [
     key: 'diamond-push-ups', name: 'Diamond Push-ups', timing: [0.1, 0.5, 0.58, 0.95], shift: -8, shadow: [10, 0], shadowWidth: 80,
     from: { ...straightBody(PUSHUP_TOES, 71.5), arm: { hand: DIAMOND_HANDS, elbow: 1 } },
     to: { ...straightBody(PUSHUP_TOES, 86), arm: { hand: DIAMOND_HANDS, elbow: 1 } },
+  },
+
+  // The library's lats exercises
+  {
+    key: 'close-grip-lat-pulldowns', name: 'Close-Grip Lat Pull-down', timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.94, shift: 4,
+    gear: [...pulldownSeat, { kind: 'cable', from: [closeTop[0], -212], handle: 'bar' }],
+    from: { ...closePulldown, arm: { hand: closeTop, elbow: 1 } },
+    to: { ...closePulldown, arm: { hand: add(on(closePulldown, 38, 18), [0, 6.5]), elbow: 1 } },
+  },
+  {
+    key: 'single-arm-lat-pulldowns', name: 'Single-Arm Lat Pull-down', timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.94, shift: 4,
+    gear: [...pulldownSeat, { kind: 'cable', from: [oneArmTop[0], -212], handle: 'single' }],
+    from: { ...oneArmPulldown, arm: { hand: oneArmTop, elbow: 1 }, farArm: { hand: [24.5, -64], elbow: 1 } },
+    to: { ...oneArmPulldown, arm: { hand: add(on(oneArmPulldown, 42, 15), [0, 6.5]), elbow: 1 }, farArm: { hand: [24.5, -64], elbow: 1 } },
+  },
+  {
+    key: 'assisted-pull-ups', name: 'Assisted Pull-ups', timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.78, shift: 30,
+    gear: assistedPullUps,
+    from: { hip: [11.5, -117.3], lean: -6, head: -4, ...kneelOnPad, arm: { hand: [6, -221.5], scale: 0.9, elbow: 1 } },
+    to: { hip: [7, -168], lean: -12, head: -18, ...kneelOnPad, arm: { hand: [6, -221.5], scale: 0.9, elbow: 1 } },
+  },
+  {
+    key: 'neutral-grip-pull-ups', name: 'Neutral-Grip Pull-ups', timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.78, shift: 0,
+    // Parallel handles run front to back, so from the side the hands hold a short bar along the view.
+    gear: [{ kind: 'post', from: [-34, -2], to: [-34, -236], width: 5 }, { kind: 'post', from: [-34, -228], to: [-4, -228], width: 3 },
+      { kind: 'post', from: [-4, -227.5], to: [16, -227.5], width: 4.5 }],
+    from: { hip: [11.5, -117.3], lean: -6, head: -4, ...hangLegs, arm: { hand: [6, -221.5], scale: 0.9, elbow: 1 } },
+    to: { hip: [7, -168], lean: -12, head: -18, ...hangLegs, arm: { hand: [6, -221.5], scale: 0.9, elbow: 1 } },
+  },
+  {
+    key: 'dumbbell-pullovers', name: 'Dumbbell Pullovers', timing: [0.1, 0.5, 0.58, 0.95], shift: 26,
+    gear: [flatBench, { kind: 'dumbbells', hang: true, one: true }],
+    from: { ...lie, arm: { upper: 180, bend: 12 } },
+    to: { ...lie, arm: { upper: 255, bend: 16 } },
   },
 ];
 

@@ -184,6 +184,11 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         // Hands together under the chest carry a little more of the body: about 68%, scaled as for
         // pike push-ups.
         "diamond-push-ups": .init(perKilogram: 0.014, bodyShare: 0.68), // Diamond Push-ups
+        "close-grip-lat-pulldowns": .init(perKilogram: arms, bodyShare: 0.05), // Close-Grip Lat Pull-down
+        "single-arm-lat-pulldowns": .init(perKilogram: arms, bodyShare: 0.025, sides: 2), // Single-Arm Lat Pull-down
+        "assisted-pull-ups": .init(perKilogram: arms, bodyShare: 0.95, loadFactor: -1), // Assisted Pull-ups
+        "neutral-grip-pull-ups": .init(perKilogram: arms, bodyShare: 0.95), // Neutral-Grip Pull-ups
+        "dumbbell-pullovers": .init(perKilogram: arms, bodyShare: 0.02), // Dumbbell Pullovers
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

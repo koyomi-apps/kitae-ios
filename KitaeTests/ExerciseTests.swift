@@ -195,8 +195,9 @@ struct ExerciseTests {
         #expect(records.best == SetDraft(reps: 8, weightKg: 20))
         #expect(records.bestDate == 3)
         #expect(records.mostReps == SetDraft(reps: 10, weightKg: 25))
-        // Kitae's assisted dips are assisted; its dips and people's own exercises aren't.
+        // Kitae's assisted dips and pull-ups are assisted; its dips and people's own exercises aren't.
         #expect(Exercise(id: 1, name: "Assisted Dips", target: "Triceps", libraryKey: "assisted-dips").isAssisted)
+        #expect(Exercise(id: 4, name: "Assisted Pull-ups", target: "Lats", libraryKey: "assisted-pull-ups").isAssisted)
         #expect(!Exercise(id: 2, name: "Dips", target: "Triceps", libraryKey: "dips").isAssisted)
         #expect(!Exercise(id: 3, name: "Assisted Dips", target: "Triceps").isAssisted)
     }

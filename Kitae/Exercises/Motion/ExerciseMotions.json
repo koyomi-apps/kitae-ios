@@ -7327,5 +7327,419 @@
     "elbow": 1
    }
   }
+ },
+ {
+  "key": "close-grip-lat-pulldowns",
+  "name": "Close-Grip Lat Pull-down",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "zoom": 0.94,
+  "shift": 4,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -26,
+     -48
+    ],
+    "to": [
+     10,
+     -48
+    ],
+    "legs": [
+     -8
+    ]
+   },
+   {
+    "kind": "roller",
+    "on": "thigh"
+   },
+   {
+    "kind": "cable",
+    "from": [
+     -14.3,
+     -212
+    ],
+    "handle": "bar"
+   }
+  ],
+  "from": {
+   "hip": [
+    -4,
+    -58
+   ],
+   "lean": -18,
+   "head": -14,
+   "ankle": [
+    34,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -14.3,
+     -163.3
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -58
+   ],
+   "lean": -18,
+   "head": -14,
+   "ankle": [
+    34,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     1.4,
+     -93.2
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "single-arm-lat-pulldowns",
+  "name": "Single-Arm Lat Pull-down",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "zoom": 0.94,
+  "shift": 4,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -26,
+     -48
+    ],
+    "to": [
+     10,
+     -48
+    ],
+    "legs": [
+     -8
+    ]
+   },
+   {
+    "kind": "roller",
+    "on": "thigh"
+   },
+   {
+    "kind": "cable",
+    "from": [
+     -8.5,
+     -212
+    ],
+    "handle": "single"
+   }
+  ],
+  "from": {
+   "hip": [
+    -4,
+    -58
+   ],
+   "lean": -12,
+   "head": -12,
+   "ankle": [
+    34,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     -8.5,
+     -164.5
+    ],
+    "elbow": 1
+   },
+   "farArm": {
+    "hand": [
+     24.5,
+     -64
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -58
+   ],
+   "lean": -12,
+   "head": -12,
+   "ankle": [
+    34,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     1.9,
+     -95.7
+    ],
+    "elbow": 1
+   },
+   "farArm": {
+    "hand": [
+     24.5,
+     -64
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "assisted-pull-ups",
+  "name": "Assisted Pull-ups",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "zoom": 0.78,
+  "shift": 30,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -96,
+     -2
+    ],
+    "to": [
+     -96,
+     -236
+    ],
+    "width": 7
+   },
+   {
+    "kind": "post",
+    "from": [
+     -96,
+     -228
+    ],
+    "to": [
+     6,
+     -228
+    ],
+    "width": 3
+   },
+   {
+    "kind": "bar",
+    "at": [
+     6,
+     -228
+    ]
+   },
+   {
+    "kind": "pad",
+    "on": "shins",
+    "anchor": [
+     -96,
+     -79
+    ]
+   }
+  ],
+  "from": {
+   "hip": [
+    11.5,
+    -117.3
+   ],
+   "lean": -6,
+   "head": -4,
+   "thigh": 186,
+   "shin": 271,
+   "foot": 125,
+   "arm": {
+    "hand": [
+     6,
+     -221.5
+    ],
+    "scale": 0.9,
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    7,
+    -168
+   ],
+   "lean": -12,
+   "head": -18,
+   "thigh": 186,
+   "shin": 271,
+   "foot": 125,
+   "arm": {
+    "hand": [
+     6,
+     -221.5
+    ],
+    "scale": 0.9,
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "neutral-grip-pull-ups",
+  "name": "Neutral-Grip Pull-ups",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "zoom": 0.78,
+  "shift": 0,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -34,
+     -2
+    ],
+    "to": [
+     -34,
+     -236
+    ],
+    "width": 5
+   },
+   {
+    "kind": "post",
+    "from": [
+     -34,
+     -228
+    ],
+    "to": [
+     -4,
+     -228
+    ],
+    "width": 3
+   },
+   {
+    "kind": "post",
+    "from": [
+     -4,
+     -227.5
+    ],
+    "to": [
+     16,
+     -227.5
+    ],
+    "width": 4.5
+   }
+  ],
+  "from": {
+   "hip": [
+    11.5,
+    -117.3
+   ],
+   "lean": -6,
+   "head": -4,
+   "thigh": 172,
+   "shin": 205,
+   "farThigh": 166,
+   "farShin": 198,
+   "arm": {
+    "hand": [
+     6,
+     -221.5
+    ],
+    "scale": 0.9,
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    7,
+    -168
+   ],
+   "lean": -12,
+   "head": -18,
+   "thigh": 172,
+   "shin": 205,
+   "farThigh": 166,
+   "farShin": 198,
+   "arm": {
+    "hand": [
+     6,
+     -221.5
+    ],
+    "scale": 0.9,
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "dumbbell-pullovers",
+  "name": "Dumbbell Pullovers",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": 26,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -92,
+     -47
+    ],
+    "to": [
+     24,
+     -47
+    ],
+    "legs": [
+     -76,
+     8
+    ]
+   },
+   {
+    "kind": "dumbbells",
+    "hang": true,
+    "one": true
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -59.5
+   ],
+   "lean": -90,
+   "ankle": [
+    44,
+    -7.4
+   ],
+   "arm": {
+    "upper": 180,
+    "bend": 12
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -59.5
+   ],
+   "lean": -90,
+   "ankle": [
+    44,
+    -7.4
+   ],
+   "arm": {
+    "upper": 255,
+    "bend": 16
+   }
+  }
  }
 ]

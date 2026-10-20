@@ -994,6 +994,46 @@
    "isIsometric": false,
    "usesWeight": false,
    "instructions": "Start in a push-up position with your hands together under your chest, thumbs and index fingers touching to make a diamond.\nKeep your body straight from head to heels.\nLower your chest towards your hands, keeping your elbows close to your sides.\nPush back up until your arms are straight. Rest on your knees to make them easier."
+  },
+  {
+   "key": "close-grip-lat-pulldowns",
+   "name": "Close-Grip Lat Pull-down",
+   "target": "Lats",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Attach a close-grip V-handle to the lat pull-down and sit with your thighs under the pad, holding it with your palms facing each other.\nLean back slightly and lift your chest.\nPull the handle down to your upper chest, driving your elbows down and back.\nLet it rise slowly until your arms are straight and you feel the stretch in your lats."
+  },
+  {
+   "key": "single-arm-lat-pulldowns",
+   "name": "Single-Arm Lat Pull-down",
+   "target": "Lats",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Attach a single handle to a high pulley and sit or kneel facing it, holding the handle in one hand with your arm straight overhead.\nPull your elbow down towards your hip, bringing the handle to the front of your shoulder.\nPause, then let your arm rise slowly until it's straight again.\nKeep your body still rather than leaning into the pull, and switch arms after the set."
+  },
+  {
+   "key": "assisted-pull-ups",
+   "name": "Assisted Pull-ups",
+   "target": "Lats",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Choose the machine's assistance, where more weight gives more help, then kneel on the pad and take the handles above you with straight arms.\nPull your shoulders down and back, then pull yourself up until your chin is over the handles.\nLower yourself slowly until your arms are straight.\nUse less assistance as you get stronger, until you can do pull-ups on your own."
+  },
+  {
+   "key": "neutral-grip-pull-ups",
+   "name": "Neutral-Grip Pull-ups",
+   "target": "Lats",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Hang from parallel handles with your palms facing each other and your arms straight.\nPull your shoulders down, then pull yourself up until your chin is over your hands.\nLower yourself slowly until your arms are straight again.\nKeep your body still rather than swinging. Many people find this grip easier on their shoulders and wrists."
+  },
+  {
+   "key": "dumbbell-pullovers",
+   "name": "Dumbbell Pullovers",
+   "target": "Lats",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Lie on a flat bench holding one dumbbell above your chest with both hands cupped under its top end, elbows slightly bent.\nKeeping that bend, lower the dumbbell back over your head in an arc until you feel a stretch along your sides.\nPull it back over your chest along the same arc.\nKeep your lower back on the bench and go only as low as your shoulders are comfortable."
   }
  ],
  "plans": [

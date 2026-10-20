@@ -280,6 +280,11 @@ const EXERCISES = {
     'bench-dips': ['Bench Dips', 'triceps', 'frontDelts chest'],
     'assisted-dips': ['Assisted Dips', 'triceps', 'chest frontDelts'],
     'diamond-push-ups': ['Diamond Push-ups', 'triceps', 'chest frontDelts'],
+    'close-grip-lat-pulldowns': ['Close-Grip Lat Pull-down', 'lats', 'biceps upperBack'],
+    'single-arm-lat-pulldowns': ['Single-Arm Lat Pull-down', 'lats', 'biceps upperBack'],
+    'assisted-pull-ups': ['Assisted Pull-ups', 'lats', 'biceps upperBack'],
+    'neutral-grip-pull-ups': ['Neutral-Grip Pull-ups', 'lats', 'biceps forearms upperBack'],
+    'dumbbell-pullovers': ['Dumbbell Pullovers', 'lats chest', 'triceps'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

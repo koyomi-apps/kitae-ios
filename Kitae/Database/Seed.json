@@ -1090,6 +1090,22 @@
    "isIsometric": false,
    "usesWeight": false,
    "instructions": "Set a bar in a rack or Smith machine at about waist height and lie under it, holding it a little wider than your shoulders.\nMake your body straight from heels to head, with your heels on the floor and your arms straight.\nPull your chest up to the bar, squeezing your shoulder blades together.\nLower yourself slowly. Bend your knees and put your feet flat to make it easier."
+  },
+  {
+   "key": "barbell-shrugs",
+   "name": "Barbell Shrugs",
+   "target": "Traps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall holding a barbell in front of your thighs, hands just outside your legs.\nLift your shoulders straight up towards your ears as high as they go, keeping your arms straight.\nHold for a moment at the top, then lower your shoulders slowly.\nDon't roll your shoulders or bend your elbows to help."
+  },
+  {
+   "key": "dumbbell-farmers-carry",
+   "name": "Farmer's Carry",
+   "target": "Traps",
+   "isIsometric": true,
+   "usesWeight": true,
+   "instructions": "Pick up a heavy dumbbell in each hand and stand tall with them at your sides.\nWalk with short, steady steps, keeping your shoulders back and your core braced.\nKeep the weights still at your sides and don't lean to either side.\nWalk for the set time, then set the dumbbells down with a flat back."
   }
  ],
  "plans": [

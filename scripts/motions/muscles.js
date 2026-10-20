@@ -292,6 +292,8 @@ const EXERCISES = {
     'machine-rows': ['Machine Rows', 'upperBack lats', 'rearDelts biceps'],
     'single-arm-cable-rows': ['Single-Arm Cable Rows', 'lats upperBack', 'rearDelts biceps'],
     'inverted-rows': ['Inverted Rows', 'upperBack lats', 'rearDelts biceps'],
+    'barbell-shrugs': ['Barbell Shrugs', 'traps', 'forearms'],
+    'dumbbell-farmers-carry': ["Farmer's Carry", 'traps forearms', 'abs obliques'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

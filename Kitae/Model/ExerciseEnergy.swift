@@ -9,7 +9,8 @@ import Foundation
 /// `loadFactor` (2 for a pair of dumbbells, less on a sled pushed at an angle, -1 for a machine's
 /// help, which comes off the body's weight), plus `bodyShare` of the body's own weight (most of it
 /// in a squat or a pull-up, little in a curl), all times `sides` for exercises done one side at a
-/// time. A hold costs `holdMETs` a second instead.
+/// time. A hold costs `holdMETs` a second instead, for the body and, in a carry, for the weight
+/// carried as well (the weight logged times `carryFactor`).
 ///
 /// The costs per kilogram come from sets whose whole cost was measured, aerobic, anaerobic and
 /// the recovery after (Scott et al. 2014, "Total Energy Costs – Aerobic and Anaerobic, Exercise
@@ -24,6 +25,9 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
     var sides = 1.0
     /// For holds, whose reps are seconds: METs while holding.
     var holdMETs: Double?
+    /// For carries, holds that walk with the weight: the weight logged times this counts like
+    /// body weight (2 for a pair of dumbbells).
+    var carryFactor = 0.0
 
     /// The weight logged is an assisted machine's help, which comes off the body's weight.
     var isAssisted: Bool { loadFactor < 0 }
@@ -36,10 +40,10 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
     /// the weight, by the lifter's height (see `WorkoutEnergy.reach`); a hold doesn't move.
     func kilocalories(reps: Int, weightKg: Double, bodyKg: Double, reach: Double = 1) -> Double {
         let reps = Double(min(max(reps, 0), Self.mostReps))
-        if let holdMETs {
-            return max(holdMETs - 1, 0) * bodyKg * reps / 3600 * sides
-        }
         let load = min(max(weightKg, 0), Self.mostKilograms)
+        if let holdMETs {
+            return max(holdMETs - 1, 0) * (bodyKg + load * carryFactor) * reps / 3600 * sides
+        }
         return perKilogram * max(load * loadFactor + bodyShare * bodyKg, 0) * reps * sides * reach
     }
 
@@ -199,6 +203,10 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         // About 80% of the body's weight hangs from the hands: where its centre of mass sits
         // between the bar and the heels in the figure, scaled as for pike push-ups.
         "inverted-rows": .init(perKilogram: arms, bodyShare: 0.8), // Inverted Rows
+        "barbell-shrugs": .init(perKilogram: 0.007, bodyShare: 0), // Barbell Shrugs
+        // Walking at a moderate pace, about 3.5 METs, with the weights counted like body weight,
+        // as in Pandolf et al.'s (1977) equation for walking with a load.
+        "dumbbell-farmers-carry": .init(perKilogram: 0, bodyShare: 0, holdMETs: 3.5, carryFactor: 2), // Farmer's Carry
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

@@ -118,6 +118,10 @@ struct BodyTests {
         let assisted = ExerciseEnergy.of(key: "assisted-dips", target: "Triceps", isIsometric: false)
         #expect(abs(assisted.kilocalories(reps: 10, weightKg: 30, bodyKg: 80) - 0.011 * (76 - 30) * 10) < 1e-9)
         #expect(assisted.kilocalories(reps: 10, weightKg: 100, bodyKg: 80) == 0)
+        // A minute of farmer's carry with two 20 kg dumbbells: 2.5 METs over resting, for the body
+        // and both weights.
+        let carry = ExerciseEnergy.of(key: "dumbbell-farmers-carry", target: "Traps", isIsometric: true)
+        #expect(abs(carry.kilocalories(reps: 60, weightKg: 20, bodyKg: 80) - 2.5 * 120 / 60) < 1e-9)
         // A big lift costs far more than a small one.
         #expect(squats.kilocalories(reps: 10, weightKg: 40, bodyKg: 80) > 3 * curls.kilocalories(reps: 10, weightKg: 10, bodyKg: 80))
         // People's own exercises go by their muscle group.
@@ -130,8 +134,9 @@ struct BodyTests {
         for (key, energy) in ExerciseEnergy.starters {
             #expect(energy.holdMETs != nil || energy.perKilogram > 0, "\(key)")
         }
-        // The holds are the isometric starter exercises.
-        #expect(Set(ExerciseEnergy.starters.filter { $0.value.holdMETs != nil }.keys) == ["wall-sit", "plank", "side-plank"])
+        // The holds are Kitae's isometric exercises.
+        let isometric = Set(try Seed.bundled().exercises.filter(\.isIsometric).map(\.key))
+        #expect(Set(ExerciseEnergy.starters.filter { $0.value.holdMETs != nil }.keys) == isometric)
     }
 
     @Test func setTypesCountWhatTheirRepsDontShow() {

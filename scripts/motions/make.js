@@ -149,6 +149,9 @@ const splitRow = { hip: [-6, -96], lean: 16, head: 6, ankle: [-30, -9], foot: 22
 // Inverted rows: a straight body from the heels, face up, under a bar that meets the chest at the top.
 const INVERTED_HEELS = [40, -9.5];
 const invertedBar = on(straightBody(INVERTED_HEELS, -54), 37, 16.5);
+// A farmer's carry walks: one stride and the next, the back foot on its toes.
+const carryStride = { hip: [0, -99], lean: 3, head: 0, arm: { upper: 2, bend: 4 } };
+const FRONT_FOOT = [16, -7.4], BACK_FOOT = [-18, -11];
 const assistedPullUps = [{ kind: 'post', from: [-96, -2], to: [-96, -236], width: 7 }, { kind: 'post', from: [-96, -228], to: [6, -228], width: 3 },
   { kind: 'bar', at: [6, -228] }, { kind: 'pad', on: 'shins', anchor: [-96, -79] }];
 
@@ -997,6 +1000,20 @@ const motions = [
     gear: [smithRail(invertedBar[0]), { kind: 'bar', at: invertedBar }],
     from: { ...straightBody(INVERTED_HEELS, -74), arm: { hand: add(invertedBar, [0, 6.5]), elbow: 1 } },
     to: { ...straightBody(INVERTED_HEELS, -54), arm: { hand: add(invertedBar, [0, 6.5]), elbow: 1 } },
+  },
+
+  // The library's traps exercises
+  {
+    key: 'barbell-shrugs', name: 'Barbell Shrugs', gear: [{ kind: 'barbell' }],
+    timing: [0.1, 0.4, 0.55, 0.92], shift: 4,
+    from: { hip: [-1, -98.8], lean: 2, head: 0, arm: { hand: [9, -91.5], elbow: -1 } },
+    to: { hip: [-1, -98.8], lean: 2, head: 0, shrug: 10, arm: { hand: [9.3, -101.5], elbow: -1 } },
+  },
+  {
+    key: 'dumbbell-farmers-carry', name: "Farmer's Carry", gear: [{ kind: 'dumbbells', profile: true }],
+    timing: [0, 0.5, 0.5, 1], seconds: 1.3, shift: 0,
+    from: { ...carryStride, ankle: FRONT_FOOT, foot: 0, farAnkle: BACK_FOOT, farFoot: 26 },
+    to: { ...carryStride, ankle: BACK_FOOT, foot: 26, farAnkle: FRONT_FOOT, farFoot: 0 },
   },
 ];
 

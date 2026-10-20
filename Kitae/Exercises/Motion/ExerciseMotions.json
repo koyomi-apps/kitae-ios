@@ -7741,5 +7741,469 @@
     "bend": 16
    }
   }
+ },
+ {
+  "key": "barbell-rack-pulls",
+  "name": "Rack Pulls",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": 0,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     44,
+     -2
+    ],
+    "to": [
+     44,
+     -204
+    ],
+    "width": 6
+   },
+   {
+    "kind": "post",
+    "from": [
+     44,
+     -54
+    ],
+    "to": [
+     -6,
+     -54
+    ],
+    "width": 4
+   },
+   {
+    "kind": "barbell"
+   }
+  ],
+  "from": {
+   "hip": [
+    -17.2,
+    -91.8
+   ],
+   "lean": 46,
+   "head": 26,
+   "arm": {
+    "hand": [
+     16,
+     -64.5
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -98.8
+   ],
+   "lean": 2,
+   "head": 0,
+   "arm": {
+    "hand": [
+     9,
+     -91.5
+    ],
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "dumbbell-bent-over-rows",
+  "name": "Dumbbell Bent-over Rows",
+  "gear": [
+   {
+    "kind": "dumbbells",
+    "profile": true
+   }
+  ],
+  "timing": [
+   0.08,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": 8,
+  "from": {
+   "hip": [
+    -30,
+    -88
+   ],
+   "lean": 72,
+   "head": 40,
+   "arm": {
+    "hand": [
+     15.5,
+     -41
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -30,
+    -88
+   ],
+   "lean": 72,
+   "head": 40,
+   "arm": {
+    "hand": [
+     -1,
+     -86
+    ],
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "barbell-pendlay-rows",
+  "name": "Pendlay Rows",
+  "gear": [
+   {
+    "kind": "barbell"
+   }
+  ],
+  "timing": [
+   0.12,
+   0.32,
+   0.42,
+   0.8
+  ],
+  "shift": 10,
+  "from": {
+   "hip": [
+    -38.7,
+    -79
+   ],
+   "lean": 84,
+   "head": 50,
+   "arm": {
+    "hand": [
+     9,
+     -23.5
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -38.7,
+    -79
+   ],
+   "lean": 84,
+   "head": 50,
+   "arm": {
+    "hand": [
+     -7.7,
+     -70.9
+    ],
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "barbell-seal-rows",
+  "name": "Seal Rows",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": 14,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -104,
+     -94
+    ],
+    "to": [
+     58,
+     -94
+    ],
+    "legs": [
+     -90,
+     44
+    ]
+   },
+   {
+    "kind": "barbell"
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -106.5
+   ],
+   "lean": 90,
+   "head": 70,
+   "thigh": 266,
+   "shin": 268,
+   "foot": 80,
+   "arm": {
+    "hand": [
+     48,
+     -46
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -106.5
+   ],
+   "lean": 90,
+   "head": 70,
+   "thigh": 266,
+   "shin": 268,
+   "foot": 80,
+   "arm": {
+    "hand": [
+     42,
+     -88
+    ],
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "machine-rows",
+  "name": "Machine Rows",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -10,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -24,
+     -50
+    ],
+    "to": [
+     12,
+     -50
+    ],
+    "legs": [
+     -6
+    ]
+   },
+   {
+    "kind": "pad",
+    "from": [
+     10.7,
+     -77
+    ],
+    "to": [
+     13.1,
+     -110.9
+    ]
+   },
+   {
+    "kind": "handle"
+   }
+  ],
+  "from": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": 4,
+   "head": 2,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     58,
+     -105
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -4,
+    -60
+   ],
+   "lean": 4,
+   "head": 2,
+   "ankle": [
+    38,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     8,
+     -100
+    ],
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "single-arm-cable-rows",
+  "name": "Single-Arm Cable Rows",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -24,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     104,
+     -2
+    ],
+    "to": [
+     104,
+     -196
+    ],
+    "width": 7
+   },
+   {
+    "kind": "cable",
+    "from": [
+     104,
+     -124
+    ],
+    "handle": "single"
+   }
+  ],
+  "from": {
+   "hip": [
+    -6,
+    -96
+   ],
+   "lean": 16,
+   "head": 6,
+   "ankle": [
+    -30,
+    -9
+   ],
+   "foot": 22,
+   "farAnkle": [
+    22,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     64,
+     -126
+    ],
+    "elbow": -1
+   },
+   "farArm": {
+    "upper": 8,
+    "bend": 20
+   }
+  },
+  "to": {
+   "hip": [
+    -6,
+    -96
+   ],
+   "lean": 16,
+   "head": 6,
+   "ankle": [
+    -30,
+    -9
+   ],
+   "foot": 22,
+   "farAnkle": [
+    22,
+    -7.4
+   ],
+   "arm": {
+    "hand": [
+     15.7,
+     -121
+    ],
+    "elbow": -1
+   },
+   "farArm": {
+    "upper": 8,
+    "bend": 20
+   }
+  }
+ },
+ {
+  "key": "inverted-rows",
+  "name": "Inverted Rows",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": 26,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -55.6,
+     -2
+    ],
+    "to": [
+     -55.6,
+     -204
+    ],
+    "width": 6
+   },
+   {
+    "kind": "bar",
+    "at": [
+     -55.6,
+     -99.4
+    ]
+   }
+  ],
+  "from": {
+   "hip": [
+    -49.6,
+    -35.2
+   ],
+   "lean": -74,
+   "thigh": 106,
+   "shin": 106,
+   "foot": -74,
+   "arm": {
+    "hand": [
+     -55.6,
+     -92.9
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    -35.4,
+    -64.3
+   ],
+   "lean": -54,
+   "thigh": 126,
+   "shin": 126,
+   "foot": -54,
+   "arm": {
+    "hand": [
+     -55.6,
+     -92.9
+    ],
+    "elbow": 1
+   }
+  }
  }
 ]

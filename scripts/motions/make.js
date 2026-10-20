@@ -135,6 +135,20 @@ const closeTop = reachAbove(shoulder(closePulldown), shoulder(closePulldown)[0] 
 const oneArmPulldown = { hip: [-4, -58], lean: -12, head: -12, ankle: [34, -7.4] };
 const oneArmTop = reachAbove(shoulder(oneArmPulldown), shoulder(oneArmPulldown)[0] + 6, 60);
 // The assisted machine for pull-ups: its handles overhead, the knee pad's pivot on the column.
+// Rack pulls start with the bar on a power rack's pins just above the knees.
+const RACK_BAR = [16, -58];
+const rackPull = { hip: hipBelow([RACK_BAR[0] + 1, RACK_BAR[1] - 6.5 - 61], 46), lean: 46, head: 26 };
+const rackPins = [{ kind: 'post', from: [44, -2], to: [44, -204], width: 6 }, { kind: 'post', from: [44, -54], to: [-6, -54], width: 4 }];
+// Pendlay rows start each rep from the floor with the back about level.
+const pendlay = { hip: hipBelow([9, -23.5 - 61], 84), lean: 84, head: 50 };
+// Seal rows lie face down on a bench high enough for the bar to hang clear of the floor.
+const SEAL_BENCH = -94;
+const seal = { hip: [0, SEAL_BENCH - 12.5], lean: 90, head: 70, thigh: 266, shin: 268, foot: 80 };
+// One-arm cable rows standing, the working side's foot back.
+const splitRow = { hip: [-6, -96], lean: 16, head: 6, ankle: [-30, -9], foot: 22, farAnkle: [22, -7.4] };
+// Inverted rows: a straight body from the heels, face up, under a bar that meets the chest at the top.
+const INVERTED_HEELS = [40, -9.5];
+const invertedBar = on(straightBody(INVERTED_HEELS, -54), 37, 16.5);
 const assistedPullUps = [{ kind: 'post', from: [-96, -2], to: [-96, -236], width: 7 }, { kind: 'post', from: [-96, -228], to: [6, -228], width: 3 },
   { kind: 'bar', at: [6, -228] }, { kind: 'pad', on: 'shins', anchor: [-96, -79] }];
 
@@ -939,6 +953,50 @@ const motions = [
     gear: [flatBench, { kind: 'dumbbells', hang: true, one: true }],
     from: { ...lie, arm: { upper: 180, bend: 12 } },
     to: { ...lie, arm: { upper: 255, bend: 16 } },
+  },
+
+  // The library's back exercises
+  {
+    key: 'barbell-rack-pulls', name: 'Rack Pulls', timing: [0.1, 0.45, 0.55, 0.95], shift: 0,
+    gear: [...rackPins, { kind: 'barbell' }],
+    from: { ...rackPull, arm: { hand: [RACK_BAR[0], RACK_BAR[1] - 6.5], elbow: -1 } },
+    to: { hip: [-1, -98.8], lean: 2, head: 0, arm: { hand: [9, -91.5], elbow: -1 } },
+  },
+  {
+    key: 'dumbbell-bent-over-rows', name: 'Dumbbell Bent-over Rows', gear: [{ kind: 'dumbbells', profile: true }],
+    timing: [0.08, 0.45, 0.55, 0.95], shift: 8,
+    from: { hip: [-30, -88], lean: 72, head: 40, arm: { hand: [15.5, -41], elbow: -1 } },
+    to: { hip: [-30, -88], lean: 72, head: 40, arm: { hand: [-1, -86], elbow: -1 } },
+  },
+  {
+    key: 'barbell-pendlay-rows', name: 'Pendlay Rows', gear: [{ kind: 'barbell' }],
+    timing: [0.12, 0.32, 0.42, 0.8], shift: 10,
+    from: { ...pendlay, arm: { hand: [9, -23.5], elbow: -1 } },
+    to: { ...pendlay, arm: { hand: on(pendlay, 30, 11.3), elbow: -1 } },
+  },
+  {
+    key: 'barbell-seal-rows', name: 'Seal Rows', timing: [0.1, 0.45, 0.55, 0.95], shift: 14,
+    gear: [{ kind: 'pad', from: [-104, SEAL_BENCH], to: [58, SEAL_BENCH], legs: [-90, 44] }, { kind: 'barbell' }],
+    from: { ...seal, arm: { hand: [48, -46], elbow: -1 } },
+    to: { ...seal, arm: { hand: [42, -88], elbow: -1 } },
+  },
+  {
+    key: 'machine-rows', name: 'Machine Rows', timing: [0.1, 0.45, 0.55, 0.95], shift: -10,
+    gear: [{ kind: 'pad', from: [-24, -50], to: [12, -50], legs: [-6] }, frontPad(facingPad, 18, 52), { kind: 'handle' }],
+    from: { ...facingPad, arm: { hand: [58, -105], elbow: -1 } },
+    to: { ...facingPad, arm: { hand: [8, -100], elbow: -1 } },
+  },
+  {
+    key: 'single-arm-cable-rows', name: 'Single-Arm Cable Rows', timing: [0.1, 0.45, 0.55, 0.95], shift: -24,
+    gear: [{ kind: 'post', from: [104, -2], to: [104, -196], width: 7 }, { kind: 'cable', from: [104, -124], handle: 'single' }],
+    from: { ...splitRow, arm: { hand: [64, -126], elbow: -1 }, farArm: { upper: 8, bend: 20 } },
+    to: { ...splitRow, arm: { hand: on(splitRow, 30, 14), elbow: -1 }, farArm: { upper: 8, bend: 20 } },
+  },
+  {
+    key: 'inverted-rows', name: 'Inverted Rows', timing: [0.1, 0.45, 0.55, 0.95], shift: 26,
+    gear: [smithRail(invertedBar[0]), { kind: 'bar', at: invertedBar }],
+    from: { ...straightBody(INVERTED_HEELS, -74), arm: { hand: add(invertedBar, [0, 6.5]), elbow: 1 } },
+    to: { ...straightBody(INVERTED_HEELS, -54), arm: { hand: add(invertedBar, [0, 6.5]), elbow: 1 } },
   },
 ];
 

@@ -285,6 +285,13 @@ const EXERCISES = {
     'assisted-pull-ups': ['Assisted Pull-ups', 'lats', 'biceps upperBack'],
     'neutral-grip-pull-ups': ['Neutral-Grip Pull-ups', 'lats', 'biceps forearms upperBack'],
     'dumbbell-pullovers': ['Dumbbell Pullovers', 'lats chest', 'triceps'],
+    'barbell-rack-pulls': ['Rack Pulls', 'upperBack traps', 'glutes hamstrings lowerBack forearms'],
+    'dumbbell-bent-over-rows': ['Dumbbell Bent-over Rows', 'upperBack lats', 'rearDelts biceps lowerBack'],
+    'barbell-pendlay-rows': ['Pendlay Rows', 'upperBack lats', 'rearDelts biceps lowerBack'],
+    'barbell-seal-rows': ['Seal Rows', 'upperBack lats', 'rearDelts biceps'],
+    'machine-rows': ['Machine Rows', 'upperBack lats', 'rearDelts biceps'],
+    'single-arm-cable-rows': ['Single-Arm Cable Rows', 'lats upperBack', 'rearDelts biceps'],
+    'inverted-rows': ['Inverted Rows', 'upperBack lats', 'rearDelts biceps'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

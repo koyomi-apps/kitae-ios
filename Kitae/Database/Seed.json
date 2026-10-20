@@ -1034,6 +1034,62 @@
    "isIsometric": false,
    "usesWeight": true,
    "instructions": "Lie on a flat bench holding one dumbbell above your chest with both hands cupped under its top end, elbows slightly bent.\nKeeping that bend, lower the dumbbell back over your head in an arc until you feel a stretch along your sides.\nPull it back over your chest along the same arc.\nKeep your lower back on the bench and go only as low as your shoulders are comfortable."
+  },
+  {
+   "key": "barbell-rack-pulls",
+   "name": "Rack Pulls",
+   "target": "UpperBack",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set the pins in a power rack just above your knees and rest a barbell on them.\nStand close with your feet hip-width apart, hinge at the hips with a flat back and grip the bar just outside your legs.\nDrive your hips forward to stand up tall, pulling your shoulders back at the top.\nLower the bar back to the pins under control, keeping it close to your thighs."
+  },
+  {
+   "key": "dumbbell-bent-over-rows",
+   "name": "Dumbbell Bent-over Rows",
+   "target": "UpperBack",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Hold a dumbbell in each hand, palms facing each other, and hinge forward with a flat back until your chest is nearly level with the floor.\nLet the dumbbells hang below your shoulders with your knees slightly bent.\nRow them up towards your hips, squeezing your shoulder blades together.\nLower them slowly until your arms are straight, keeping your back flat throughout."
+  },
+  {
+   "key": "barbell-pendlay-rows",
+   "name": "Pendlay Rows",
+   "target": "UpperBack",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand over a barbell on the floor, hinge until your back is about level with the floor and grip the bar a little wider than your shoulders.\nPull the bar quickly up to your lower chest, keeping your back still.\nLower it all the way back to the floor and let it settle.\nSet your grip and back again before each rep, and don't use your legs to help."
+  },
+  {
+   "key": "barbell-seal-rows",
+   "name": "Seal Rows",
+   "target": "UpperBack",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Lie face down on a high bench with a barbell on the floor beneath your shoulders.\nGrip the bar a little wider than your shoulders and let it hang at arm's length.\nRow it up until it touches the underside of the bench, squeezing your shoulder blades together.\nLower it slowly until your arms are straight. Your chest stays on the bench, so your lower back can rest."
+  },
+  {
+   "key": "machine-rows",
+   "name": "Machine Rows",
+   "target": "UpperBack",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit at the row machine with your chest against the pad, the seat set so the handles are at chest height.\nHold the handles with straight arms and your shoulders relaxed.\nPull the handles towards you, driving your elbows back and squeezing your shoulder blades together.\nLet them go back slowly until your arms are straight, keeping your chest on the pad."
+  },
+  {
+   "key": "single-arm-cable-rows",
+   "name": "Single-Arm Cable Rows",
+   "target": "UpperBack",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Set a single handle at chest height, hold it in one hand and step back until your arm is straight.\nStand with the foot on that side back and lean forward slightly.\nRow the handle to the side of your ribs, driving your elbow back.\nLet it go forward slowly until your arm is straight, then switch sides after the set."
+  },
+  {
+   "key": "inverted-rows",
+   "name": "Inverted Rows",
+   "target": "UpperBack",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Set a bar in a rack or Smith machine at about waist height and lie under it, holding it a little wider than your shoulders.\nMake your body straight from heels to head, with your heels on the floor and your arms straight.\nPull your chest up to the bar, squeezing your shoulder blades together.\nLower yourself slowly. Bend your knees and put your feet flat to make it easier."
   }
  ],
  "plans": [

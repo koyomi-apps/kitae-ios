@@ -189,6 +189,16 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         "assisted-pull-ups": .init(perKilogram: arms, bodyShare: 0.95, loadFactor: -1), // Assisted Pull-ups
         "neutral-grip-pull-ups": .init(perKilogram: arms, bodyShare: 0.95), // Neutral-Grip Pull-ups
         "dumbbell-pullovers": .init(perKilogram: arms, bodyShare: 0.02), // Dumbbell Pullovers
+        // From the knees up, the bar travels about 60% as far as in a deadlift.
+        "barbell-rack-pulls": .init(perKilogram: hinge * 0.6, bodyShare: 0.55), // Rack Pulls
+        "dumbbell-bent-over-rows": .init(perKilogram: arms, bodyShare: 0.1, loadFactor: 2), // Dumbbell Bent-over Rows
+        "barbell-pendlay-rows": .init(perKilogram: arms, bodyShare: 0.1), // Pendlay Rows
+        "barbell-seal-rows": .init(perKilogram: arms, bodyShare: 0.05), // Seal Rows
+        "machine-rows": .init(perKilogram: arms, bodyShare: 0.05), // Machine Rows
+        "single-arm-cable-rows": .init(perKilogram: arms, bodyShare: 0.025, sides: 2), // Single-Arm Cable Rows
+        // About 80% of the body's weight hangs from the hands: where its centre of mass sits
+        // between the bar and the heels in the figure, scaled as for pike push-ups.
+        "inverted-rows": .init(perKilogram: arms, bodyShare: 0.8), // Inverted Rows
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

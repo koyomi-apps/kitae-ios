@@ -272,6 +272,14 @@ const EXERCISES = {
     'barbell-reverse-curls': ['Reverse Curls', 'forearms', 'biceps'],
     'dumbbell-wrist-curls': ['Wrist Curls', 'forearms', ''],
     'dumbbell-reverse-wrist-curls': ['Reverse Wrist Curls', 'forearms', ''],
+    'straight-bar-pushdowns': ['Straight-Bar Pushdowns', 'triceps', ''],
+    'cable-overhead-tricep-extensions': ['Cable Overhead Extensions', 'triceps', ''],
+    'ez-bar-overhead-tricep-extensions': ['EZ-Bar Overhead Extensions', 'triceps', ''],
+    'dumbbell-skull-crushers': ['Dumbbell Skull-Crushers', 'triceps', ''],
+    'cable-tricep-kickbacks': ['Cable Tricep Kickbacks', 'triceps', ''],
+    'bench-dips': ['Bench Dips', 'triceps', 'frontDelts chest'],
+    'assisted-dips': ['Assisted Dips', 'triceps', 'chest frontDelts'],
+    'diamond-push-ups': ['Diamond Push-ups', 'triceps', 'chest frontDelts'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

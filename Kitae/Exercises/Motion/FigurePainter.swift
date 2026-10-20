@@ -118,9 +118,18 @@ nonisolated struct FigurePainter: Sendable {
             } else if g.on == "front" {
                 from = f.torso(g.bottom, g.out ?? 13.5)
                 to = f.torso(g.top, g.out ?? 13.5)
+            } else if g.on == "shins" {
+                // A machine's knee pad, under the front of the near shin.
+                let l = f.nearLeg, n = (l.ankle - l.knee).unit.front
+                from = Vec.lerp(l.knee, l.ankle, 0.8) + n * 6.8
+                to = Vec.lerp(l.knee, l.ankle, -0.05) + n * 6.8
             }
             guard let from, let to else { return }
             let d = (to - from).unit, right = Vec(-d.y, d.x), h = g.thick / 2
+            // The lever it rides on, from its pivot at `anchor`.
+            if let anchor = g.anchor {
+                fill(FigureShapes.capsule(anchor, Vec.lerp(from, to, 0.5) + right * h, 2.4, 2.4), c.prop)
+            }
             for x in g.legs {
                 let k = (x - from.x) / (to.x - from.x == 0 ? 1 : to.x - from.x)
                 let top = Vec.lerp(from, to, k) + right * h

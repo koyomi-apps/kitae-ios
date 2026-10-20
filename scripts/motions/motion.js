@@ -328,8 +328,15 @@ function paint(m, F, c) {
     let from = g.from, to = g.to;
     if (g.on === 'back') { from = F.torso(g.top, g.out ?? -12.5); to = F.torso(g.bottom, (g.out ?? -12.5) - 1); }
     if (g.on === 'front') { from = F.torso(g.bottom, g.out ?? 13.5); to = F.torso(g.top, g.out ?? 13.5); }
+    // A machine's knee pad, under the front of the near shin.
+    if (g.on === 'shins') {
+      const l = F.nearLeg, n = front(unit(sub(l.ankle, l.knee)));
+      from = add(lerpV(l.knee, l.ankle, 0.8), mul(n, 6.8)); to = add(lerpV(l.knee, l.ankle, -0.05), mul(n, 6.8));
+    }
     g = { ...g, from, to };
     const d = unit(sub(g.to, g.from)), right = v(-d.y, d.x), h = g.thick / 2;
+    // The lever it rides on, from its pivot at `anchor`.
+    if (g.anchor) fill(capsule(g.anchor, add(lerpV(g.from, g.to, 0.5), mul(right, h)), 2.4, 2.4), c.prop);
     for (const x of g.legs) {
       const k = (x - g.from.x) / (g.to.x - g.from.x || 1), top = add(lerpV(g.from, g.to, k), mul(right, h));
       fill(capsule(top, v(x, -2), 1.9, 1.9), c.prop);

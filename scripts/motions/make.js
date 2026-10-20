@@ -115,6 +115,19 @@ const preacherBench = [{ kind: 'pad', from: [-32, SEAT], to: [4, SEAT], legs: [-
 // Seated, leaning forward with the forearms along the thighs and the wrists just past the knees.
 const wristCurl = { hip: [-8, -58], lean: 30, head: 40, ankle: [34, -7.4] };
 const WRIST_ON_KNEE = [40, -70];
+// Facing away from a high cable in a split stance, leaning into it (overhead extensions).
+const splitLean = { hip: [-6, -93], lean: 32, head: 22, ankle: [22, -7.4], farAnkle: [-46, -12], farFoot: 28 };
+// The hip that puts the near shoulder at `s` for a lean.
+const hipBelow = (s, lean) => { const q = shoulder({ hip: [0, 0], lean }); return [r1(s[0] - q[0]), r1(s[1] - q[1])]; };
+// Bench dips: hands on the bench's front edge behind the hips, heels on the floor ahead, and
+// the shoulders dropping until the elbows are at about a right angle.
+const BENCH_DIP_HANDS = [-26, -52];
+const benchDip = { ankle: [60, -9.5], foot: -45 };
+// Kneeling on an assisted dip machine's pad, which rides on a lever from the machine's column.
+const kneelOnPad = { thigh: 186, shin: 271, foot: 125 };
+const assistedDips = [{ kind: 'post', from: [-96, -2], to: [-96, -222], width: 7 }, { kind: 'post', from: [-96, -112], to: [2, -112], width: 4 },
+  { kind: 'bar', at: [2, -112] }, { kind: 'pad', on: 'shins', anchor: [-95, -82] }];
+const DIAMOND_HANDS = [64, -5];
 
 // The front view: the figure facing the viewer. Standing hip height puts the feet on the floor.
 const fstand = { hip: [0, -100.2] };
@@ -834,6 +847,55 @@ const motions = [
     gear: [{ kind: 'pad', from: [-40, -48], to: [10, -48], legs: [-16] }, { kind: 'dumbbells' }],
     from: { ...wristCurl, arm: { hand: WRIST_ON_KNEE, elbow: 1, flex: -45 } },
     to: { ...wristCurl, arm: { hand: WRIST_ON_KNEE, elbow: 1, flex: 35 } },
+  },
+
+  // The library's triceps exercises
+  {
+    key: 'straight-bar-pushdowns', name: 'Straight-Bar Pushdowns', gear: [{ kind: 'cable', from: [42, -196], handle: 'bar', stack: true }],
+    timing: [0.1, 0.45, 0.55, 0.95], shift: -16,
+    from: { ...stand, hip: [-2, -99.4], lean: 8, head: 4, arm: { upper: 4, bend: 100 } },
+    to: { ...stand, hip: [-2, -99.4], lean: 8, head: 4, arm: { upper: 2, bend: 6 } },
+  },
+  {
+    key: 'cable-overhead-tricep-extensions', name: 'Cable Overhead Extensions', timing: [0.1, 0.5, 0.58, 0.95], zoom: 0.86, shift: 16,
+    gear: [{ kind: 'cable', from: [-72, -208], handle: 'rope', stack: true }],
+    from: { ...splitLean, arm: { upper: 140, bend: 122 } },
+    to: { ...splitLean, arm: { upper: 140, bend: 4 } },
+  },
+  {
+    key: 'ez-bar-overhead-tricep-extensions', name: 'EZ-Bar Overhead Extensions', gear: [{ kind: 'ezbar', radius: 11 }],
+    timing: [0.1, 0.5, 0.58, 0.95], zoom: 0.84, shift: 2,
+    from: { ...stand, arm: { upper: 172, bend: 4 } },
+    to: { ...stand, arm: { upper: 172, bend: 128 } },
+  },
+  {
+    key: 'dumbbell-skull-crushers', name: 'Dumbbell Skull-Crushers', timing: [0.1, 0.5, 0.58, 0.95], shift: 14,
+    gear: [flatBench, { kind: 'dumbbells', profile: true }],
+    from: { ...lie, arm: { upper: 190, bend: 0 } },
+    to: { ...lie, arm: { upper: 190, bend: 120 } },
+  },
+  {
+    key: 'cable-tricep-kickbacks', name: 'Cable Tricep Kickbacks', timing: [0.1, 0.42, 0.52, 0.95], shift: -14,
+    gear: [{ kind: 'post', from: [64, -2], to: [64, -196], width: 7 }, { kind: 'cable', from: [64, -18], handle: 'single' }],
+    from: { hip: [-24, -93], lean: 64, head: 40, arm: { upper: -70, bend: 70 }, farArm: { hand: [2, -68], elbow: 1 } },
+    to: { hip: [-24, -93], lean: 64, head: 40, arm: { upper: -70, bend: 2 }, farArm: { hand: [2, -68], elbow: 1 } },
+  },
+  {
+    key: 'bench-dips', name: 'Bench Dips', timing: [0.1, 0.48, 0.56, 0.95], shift: 6,
+    gear: [{ kind: 'pad', from: [-96, BENCH], to: [-22, BENCH], legs: [-86, -32] }],
+    from: { hip: hipBelow([-20, -112.5], -10), lean: -10, head: -6, ...benchDip, arm: { hand: BENCH_DIP_HANDS, elbow: 1 } },
+    to: { hip: hipBelow([-2.7, -88], 4), lean: 4, head: 4, ...benchDip, arm: { hand: BENCH_DIP_HANDS, elbow: 1 } },
+  },
+  {
+    key: 'assisted-dips', name: 'Assisted Dips', timing: [0.1, 0.48, 0.56, 0.95], zoom: 0.86, shift: 30,
+    gear: assistedDips,
+    from: { hip: [-8.7, -128.5], lean: 8, head: 4, ...kneelOnPad, arm: { hand: [1, -118.5], elbow: -1 } },
+    to: { hip: [-20.8, -100.3], lean: 18, head: 10, ...kneelOnPad, arm: { hand: [1, -118.5], elbow: -1 } },
+  },
+  {
+    key: 'diamond-push-ups', name: 'Diamond Push-ups', timing: [0.1, 0.5, 0.58, 0.95], shift: -8, shadow: [10, 0], shadowWidth: 80,
+    from: { ...straightBody(PUSHUP_TOES, 71.5), arm: { hand: DIAMOND_HANDS, elbow: 1 } },
+    to: { ...straightBody(PUSHUP_TOES, 86), arm: { hand: DIAMOND_HANDS, elbow: 1 } },
   },
 ];
 

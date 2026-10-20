@@ -930,6 +930,70 @@
    "isIsometric": false,
    "usesWeight": true,
    "instructions": "Sit on a bench with your forearms resting on your thighs, palms down, and your hands just past your knees holding a dumbbell in each.\nLet your hands drop slowly towards the floor.\nLift the backs of your hands up as far as they go, keeping your forearms on your thighs.\nMove only at the wrists, with a lighter weight than for wrist curls."
+  },
+  {
+   "key": "straight-bar-pushdowns",
+   "name": "Straight-Bar Pushdowns",
+   "target": "Triceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Attach a straight bar to a high pulley and stand facing it, hands shoulder-width apart with your palms down.\nTuck your elbows into your sides with your forearms about level with the floor.\nPush the bar down until your arms are straight, moving only at the elbows.\nLet it rise slowly back up without your elbows drifting forward."
+  },
+  {
+   "key": "cable-overhead-tricep-extensions",
+   "name": "Cable Overhead Extensions",
+   "target": "Triceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Attach a rope to a high pulley, face away from it and hold the ends behind your head, elbows bent and pointing forward.\nStep one foot forward and lean in a little, keeping your upper arms beside your head.\nStraighten your arms forwards and up, moving only at the elbows.\nLet the rope draw your hands slowly back behind your head for a full stretch."
+  },
+  {
+   "key": "ez-bar-overhead-tricep-extensions",
+   "name": "EZ-Bar Overhead Extensions",
+   "target": "Triceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall holding an EZ-bar overhead by its inner bends, arms straight.\nKeeping your upper arms close to your head, bend your elbows to lower the bar behind your head.\nGo as low as is comfortable, then straighten your arms to press it back up.\nBrace your core so your lower back doesn't arch. You can sit on a bench with a back rest instead."
+  },
+  {
+   "key": "dumbbell-skull-crushers",
+   "name": "Dumbbell Skull-Crushers",
+   "target": "Triceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Lie on a flat bench holding a dumbbell in each hand above your chest, palms facing each other.\nKeeping your upper arms still and tilted slightly back, bend your elbows to lower the dumbbells beside your head.\nStop when you feel a stretch in your triceps, then straighten your arms again.\nKeep your elbows pointing at the ceiling and the weights under control near your head."
+  },
+  {
+   "key": "cable-tricep-kickbacks",
+   "name": "Cable Tricep Kickbacks",
+   "target": "Triceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Attach a single handle to a low pulley, hold it in one hand and step back from the machine.\nHinge forward with a flat back, rest your other hand on your thigh and bring your upper arm up beside your body.\nKeeping your upper arm still, straighten your elbow until your arm points behind you.\nReturn slowly to a right angle at the elbow, then switch arms."
+  },
+  {
+   "key": "bench-dips",
+   "name": "Bench Dips",
+   "target": "Triceps",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Sit on the edge of a bench, hands beside your hips with your fingers forward, and slide your hips off the front.\nWalk your feet out with your legs straight and heels on the floor, or bend your knees to make it easier.\nBend your elbows straight back to lower your hips until your upper arms are about level with the floor.\nPress through your palms to straighten your arms, keeping your back close to the bench."
+  },
+  {
+   "key": "assisted-dips",
+   "name": "Assisted Dips",
+   "target": "Triceps",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Choose the machine's assistance, where more weight gives more help, then kneel on the pad and hold the dip handles with straight arms.\nKeep your shoulders down, away from your ears, and lean forward slightly.\nBend your elbows to lower yourself until your upper arms are about level with the floor.\nPush back up until your arms are straight, and use less assistance as you get stronger."
+  },
+  {
+   "key": "diamond-push-ups",
+   "name": "Diamond Push-ups",
+   "target": "Triceps",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Start in a push-up position with your hands together under your chest, thumbs and index fingers touching to make a diamond.\nKeep your body straight from head to heels.\nLower your chest towards your hands, keeping your elbows close to your sides.\nPush back up until your arms are straight. Rest on your knees to make them easier."
   }
  ],
  "plans": [

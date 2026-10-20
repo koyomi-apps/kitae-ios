@@ -6,9 +6,10 @@ import Foundation
 /// How an exercise's sets use energy, for a workout's estimate (see `WorkoutEnergy`).
 ///
 /// A rep costs `perKilogram` kcal for each kilogram it moves: the weight logged times
-/// `loadFactor` (2 for a pair of dumbbells, less on a sled pushed at an angle), plus `bodyShare`
-/// of the body's own weight (most of it in a squat or a pull-up, little in a curl), all times
-/// `sides` for exercises done one side at a time. A hold costs `holdMETs` a second instead.
+/// `loadFactor` (2 for a pair of dumbbells, less on a sled pushed at an angle, -1 for a machine's
+/// help, which comes off the body's weight), plus `bodyShare` of the body's own weight (most of it
+/// in a squat or a pull-up, little in a curl), all times `sides` for exercises done one side at a
+/// time. A hold costs `holdMETs` a second instead.
 ///
 /// The costs per kilogram come from sets whose whole cost was measured, aerobic, anaerobic and
 /// the recovery after (Scott et al. 2014, "Total Energy Costs – Aerobic and Anaerobic, Exercise
@@ -36,7 +37,7 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
             return max(holdMETs - 1, 0) * bodyKg * reps / 3600 * sides
         }
         let load = min(max(weightKg, 0), Self.mostKilograms)
-        return perKilogram * (load * loadFactor + bodyShare * bodyKg) * reps * sides * reach
+        return perKilogram * max(load * loadFactor + bodyShare * bodyKg, 0) * reps * sides * reach
     }
 
     // Kcal for each kilogram moved, each rep.
@@ -167,6 +168,19 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         // The weight moves only as far as the hand turns, about a fifth as far as in a curl.
         "dumbbell-wrist-curls": .init(perKilogram: arms * 0.2, bodyShare: 0, loadFactor: 2), // Wrist Curls
         "dumbbell-reverse-wrist-curls": .init(perKilogram: arms * 0.2, bodyShare: 0, loadFactor: 2), // Reverse Wrist Curls
+        "straight-bar-pushdowns": .init(perKilogram: arms, bodyShare: 0.02), // Straight-Bar Pushdowns
+        "cable-overhead-tricep-extensions": .init(perKilogram: arms, bodyShare: 0.02), // Cable Overhead Extensions
+        "ez-bar-overhead-tricep-extensions": .init(perKilogram: arms, bodyShare: 0.02), // EZ-Bar Overhead Extensions
+        "dumbbell-skull-crushers": .init(perKilogram: arms, bodyShare: 0.02, loadFactor: 2), // Dumbbell Skull-Crushers
+        "cable-tricep-kickbacks": .init(perKilogram: arms, bodyShare: 0.01, sides: 2), // Cable Tricep Kickbacks
+        // About 60% of the body's weight on the hands: where its centre of mass sits between the
+        // hands and the heels in the figure, scaled as for pike push-ups.
+        "bench-dips": .init(perKilogram: arms, bodyShare: 0.6), // Bench Dips
+        // The machine's help comes off the body's weight.
+        "assisted-dips": .init(perKilogram: arms, bodyShare: 0.95, loadFactor: -1), // Assisted Dips
+        // Hands together under the chest carry a little more of the body: about 68%, scaled as for
+        // pike push-ups.
+        "diamond-push-ups": .init(perKilogram: 0.014, bodyShare: 0.68), // Diamond Push-ups
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

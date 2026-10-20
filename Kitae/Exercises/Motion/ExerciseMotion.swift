@@ -48,7 +48,8 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
         case dumbbells
         /// A bench, seat or pad: its top edge from `from` to `to`, `thick` deep, with legs down to the
         /// floor at the x of each of `legs`. `front` pads are drawn over the body, under the near arm.
-        /// With `on` "back" or "front" it moves with the body, from `top` to `bottom` along the spine.
+        /// With `on` "back" or "front" it moves with the body, from `top` to `bottom` along the spine;
+        /// with `on` "shins" it's a machine's knee pad under the near shin, on a lever from `anchor`.
         case pad
         /// A frame member from `from` to `to`, `width` wide.
         case post
@@ -77,8 +78,8 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
     }
 
     var kind: Kind
-    /// The part of the body it follows: "hands", "back", "front", "ankle", "shin", "calf", "thigh",
-    /// "knee", "hips" or "chest".
+    /// The part of the body it follows: "hands", "back", "front", "shins", "ankle", "shin", "calf",
+    /// "thigh", "knee", "hips" or "chest".
     var on: String?
     var from: Vec?
     var to: Vec?

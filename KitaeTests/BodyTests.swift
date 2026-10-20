@@ -114,6 +114,10 @@ struct BodyTests {
         // A minute of plank: 2.5 METs over resting.
         let plank = ExerciseEnergy.of(key: "plank", target: "Core", isIsometric: true)
         #expect(abs(plank.kilocalories(reps: 60, weightKg: 0, bodyKg: 80) - 2.5 * 80 / 60) < 1e-9)
+        // Dips on a machine that takes 30 kg off: 95% of the body less the help, and never below nothing.
+        let assisted = ExerciseEnergy.of(key: "assisted-dips", target: "Triceps", isIsometric: false)
+        #expect(abs(assisted.kilocalories(reps: 10, weightKg: 30, bodyKg: 80) - 0.011 * (76 - 30) * 10) < 1e-9)
+        #expect(assisted.kilocalories(reps: 10, weightKg: 100, bodyKg: 80) == 0)
         // A big lift costs far more than a small one.
         #expect(squats.kilocalories(reps: 10, weightKg: 40, bodyKg: 80) > 3 * curls.kilocalories(reps: 10, weightKg: 10, bodyKg: 80))
         // People's own exercises go by their muscle group.

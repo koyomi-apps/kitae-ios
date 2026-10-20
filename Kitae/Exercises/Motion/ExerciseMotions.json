@@ -6834,5 +6834,498 @@
     "flex": 35
    }
   }
+ },
+ {
+  "key": "straight-bar-pushdowns",
+  "name": "Straight-Bar Pushdowns",
+  "gear": [
+   {
+    "kind": "cable",
+    "from": [
+     42,
+     -196
+    ],
+    "handle": "bar",
+    "stack": true
+   }
+  ],
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.95
+  ],
+  "shift": -16,
+  "from": {
+   "hip": [
+    -2,
+    -99.4
+   ],
+   "lean": 8,
+   "head": 4,
+   "arm": {
+    "upper": 4,
+    "bend": 100
+   }
+  },
+  "to": {
+   "hip": [
+    -2,
+    -99.4
+   ],
+   "lean": 8,
+   "head": 4,
+   "arm": {
+    "upper": 2,
+    "bend": 6
+   }
+  }
+ },
+ {
+  "key": "cable-overhead-tricep-extensions",
+  "name": "Cable Overhead Extensions",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "zoom": 0.86,
+  "shift": 16,
+  "gear": [
+   {
+    "kind": "cable",
+    "from": [
+     -72,
+     -208
+    ],
+    "handle": "rope",
+    "stack": true
+   }
+  ],
+  "from": {
+   "hip": [
+    -6,
+    -93
+   ],
+   "lean": 32,
+   "head": 22,
+   "ankle": [
+    22,
+    -7.4
+   ],
+   "farAnkle": [
+    -46,
+    -12
+   ],
+   "farFoot": 28,
+   "arm": {
+    "upper": 140,
+    "bend": 122
+   }
+  },
+  "to": {
+   "hip": [
+    -6,
+    -93
+   ],
+   "lean": 32,
+   "head": 22,
+   "ankle": [
+    22,
+    -7.4
+   ],
+   "farAnkle": [
+    -46,
+    -12
+   ],
+   "farFoot": 28,
+   "arm": {
+    "upper": 140,
+    "bend": 4
+   }
+  }
+ },
+ {
+  "key": "ez-bar-overhead-tricep-extensions",
+  "name": "EZ-Bar Overhead Extensions",
+  "gear": [
+   {
+    "kind": "ezbar",
+    "radius": 11
+   }
+  ],
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "zoom": 0.84,
+  "shift": 2,
+  "from": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 172,
+    "bend": 4
+   }
+  },
+  "to": {
+   "hip": [
+    -1,
+    -99.6
+   ],
+   "lean": 1.5,
+   "head": 0,
+   "arm": {
+    "upper": 172,
+    "bend": 128
+   }
+  }
+ },
+ {
+  "key": "dumbbell-skull-crushers",
+  "name": "Dumbbell Skull-Crushers",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": 14,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -92,
+     -47
+    ],
+    "to": [
+     24,
+     -47
+    ],
+    "legs": [
+     -76,
+     8
+    ]
+   },
+   {
+    "kind": "dumbbells",
+    "profile": true
+   }
+  ],
+  "from": {
+   "hip": [
+    0,
+    -59.5
+   ],
+   "lean": -90,
+   "ankle": [
+    44,
+    -7.4
+   ],
+   "arm": {
+    "upper": 190,
+    "bend": 0
+   }
+  },
+  "to": {
+   "hip": [
+    0,
+    -59.5
+   ],
+   "lean": -90,
+   "ankle": [
+    44,
+    -7.4
+   ],
+   "arm": {
+    "upper": 190,
+    "bend": 120
+   }
+  }
+ },
+ {
+  "key": "cable-tricep-kickbacks",
+  "name": "Cable Tricep Kickbacks",
+  "timing": [
+   0.1,
+   0.42,
+   0.52,
+   0.95
+  ],
+  "shift": -14,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     64,
+     -2
+    ],
+    "to": [
+     64,
+     -196
+    ],
+    "width": 7
+   },
+   {
+    "kind": "cable",
+    "from": [
+     64,
+     -18
+    ],
+    "handle": "single"
+   }
+  ],
+  "from": {
+   "hip": [
+    -24,
+    -93
+   ],
+   "lean": 64,
+   "head": 40,
+   "arm": {
+    "upper": -70,
+    "bend": 70
+   },
+   "farArm": {
+    "hand": [
+     2,
+     -68
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    -24,
+    -93
+   ],
+   "lean": 64,
+   "head": 40,
+   "arm": {
+    "upper": -70,
+    "bend": 2
+   },
+   "farArm": {
+    "hand": [
+     2,
+     -68
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "bench-dips",
+  "name": "Bench Dips",
+  "timing": [
+   0.1,
+   0.48,
+   0.56,
+   0.95
+  ],
+  "shift": 6,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     -96,
+     -47
+    ],
+    "to": [
+     -22,
+     -47
+    ],
+    "legs": [
+     -86,
+     -32
+    ]
+   }
+  ],
+  "from": {
+   "hip": [
+    -11.2,
+    -65.3
+   ],
+   "lean": -10,
+   "head": -6,
+   "ankle": [
+    60,
+    -9.5
+   ],
+   "foot": -45,
+   "arm": {
+    "hand": [
+     -26,
+     -52
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    -5.5,
+    -40.1
+   ],
+   "lean": 4,
+   "head": 4,
+   "ankle": [
+    60,
+    -9.5
+   ],
+   "foot": -45,
+   "arm": {
+    "hand": [
+     -26,
+     -52
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "assisted-dips",
+  "name": "Assisted Dips",
+  "timing": [
+   0.1,
+   0.48,
+   0.56,
+   0.95
+  ],
+  "zoom": 0.86,
+  "shift": 30,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -96,
+     -2
+    ],
+    "to": [
+     -96,
+     -222
+    ],
+    "width": 7
+   },
+   {
+    "kind": "post",
+    "from": [
+     -96,
+     -112
+    ],
+    "to": [
+     2,
+     -112
+    ],
+    "width": 4
+   },
+   {
+    "kind": "bar",
+    "at": [
+     2,
+     -112
+    ]
+   },
+   {
+    "kind": "pad",
+    "on": "shins",
+    "anchor": [
+     -95,
+     -82
+    ]
+   }
+  ],
+  "from": {
+   "hip": [
+    -8.7,
+    -128.5
+   ],
+   "lean": 8,
+   "head": 4,
+   "thigh": 186,
+   "shin": 271,
+   "foot": 125,
+   "arm": {
+    "hand": [
+     1,
+     -118.5
+    ],
+    "elbow": -1
+   }
+  },
+  "to": {
+   "hip": [
+    -20.8,
+    -100.3
+   ],
+   "lean": 18,
+   "head": 10,
+   "thigh": 186,
+   "shin": 271,
+   "foot": 125,
+   "arm": {
+    "hand": [
+     1,
+     -118.5
+    ],
+    "elbow": -1
+   }
+  }
+ },
+ {
+  "key": "diamond-push-ups",
+  "name": "Diamond Push-ups",
+  "timing": [
+   0.1,
+   0.5,
+   0.58,
+   0.95
+  ],
+  "shift": -8,
+  "shadow": [
+   10,
+   0
+  ],
+  "shadowWidth": 80,
+  "from": {
+   "hip": [
+    26.4,
+    -50.3
+   ],
+   "lean": 71.5,
+   "thigh": 251.5,
+   "shin": 251.5,
+   "foot": 71.5,
+   "arm": {
+    "hand": [
+     64,
+     -5
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "hip": [
+    31,
+    -27.2
+   ],
+   "lean": 86,
+   "thigh": 266,
+   "shin": 266,
+   "foot": 86,
+   "arm": {
+    "hand": [
+     64,
+     -5
+    ],
+    "elbow": 1
+   }
+  }
  }
 ]

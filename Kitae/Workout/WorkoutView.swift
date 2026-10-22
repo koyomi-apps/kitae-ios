@@ -320,7 +320,9 @@ struct WorkoutView: View {
         DebugLaunch.note("opening \(screen), first unfinished set \(firstUnfinished?.id ?? -1)")
         switch screen {
         case "typing":
-            if let set = firstUnfinished {
+            // The first set of the first exercise with weight: the others have no weight field, and
+            // exercises further down aren't drawn until they're scrolled to.
+            if let set = workout.exercises.first(where: \.exercise.usesWeight)?.sets.first {
                 workout.update(set.id) { $0.weightKg = 18.75 }
                 focus = .weight(set.id)
             }

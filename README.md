@@ -8,7 +8,7 @@ This is the iPhone version, written in SwiftUI. Kitae for Android lives at [code
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/screenshots/readme-dark.png">
-  <img src="docs/screenshots/readme-light.png" alt="Four of Kitae's screens: today's training day and its exercises, a workout with its sets ticked off and the rest timer running, Deadlift's page with an animated figure above the steps, and the You page with a grid of the days trained">
+  <img src="docs/screenshots/readme-light.png" alt="Four of Kitae's screens: today's training day and its exercises, a workout with its sets ticked off and the rest timer running, Deadlift's page with an animated figure and the muscles it works, and the You page with this week's energy and the muscles worked in the last 7 days">
 </picture>
 
 More screenshots, in light and dark mode, are in [docs/screenshots](docs/screenshots).

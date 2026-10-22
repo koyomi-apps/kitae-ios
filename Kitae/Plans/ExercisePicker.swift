@@ -3,8 +3,8 @@
 
 import SwiftUI
 
-/// Picks an exercise to add to a day: search by name, narrow it down by muscle, or make a
-/// new one.
+/// Picks an exercise to add to a day: one done lately, or search by name, narrow it down by
+/// muscle, or make a new one.
 struct ExercisePicker: View {
     let dayName: String
     /// The exercises the day has already. They're ticked and can't be added twice.
@@ -14,6 +14,8 @@ struct ExercisePicker: View {
     @Environment(AppModel.self) private var model
     @Environment(\.dismiss) private var dismiss
     @State private var exercises: [Exercise] = []
+    /// The exercises done most recently, newest first.
+    @State private var recentIDs: [Exercise.ID] = []
     @State private var hasLoaded = false
     @State private var search = ""
     @State private var muscle: MuscleGroup?
@@ -24,6 +26,15 @@ struct ExercisePicker: View {
     var body: some View {
         NavigationStack {
             List {
+                if !recent.isEmpty {
+                    Section {
+                        ForEach(recent) { exercise in
+                            row(exercise)
+                        }
+                    } header: {
+                        SectionCaption(".recent")
+                    }
+                }
                 ForEach(groups) { group in
                     Section {
                         ForEach(group.exercises) { exercise in
@@ -67,7 +78,12 @@ struct ExercisePicker: View {
         }
         .task {
             do {
-                exercises = try model.database.read { db in try Exercises.all(db) }
+                let loaded = try model.database.read { db in
+                    // Enough to fill the section after leaving out the day's own.
+                    (try Exercises.all(db), try Exercises.recentIDs(db, limit: Self.recentCount + added.count))
+                }
+                exercises = loaded.0
+                recentIDs = loaded.1
             } catch {
                 model.problem = "Couldn't read the exercises. \(error.localizedDescription)"
             }
@@ -77,6 +93,17 @@ struct ExercisePicker: View {
 
     private var groups: [ExerciseGroup] {
         exerciseGroups(exercises, muscle: muscle, search: search)
+    }
+
+    /// How many exercises done lately the picker offers first.
+    private static let recentCount = 5
+
+    /// The exercises done most recently that the day doesn't have yet, while nothing is
+    /// searched for and every muscle shows.
+    private var recent: [Exercise] {
+        guard muscle == nil, search.trimmingCharacters(in: .whitespaces).isEmpty else { return [] }
+        let byID = Dictionary(exercises.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        return Array(recentIDs.filter { !added.contains($0) }.compactMap { byID[$0] }.prefix(Self.recentCount))
     }
 
     private func row(_ exercise: Exercise) -> some View {

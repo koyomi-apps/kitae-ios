@@ -93,8 +93,9 @@ enum DebugLaunch {
     }
 
     /// Skips the welcome unless it's the screen, and follows the starter plan unless the screen
-    /// is of the first launch. For the workout screens, starts an example workout 23 minutes
-    /// in, with two exercises done and the rest timer running.
+    /// is of the first launch. History, Exercises, You, the screens after a workout and adding an
+    /// exercise (for its recent ones) get example workouts. For the workout screens, starts an
+    /// example workout 23 minutes in, with two exercises done and the rest timer running.
     static func prepare(_ model: AppModel) {
         guard let screen else { return }
         if screen != "welcome" {
@@ -104,7 +105,7 @@ enum DebugLaunch {
             model.selectPlan(plan.id)
         }
         if historyScreens.contains(screen) || exerciseScreens.contains(screen) || youScreens.contains(screen)
-            || doneScreens.contains(screen) {
+            || doneScreens.contains(screen) || screen == "addexercise" {
             addExampleBody(to: model)
             addExampleHistory(to: model, finishedToday: doneScreens.contains(screen))
         }

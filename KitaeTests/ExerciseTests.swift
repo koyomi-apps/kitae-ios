@@ -138,6 +138,25 @@ struct ExerciseTests {
         #expect(last[plan.days[1].exercises[0].exercise.id] == nil)
     }
 
+    @Test func recentExercisesAreTheNewestDone() throws {
+        try workout(on: Self.today - 7, bench: [SetDraft(reps: 10, weightKg: 20)])
+        let day = plan.days[1]
+        let date = Self.today - 3
+        let (done, skipped) = try database.write { db -> (Int64, Int64) in
+            let id = try Sessions.start(db, dayID: day.id, today: date, now: Int64(date) * 86_400_000)
+            let exercises = try Sessions.exercises(db, sessionID: id, dayID: day.id)
+            let set = try #require(exercises[1].sets.first)
+            try Sessions.setDone(db, setID: set.id, isDone: true)
+            try Sessions.finish(db, sessionID: id, mode: .keepSkipped, addNewSets: false, now: Int64(date) * 86_400_000 + 3_600_000)
+            return (exercises[1].id, exercises[0].id)
+        }
+        let recent = try database.read { db in try Exercises.recentIDs(db, limit: 5) }
+        // The day's first exercise had no set done, so it isn't recent.
+        #expect(recent == [done, benchID])
+        #expect(!recent.contains(skipped))
+        #expect(try database.read { db in try Exercises.recentIDs(db, limit: 1) } == [done])
+    }
+
     @Test func warmupsCountOnlyWhenNothingElseWasDone() {
         let warmups = ExerciseSession(id: 1, date: 0, sets: [
             SetDraft(reps: 15, weightKg: 10, type: .warmup),

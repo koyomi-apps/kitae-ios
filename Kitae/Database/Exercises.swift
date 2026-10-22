@@ -229,6 +229,25 @@ nonisolated enum Exercises {
         return last
     }
 
+    /// The exercises done most recently, at most `limit` of them: the newest workout's in the
+    /// order they were done, then the ones before it.
+    static func recentIDs(_ db: Database, limit: Int) throws -> [Int64] {
+        let rows = try Int64.fetchCursor(db, sql: """
+            SELECT `sets`.`exerciseId`
+            FROM `sets`
+            INNER JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
+            WHERE `sets`.`isCompleted` = 1
+            ORDER BY `sessions`.`date` DESC, `sessions`.`id` DESC, `sets`.`order` ASC, `sets`.`id` ASC
+            """)
+        var ids: [Int64] = []
+        while ids.count < limit, let id = try rows.next() {
+            if !ids.contains(id) {
+                ids.append(id)
+            }
+        }
+        return ids
+    }
+
     /// A reference as it's saved: trimmed, with https:// in front when it has no scheme, or
     /// nil when it's empty.
     static func savedReference(_ text: String) -> String? {

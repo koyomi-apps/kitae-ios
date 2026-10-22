@@ -46,6 +46,9 @@ struct ExercisesView: View {
             }
             .searchable(text: $search, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search \(exercises.count) exercises")
             .navigationTitle("Exercises")
+            // A large title blurs under the chips' safeAreaBar as soon as the list scrolls (iOS 26
+            // and 27, issue #8), so the big title sits in the bar beside the + instead.
+            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
                     Button("New exercise", systemImage: "plus") { showsEditor = true }

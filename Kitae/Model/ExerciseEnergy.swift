@@ -235,6 +235,10 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         "back-extensions": .init(perKilogram: hinge, bodyShare: 0.5), // Back Extensions
         "machine-hip-adductions": .init(perKilogram: 0.006, bodyShare: 0), // Hip Adductions
         "cable-hip-abductions": .init(perKilogram: 0.006, bodyShare: 0.05, sides: 2), // Cable Hip Abductions
+        // Sitting, only the sled moves, at the leg press's angle.
+        "leg-press-calf-raises": .init(perKilogram: calf, bodyShare: 0, loadFactor: 0.7), // Leg Press Calf Raises
+        "single-leg-calf-raises": .init(perKilogram: calf, bodyShare: 1, sides: 2), // Single-Leg Calf Raises
+        "smith-machine-calf-raises": .init(perKilogram: calf, bodyShare: 1), // Smith Machine Calf Raises
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

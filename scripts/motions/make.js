@@ -180,6 +180,11 @@ const backExtension = { hip: [0, -92], thigh: 225, shin: 225, foot: 45, arm: { h
 const extensionBench = [{ kind: 'post', from: [-64, -2], to: [14, -2], width: 5 }, { kind: 'post', from: [-60, -6], to: [6, -72], width: 5 },
   { kind: 'post', from: [6, -72], to: [6, -2], width: 5 }, { kind: 'pad', from: [-10.7, -66.4], to: [5.8, -83] },
   { kind: 'roller', on: 'calf' }, { kind: 'footplate', thick: 6, length: 24 }];
+// Calves. A leg press sled's rail, and the legs held straight on it.
+const legPressRail = { kind: 'post', from: [-10, -20], to: [92, -140], width: 6 };
+const legPressCalf = { ...legPress, ankle: [47, -96.5], arm: { hand: [-6, -42], elbow: 1 } };
+const calfStand = { lean: 1.5, head: 0 };
+const smithCalfBar = on({ ...calfStand, hip: add(calfLow, [-1.5, -92.6]) }, 50, -9);
 const assistedPullUps = [{ kind: 'post', from: [-96, -2], to: [-96, -236], width: 7 }, { kind: 'post', from: [-96, -228], to: [6, -228], width: 3 },
   { kind: 'bar', at: [6, -228] }, { kind: 'pad', on: 'shins', anchor: [-96, -79] }];
 
@@ -1183,6 +1188,29 @@ const motions = [
     gear: [{ kind: 'post', from: [-82, -2], to: [-82, -196], width: 7 }, { kind: 'cable', from: [-82, -14], side: 1, on: 'ankle' }],
     from: { ...fstand, otherThigh: 3, otherShin: 1.5, arm: { upper: 8, bend: 12 }, otherArm: { hand: [-72, -118], elbow: 1 } },
     to: { ...fstand, thigh: 32, shin: 32, otherThigh: 3, otherShin: 1.5, arm: { upper: 8, bend: 12 }, otherArm: { hand: [-72, -118], elbow: 1 } },
+  },
+
+  // The library's calves exercises
+  {
+    key: 'leg-press-calf-raises', name: 'Leg Press Calf Raises', timing: [0.1, 0.45, 0.55, 0.92], shift: -4,
+    gear: [legPressRail, { kind: 'pad', on: 'back', top: 66, bottom: 2 }, { kind: 'pad', from: [-44, -27], to: [-6, -32], legs: [-26] },
+      { kind: 'footplate', on: 'ball', from: legPressRail.from, to: legPressRail.to, length: 40, thick: 7 }],
+    from: { ...legPressCalf, foot: -150 },
+    to: { ...legPressCalf, foot: -100 },
+  },
+  {
+    key: 'single-leg-calf-raises', name: 'Single-Leg Calf Raises', timing: [0.1, 0.45, 0.55, 0.92], shift: -12,
+    gear: [{ kind: 'pad', from: [5, -10], to: [46, -10], thick: 10 }, { kind: 'post', from: [46, -2], to: [46, -140], width: 6 }],
+    from: { ...calfStand, hip: add(calfLow, [-1.5, -92.6]), ankle: calfLow, foot: -20, farThigh: 184, farShin: 236, farFoot: 60,
+      arm: { hand: [41, -112], elbow: 1 } },
+    to: { ...calfStand, hip: add(calfHigh, [-1.5, -92.6]), ankle: calfHigh, foot: 28, farThigh: 184, farShin: 236, farFoot: 60,
+      arm: { hand: [41, -122], elbow: 1 } },
+  },
+  {
+    key: 'smith-machine-calf-raises', name: 'Smith Machine Calf Raises', timing: [0.1, 0.45, 0.55, 0.92], shift: -4,
+    gear: [smithRail(smithCalfBar[0]), { kind: 'pad', from: [5, -10], to: [46, -10], thick: 10 }, { kind: 'barbell', on: 'back' }],
+    from: { ...calfStand, hip: add(calfLow, [-1.5, -92.6]), ankle: calfLow, foot: -20, arm: barOnBack },
+    to: { ...calfStand, hip: add(calfHigh, [-1.5, -92.6]), ankle: calfHigh, foot: 28, arm: barOnBack },
   },
 ];
 

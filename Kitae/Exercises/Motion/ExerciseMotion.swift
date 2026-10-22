@@ -68,7 +68,8 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
         case roller
         /// A machine's handle in the hands.
         case handle
-        /// A plate under the near foot that moves with it (leg press).
+        /// A plate under the near foot that moves with it (leg press). With `on` "ball" it stays
+        /// square to the rail from `from` to `to`, pushed by the ball of the foot (leg press calf raises).
         case footplate
         /// A bar from `anchor` on the floor to the hands, plates at its end (T-bar rows).
         case tbar

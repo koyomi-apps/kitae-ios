@@ -1282,6 +1282,30 @@
    "isIsometric": false,
    "usesWeight": true,
    "instructions": "Attach an ankle cuff to a low pulley and stand side-on to it, the cuff on your outside ankle.\nHold the machine for balance and stand tall on your inside leg.\nLift your outside leg out to the side as far as you can without leaning, toes pointing forward.\nLower it slowly, and switch legs after the set."
+  },
+  {
+   "key": "leg-press-calf-raises",
+   "name": "Leg Press Calf Raises",
+   "target": "Calves",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit in the leg press with your legs straight but not locked and only the balls of your feet on the bottom edge of the plate.\nLet your heels drop back towards you to stretch your calves.\nPush the plate away with the balls of your feet, as far as your ankles go.\nLower slowly, keeping your knees still so only your ankles move."
+  },
+  {
+   "key": "single-leg-calf-raises",
+   "name": "Single-Leg Calf Raises",
+   "target": "Calves",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Stand on one foot with its ball on the edge of a step, holding something steady for balance.\nLet your heel sink below the step to stretch your calf.\nRise up onto your toes as high as you can.\nLower slowly, and switch legs after the set."
+  },
+  {
+   "key": "smith-machine-calf-raises",
+   "name": "Smith Machine Calf Raises",
+   "target": "Calves",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand on a block under a Smith machine bar, the balls of your feet on its edge and the bar across your upper back.\nUnhook the bar and let your heels sink below the block.\nRise up onto your toes as high as you can, keeping your legs straight.\nLower slowly, and hook the bar back on the machine when you're done."
   }
  ],
  "plans": [

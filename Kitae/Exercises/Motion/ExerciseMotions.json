@@ -9680,5 +9680,272 @@
     "elbow": 1
    }
   }
+ },
+ {
+  "key": "leg-press-calf-raises",
+  "name": "Leg Press Calf Raises",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.92
+  ],
+  "shift": -4,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -10,
+     -20
+    ],
+    "to": [
+     92,
+     -140
+    ],
+    "width": 6
+   },
+   {
+    "kind": "pad",
+    "on": "back",
+    "top": 66,
+    "bottom": 2
+   },
+   {
+    "kind": "pad",
+    "from": [
+     -44,
+     -27
+    ],
+    "to": [
+     -6,
+     -32
+    ],
+    "legs": [
+     -26
+    ]
+   },
+   {
+    "kind": "footplate",
+    "on": "ball",
+    "from": [
+     -10,
+     -20
+    ],
+    "to": [
+     92,
+     -140
+    ],
+    "length": 40,
+    "thick": 7
+   }
+  ],
+  "from": {
+   "hip": [
+    -20,
+    -40
+   ],
+   "lean": -52,
+   "head": -30,
+   "ankle": [
+    47,
+    -96.5
+   ],
+   "arm": {
+    "hand": [
+     -6,
+     -42
+    ],
+    "elbow": 1
+   },
+   "foot": -150
+  },
+  "to": {
+   "hip": [
+    -20,
+    -40
+   ],
+   "lean": -52,
+   "head": -30,
+   "ankle": [
+    47,
+    -96.5
+   ],
+   "arm": {
+    "hand": [
+     -6,
+     -42
+    ],
+    "elbow": 1
+   },
+   "foot": -100
+  }
+ },
+ {
+  "key": "single-leg-calf-raises",
+  "name": "Single-Leg Calf Raises",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.92
+  ],
+  "shift": -12,
+  "gear": [
+   {
+    "kind": "pad",
+    "from": [
+     5,
+     -10
+    ],
+    "to": [
+     46,
+     -10
+    ],
+    "thick": 10
+   },
+   {
+    "kind": "post",
+    "from": [
+     46,
+     -2
+    ],
+    "to": [
+     46,
+     -140
+    ],
+    "width": 6
+   }
+  ],
+  "from": {
+   "lean": 1.5,
+   "head": 0,
+   "hip": [
+    -3.4,
+    -105.6
+   ],
+   "ankle": [
+    -1.9,
+    -13
+   ],
+   "foot": -20,
+   "farThigh": 184,
+   "farShin": 236,
+   "farFoot": 60,
+   "arm": {
+    "hand": [
+     41,
+     -112
+    ],
+    "elbow": 1
+   }
+  },
+  "to": {
+   "lean": 1.5,
+   "head": 0,
+   "hip": [
+    3.5,
+    -114.9
+   ],
+   "ankle": [
+    5,
+    -22.3
+   ],
+   "foot": 28,
+   "farThigh": 184,
+   "farShin": 236,
+   "farFoot": 60,
+   "arm": {
+    "hand": [
+     41,
+     -122
+    ],
+    "elbow": 1
+   }
+  }
+ },
+ {
+  "key": "smith-machine-calf-raises",
+  "name": "Smith Machine Calf Raises",
+  "timing": [
+   0.1,
+   0.45,
+   0.55,
+   0.92
+  ],
+  "shift": -4,
+  "gear": [
+   {
+    "kind": "post",
+    "from": [
+     -11.1,
+     -2
+    ],
+    "to": [
+     -11.1,
+     -204
+    ],
+    "width": 6
+   },
+   {
+    "kind": "pad",
+    "from": [
+     5,
+     -10
+    ],
+    "to": [
+     46,
+     -10
+    ],
+    "thick": 10
+   },
+   {
+    "kind": "barbell",
+    "on": "back"
+   }
+  ],
+  "from": {
+   "lean": 1.5,
+   "head": 0,
+   "hip": [
+    -3.4,
+    -105.6
+   ],
+   "ankle": [
+    -1.9,
+    -13
+   ],
+   "foot": -20,
+   "arm": {
+    "hand": [
+     48.6,
+     -13
+    ],
+    "on": "torso",
+    "scale": 0.75,
+    "elbow": -1
+   }
+  },
+  "to": {
+   "lean": 1.5,
+   "head": 0,
+   "hip": [
+    3.5,
+    -114.9
+   ],
+   "ankle": [
+    5,
+    -22.3
+   ],
+   "foot": 28,
+   "arm": {
+    "hand": [
+     48.6,
+     -13
+    ],
+    "on": "torso",
+    "scale": 0.75,
+    "elbow": -1
+   }
+  }
  }
 ]

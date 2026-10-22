@@ -316,6 +316,9 @@ const EXERCISES = {
     'back-extensions': ['Back Extensions', 'lowerBack glutes', 'hamstrings'],
     'machine-hip-adductions': ['Hip Adductions', 'adductors', ''],
     'cable-hip-abductions': ['Cable Hip Abductions', 'abductors', 'glutes'],
+    'leg-press-calf-raises': ['Leg Press Calf Raises', 'calves', ''],
+    'single-leg-calf-raises': ['Single-Leg Calf Raises', 'calves', ''],
+    'smith-machine-calf-raises': ['Smith Machine Calf Raises', 'calves', ''],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

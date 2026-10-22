@@ -399,6 +399,16 @@ function paint(m, F, c) {
     const nl = F.nearLeg, turnF = nl.foot * Math.PI / 180;
     const heel = add(nl.ankle, rotate(v(-4.5, 2.9), turnF)), toe = add(nl.ankle, rotate(v(17, 4.2), turnF));
     const d = unit(sub(toe, heel)), n = v(-d.y, d.x), h = g.thick / 2;
+    // On a sled's rail (`from` to `to`) it stays square to the rail, pushed by the ball of the
+    // foot, as in calf raises on a leg press.
+    if (g.on === 'ball' && g.from && g.to) {
+      const rail = unit(sub(g.to, g.from)), ball = add(nl.ankle, rotate(v(12, 7.6), turnF));
+      let along = front(rail);
+      if (along.x * (toe.x - nl.ankle.x) + along.y * (toe.y - nl.ankle.y) < 0) along = mul(along, -1);
+      const middle = add(add(ball, mul(rail, h)), mul(along, g.length / 2 - 4));
+      fill(capsule(add(middle, mul(along, -g.length / 2)), add(middle, mul(along, g.length / 2)), h, h), c.prop);
+      continue;
+    }
     const mid = add(lerpV(heel, toe, 0.5), mul(n, 4 + h));
     fill(capsule(add(mid, mul(d, -g.length / 2)), add(mid, mul(d, g.length / 2)), h, h), c.prop);
   }

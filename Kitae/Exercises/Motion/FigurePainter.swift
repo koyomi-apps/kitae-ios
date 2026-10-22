@@ -290,6 +290,16 @@ nonisolated struct FigurePainter: Sendable {
             let l = f.nearLeg, turn = l.foot * .pi / 180
             let heel = l.ankle + Vec(-4.5, 2.9).rotated(by: turn), toe = l.ankle + Vec(17, 4.2).rotated(by: turn)
             let d = (toe - heel).unit, n = Vec(-d.y, d.x), h = g.thick / 2
+            // On a sled's rail (`from` to `to`) it stays square to the rail, pushed by the ball of the
+            // foot, as in calf raises on a leg press.
+            if g.on == "ball", let from = g.from, let to = g.to {
+                let rail = (to - from).unit, ball = l.ankle + Vec(12, 7.6).rotated(by: turn)
+                var along = rail.front
+                if along.x * (toe.x - l.ankle.x) + along.y * (toe.y - l.ankle.y) < 0 { along = along * -1 }
+                let middle = ball + rail * h + along * (g.length / 2 - 4)
+                fill(FigureShapes.capsule(middle - along * (g.length / 2), middle + along * (g.length / 2), h, h), c.prop)
+                continue
+            }
             let mid = Vec.lerp(heel, toe, 0.5) + n * (4 + h)
             fill(FigureShapes.capsule(mid - d * (g.length / 2), mid + d * (g.length / 2), h, h), c.prop)
         }

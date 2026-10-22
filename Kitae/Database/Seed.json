@@ -1210,6 +1210,78 @@
    "isIsometric": false,
    "usesWeight": false,
    "instructions": "Kneel on a mat with your ankles held down under a sturdy pad or by a partner, upright from knees to head.\nKeeping your hips straight, lower your body forward as slowly as you can, resisting with your hamstrings.\nWhen you can't hold it any longer, catch yourself with your hands and push off lightly to help yourself back up.\nThey're very hard, so start with a few slow reps, and only use your hands as much as you need."
+  },
+  {
+   "key": "barbell-sumo-deadlift",
+   "name": "Sumo Deadlift",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand with your feet wide and toes turned out, the bar over the middle of your feet.\nBend your knees and push them out, then grip the bar with your hands inside your legs, arms straight and back flat.\nPush the floor apart with your feet to stand up tall, keeping the bar close to your body.\nLower it by pushing your hips back and bending your knees until the plates touch the floor."
+  },
+  {
+   "key": "machine-hip-thrusts",
+   "name": "Machine Hip Thrusts",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit on the machine with your upper back against the pad, the hip pad across your hips and your feet flat.\nDrive through your heels to lift your hips until your body is straight from shoulders to knees.\nSqueeze your glutes at the top, then lower slowly.\nKeep your chin tucked and your ribs down so the work stays in your hips."
+  },
+  {
+   "key": "single-leg-hip-thrusts",
+   "name": "Single-Leg Hip Thrusts",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Rest your upper back against a bench with one foot flat on the floor and the other knee pulled up.\nDrive through your planted heel to lift your hips until your body is straight from shoulders to knee.\nSqueeze at the top, then lower slowly without letting your hips tip to one side.\nSwitch legs after the set."
+  },
+  {
+   "key": "barbell-glute-bridges",
+   "name": "Barbell Glute Bridges",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Lie on your back with your knees bent, feet flat, and a padded barbell across your hips.\nHolding the bar steady, drive through your heels to lift your hips until your body is straight from shoulders to knees.\nSqueeze your glutes at the top, then lower slowly to the floor.\nKeep your ribs down so your lower back doesn't arch."
+  },
+  {
+   "key": "cable-pull-throughs",
+   "name": "Cable Pull-throughs",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Attach a rope to a low pulley, stand facing away from it and hold the rope between your legs.\nWalk forward until the weight lifts, feet a little wider than your hips.\nPush your hips back and let the rope draw your hands back between your legs, back flat.\nDrive your hips forward to stand tall, squeezing your glutes at the top."
+  },
+  {
+   "key": "kettlebell-swings",
+   "name": "Kettlebell Swings",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand with your feet a little wider than your hips and a kettlebell on the floor in front of you.\nHinge at the hips to grab it with both hands and hike it back between your legs.\nSnap your hips forward to swing it up to about chest height, arms straight and relaxed.\nLet it fall back between your legs, hinging at the hips to meet it. The power comes from your hips, not your arms."
+  },
+  {
+   "key": "back-extensions",
+   "name": "Back Extensions",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Set the pad of a back extension bench just below your hips and hook your ankles under the roller.\nCross your arms over your chest, body straight from head to heels.\nLower your upper body by bending at the hips until you feel a stretch in your hamstrings.\nRaise yourself until your body is straight again, squeezing your glutes, without arching past it."
+  },
+  {
+   "key": "machine-hip-adductions",
+   "name": "Hip Adductions",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit on the machine with your back against the pad and the pads against the inside of your knees.\nSqueeze your legs together as far as they go.\nHold for a moment, then let them open slowly.\nKeep your back against the pad and don't let the weights slam."
+  },
+  {
+   "key": "cable-hip-abductions",
+   "name": "Cable Hip Abductions",
+   "target": "Glutes",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Attach an ankle cuff to a low pulley and stand side-on to it, the cuff on your outside ankle.\nHold the machine for balance and stand tall on your inside leg.\nLift your outside leg out to the side as far as you can without leaning, toes pointing forward.\nLower it slowly, and switch legs after the set."
   }
  ],
  "plans": [

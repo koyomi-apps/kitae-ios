@@ -307,6 +307,15 @@ const EXERCISES = {
     'dumbbell-single-leg-romanian-deadlift': ['Single-Leg Romanian Deadlift', 'hamstrings glutes', 'lowerBack'],
     'standing-leg-curls': ['Standing Leg Curls', 'hamstrings', 'calves'],
     'nordic-hamstring-curls': ['Nordic Curls', 'hamstrings', 'calves'],
+    'barbell-sumo-deadlift': ['Sumo Deadlift', 'glutes adductors hamstrings', 'quads lowerBack traps forearms'],
+    'machine-hip-thrusts': ['Machine Hip Thrusts', 'glutes', 'hamstrings'],
+    'single-leg-hip-thrusts': ['Single-Leg Hip Thrusts', 'glutes', 'hamstrings'],
+    'barbell-glute-bridges': ['Barbell Glute Bridges', 'glutes', 'hamstrings'],
+    'cable-pull-throughs': ['Cable Pull-throughs', 'glutes hamstrings', 'lowerBack'],
+    'kettlebell-swings': ['Kettlebell Swings', 'glutes hamstrings', 'lowerBack abs frontDelts'],
+    'back-extensions': ['Back Extensions', 'lowerBack glutes', 'hamstrings'],
+    'machine-hip-adductions': ['Hip Adductions', 'adductors', ''],
+    'cable-hip-abductions': ['Cable Hip Abductions', 'abductors', 'glutes'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

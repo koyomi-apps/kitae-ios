@@ -11,7 +11,7 @@ The figure takes its muscles from the muscle map below (`motion.js` reads
 `ExerciseMuscles.json` from the repository): the ones an exercise works most in olive, the ones
 that help in a lighter olive, drawn first so the olive ones stay on top where they meet. It has no
 shapes of its own for the upper back and the abductors, so its traps and glutes show them; the
-adductors aren't seen.
+adductors, inside the thighs, show only from the front.
 
     npm install          # only needed for the pictures
     node make.js
@@ -40,7 +40,8 @@ knee (`kneeAt`) so the hip follows the thigh's angle.
 
 Movements out to the sides use the front view (`view: "front"`): the figure faces the viewer, and
 angles work as in the side view for the arm and leg on the right of the picture, which the other
-side mirrors unless `otherArm` says otherwise. `turn` turns the whole figure (a side plank),
+side mirrors unless `otherArm`, or `otherThigh` and `otherShin`, say otherwise; legs can reach for
+an `ankle` instead, bending their knees outward. `turn` turns the whole figure (a side plank),
 `lean` bends it sideways at the waist, `torsoLength`, `thighLength`, `shinLength`, `upperLength`
 and `foreLength` shorten parts that point toward the viewer, `headHeight` lowers the head for a
 bent-over body, and `legsFront` draws sitting legs over the body.

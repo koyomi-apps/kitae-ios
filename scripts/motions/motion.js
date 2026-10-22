@@ -86,8 +86,8 @@ function pose(j) {
 // The muscles the figure shades, from the exercise's muscle map (ExerciseMuscles.json, like
 // FigureMuscles in ExerciseMotion.swift): the ones it works most in olive, the ones that help
 // lighter. The figure has no shapes of its own for the upper back and the hip's abductors, so its
-// traps and glutes show them; the adductors, inside the thighs, aren't seen.
-const STAND_INS = { upperBack: 'traps', abductors: 'glutes', adductors: null };
+// traps and glutes show them; the adductors, inside the thighs, show only from the front.
+const STAND_INS = { upperBack: 'traps', abductors: 'glutes' };
 function figureMuscles(work) {
   const shape = x => (x in STAND_INS ? STAND_INS[x] : x);
   const primary = new Set((work ? work.primary : []).map(shape).filter(Boolean));
@@ -422,6 +422,12 @@ function paint(m, F, c) {
     fill(capsule(v(at.x - 28, at.y), v(at.x + 28, at.y), 2.4, 2.4), c.gear);
     plate(at, g.radius ?? 17);
   }
+  // A kettlebell carries on from the near hand, its bell beyond the grip.
+  for (const g of gears('kettlebell')) {
+    const grip = nearArm.grip, d = unit(sub(grip, nearArm.arm.elbow)), r = g.radius ?? 9.5, bell = add(grip, mul(d, r + 3));
+    fill(capsule(grip, bell, 2.6, 2.6), c.gear);
+    fill(circle(bell, r), c.gear); fill(circle(sub(bell, mul(d, 1.6)), r * 0.55), c.gearFace);
+  }
   if (hasDumbbells) dumbbell(nearArm, true);
   for (const g of gears('cable')) {
     const end = bodyPoint(g.on ?? 'hands');
@@ -463,6 +469,7 @@ function frontPose(j) {
     hip: V(j.hip), turn: j.turn ?? 0, lean: j.lean ?? 0, torsoLength: j.torsoLength ?? 1, shrug: j.shrug ?? 0,
     head: j.head ?? 0, headHeight: j.headHeight ?? 1, thigh: j.thigh ?? 3, thighLength: j.thighLength ?? 1, shin: j.shin ?? 1.5,
     shinLength: j.shinLength ?? 1, arm: frontArm(j.arm), otherArm: frontArm(j.otherArm),
+    otherThigh: j.otherThigh ?? null, otherShin: j.otherShin ?? null, ankle: j.ankle ? V(j.ankle) : null,
   };
 }
 function lerpFrontArm(a, b, t) {
@@ -478,6 +485,9 @@ function lerpFront(a, b, t) {
     head: L('head'), headHeight: L('headHeight'), thigh: L('thigh'), thighLength: L('thighLength'), shin: L('shin'), shinLength: L('shinLength'),
     arm: lerpFrontArm(a.arm, b.arm, t),
     otherArm: a.otherArm && b.otherArm ? lerpFrontArm(a.otherArm, b.otherArm, t) : (a.otherArm ?? b.otherArm),
+    otherThigh: a.otherThigh != null && b.otherThigh != null ? L('otherThigh') : (a.otherThigh ?? b.otherThigh),
+    otherShin: a.otherShin != null && b.otherShin != null ? L('otherShin') : (a.otherShin ?? b.otherShin),
+    ankle: a.ankle && b.ankle ? lerpV(a.ankle, b.ankle, t) : (a.ankle ?? b.ankle),
   };
 }
 const frameSide = deg => { const r = deg * Math.PI / 180; return v(Math.cos(r), Math.sin(r)); };
@@ -513,8 +523,16 @@ function frontFigure(p) {
   };
   const leg = s => {
     const hip = pelvis(0, FRONT.hipJoint * s), m = d => v(d.x * s, d.y);
-    const knee = add(hip, mul(rotate(m(dir(180 - p.thigh)), turnR), BODY.thigh * p.thighLength));
-    const ankle = add(knee, mul(rotate(m(dir(180 - p.shin)), turnR), BODY.shin * p.shinLength));
+    const l1 = BODY.thigh * p.thighLength, l2 = BODY.shin * p.shinLength;
+    // Legs reaching for their ankles bend their knees outward; the other leg mirrors.
+    if (p.ankle) {
+      const target = v(p.hip.x + (p.ankle.x - p.hip.x) * s, p.ankle.y);
+      const knee = joint(hip, target, l1, l2, -s);
+      return { hip, knee, ankle: add(knee, mul(unit(sub(target, knee)), l2)), side: s };
+    }
+    const thigh = s < 0 ? p.otherThigh ?? p.thigh : p.thigh, shin = s < 0 ? p.otherShin ?? p.shin : p.shin;
+    const knee = add(hip, mul(rotate(m(dir(180 - thigh)), turnR), l1));
+    const ankle = add(knee, mul(rotate(m(dir(180 - shin)), turnR), l2));
     return { hip, knee, ankle, side: s };
   };
   return {
@@ -561,6 +579,10 @@ function paintFront(m, F, c) {
       const s = legParts(l);
       if (inFront) separate(s.all, l.hip, 11.5);
       fill(s.thigh, c.body); fill(s.shin, c.body); fill(s.foot, c.body);
+      // The adductors, inside the thighs, show only from the front.
+      for (const r of ROLES) {
+        if (is('adductors', r)) fillInside(s.thigh, muscle(l.hip, l.knee, 10.4, 6.6, [0.1, 0.42, 0.8], [0.5, 0.55, 0.45], -l.side), tint[r]);
+      }
     }
   };
   const armParts = a => {
@@ -620,13 +642,21 @@ function paintFront(m, F, c) {
   }
   for (const g of gears('pad')) if (g.front) pad(g);
 
+  // Cables run in front of the body to the hand on their side, or to that side's ankle cuff.
   for (const g of gears('cable')) {
-    const end = sideGrip(g.side);
+    const cuff = g.on === 'ankle' ? F.legs.find(l => l.side === g.side).ankle : null, end = cuff ?? sideGrip(g.side);
     fill(capsule(g.from, end, 0.8, 0.8), c.gear);
     fill(circle(g.from, 4.2), c.gear); fill(circle(g.from, 1.7), c.prop);
+    if (cuff) { fill(circle(end, 3.6), c.gear); fill(circle(end, 1.8), c.body); }
   }
   // A band stretched between the hands, in front of the body.
   if (gears('band').length) fill(capsule(sideGrip(1), sideGrip(-1), 1.2, 1.2), c.gear);
+  // A barbell across the front of the body: the bar through both hands, its plates edge-on.
+  for (const g of gears('barbell')) {
+    const mid = lerpV(sideGrip(-1), sideGrip(1), 0.5), h = g.radius ?? 17;
+    fill(capsule(add(mid, v(-98, 0)), add(mid, v(98, 0)), 1.7, 1.7), c.gear);
+    for (const s of [-1, 1]) { const at = add(mid, v(86 * s, 0)); fill(capsule(add(at, v(0, -h)), add(at, v(0, h)), 3.4, 3.4), c.gear); }
+  }
 
   // From the front the three delts are one shoulder cap, shaded as the most worked of them.
   const delts = ['frontDelts', 'sideDelts', 'rearDelts'];
@@ -659,8 +689,9 @@ function paintFront(m, F, c) {
   }
   for (const g of gears('plate')) plate(sideGrip(1), g.radius ?? 12);
   for (const g of gears('handle')) for (const p of arms) fill(circle(p.grip, 3.4), c.gear);
+  // Outside the knees, or inside them (`side` -1).
   for (const g of gears('kneepads')) for (const l of F.legs) {
-    const at = add(l.knee, mul(F.side, 10.5 * l.side));
+    const at = add(l.knee, mul(F.side, 10.5 * l.side * g.side));
     fill(capsule(add(at, mul(F.up, 8)), add(at, mul(F.up, -8)), 4, 4), c.prop);
   }
   return { defs: defs.join(''), body: out.join('') };

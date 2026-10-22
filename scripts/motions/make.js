@@ -169,6 +169,17 @@ const standingCurl = { hip: [0, -100.6], lean: 6, head: 2, thigh: 178, farThigh:
 const NORDIC_KNEE = [-6, -6.6];
 // The hip of a kneeling pose pinned at `knee`, for its thigh's angle.
 const kneelHip = (knee, thigh) => { const d = M.dir(thigh); return [r1(knee[0] - d.x * 46.5), r1(knee[1] - d.y * 46.5)]; };
+// Glutes. Hands holding a bar or pad across the hips.
+const hipsHands = { hand: [0, 13], on: 'torso', scale: 0.9, elbow: 1 };
+const thrustBench = { kind: 'pad', from: [-118, -47], to: [-44, -47], legs: [-104, -60] };
+// The sumo deadlift's feet, planted wide (front view).
+const SUMO_FEET = [52, -7.4];
+// A 45-degree back extension bench: the legs straight back and down from a pad under the hips,
+// the ankles under a roller and the feet on a plate.
+const backExtension = { hip: [0, -92], thigh: 225, shin: 225, foot: 45, arm: { hand: [40, 13], on: 'torso', elbow: 1 } };
+const extensionBench = [{ kind: 'post', from: [-64, -2], to: [14, -2], width: 5 }, { kind: 'post', from: [-60, -6], to: [6, -72], width: 5 },
+  { kind: 'post', from: [6, -72], to: [6, -2], width: 5 }, { kind: 'pad', from: [-10.7, -66.4], to: [5.8, -83] },
+  { kind: 'roller', on: 'calf' }, { kind: 'footplate', thick: 6, length: 24 }];
 const assistedPullUps = [{ kind: 'post', from: [-96, -2], to: [-96, -236], width: 7 }, { kind: 'post', from: [-96, -228], to: [6, -228], width: 3 },
   { kind: 'bar', at: [6, -228] }, { kind: 'pad', on: 'shins', anchor: [-96, -79] }];
 
@@ -1115,6 +1126,63 @@ const motions = [
     gear: [{ kind: 'roller', on: 'calf' }],
     from: { hip: kneelHip(NORDIC_KNEE, 180), kneeAt: NORDIC_KNEE, thigh: 180, shin: 270, foot: 166, lean: 0, head: 0, arm: { upper: 20, bend: 70 } },
     to: { hip: kneelHip(NORDIC_KNEE, 248), kneeAt: NORDIC_KNEE, thigh: 248, shin: 270, foot: 166, lean: 68, head: 40, arm: { upper: 75, bend: 10 } },
+  },
+
+  // The library's glutes exercises
+  {
+    // From the front, so the wide stance and knees pushed out show.
+    key: 'barbell-sumo-deadlift', name: 'Sumo Deadlift', view: 'front', gear: [{ kind: 'barbell' }],
+    timing: [0.1, 0.48, 0.58, 0.95],
+    from: { hip: [0, -50], ankle: SUMO_FEET, thighLength: 0.9, torsoLength: 0.75, headHeight: 0.85, arm: { hand: [17, -23.5], elbow: -1 } },
+    to: { hip: [0, -89.6], ankle: SUMO_FEET, arm: { hand: [17, -76.6], elbow: -1 } },
+  },
+  {
+    key: 'machine-hip-thrusts', name: 'Machine Hip Thrusts', timing: [0.1, 0.45, 0.55, 0.95], shift: 18,
+    gear: [thrustBench, { kind: 'roller', on: 'hips', radius: 8 }],
+    from: { hip: pivotHip(-55, THRUST, 40, -12.5), lean: -55, head: -30, ankle: [36, -7.4], arm: hipsHands },
+    to: { hip: pivotHip(-90, THRUST, 40, -12.5), lean: -90, head: -60, ankle: [36, -7.4], arm: hipsHands },
+  },
+  {
+    key: 'single-leg-hip-thrusts', name: 'Single-Leg Hip Thrusts', timing: [0.1, 0.45, 0.55, 0.95], shift: 18,
+    gear: [thrustBench],
+    from: { hip: pivotHip(-55, THRUST, 40, -12.5), lean: -55, head: -30, ankle: [36, -7.4], farThigh: 20, farShin: 110, farFoot: 20, arm: hipsHands },
+    to: { hip: pivotHip(-90, THRUST, 40, -12.5), lean: -90, head: -60, ankle: [36, -7.4], farThigh: 20, farShin: 110, farFoot: 20, arm: hipsHands },
+  },
+  {
+    key: 'barbell-glute-bridges', name: 'Barbell Glute Bridges', timing: [0.1, 0.45, 0.55, 0.95], shift: 10,
+    shadow: [-6, 0], shadowWidth: 70, gear: [{ kind: 'barbell', on: 'hips' }],
+    from: { hip: pivotHip(-90, BRIDGE, 42, -12.5), lean: -90, head: -92, ankle: [36, -7.4], arm: hipsHands },
+    to: { hip: pivotHip(-118, BRIDGE, 42, -12.5), lean: -118, head: -80, ankle: [36, -7.4], arm: hipsHands },
+  },
+  {
+    key: 'cable-pull-throughs', name: 'Cable Pull-throughs', timing: [0.1, 0.45, 0.55, 0.95], shift: 22,
+    gear: [{ kind: 'post', from: [-80, -2], to: [-80, -196], width: 7 }, { kind: 'cable', from: [-80, -16], handle: 'rope' }],
+    from: { hip: [-1, -99.6], lean: 2, head: 0, arm: { hand: [10, -92], elbow: 1 } },
+    to: { hip: [-28, -90], lean: 60, head: 34, arm: { hand: [-12, -58], elbow: 1 } },
+  },
+  {
+    key: 'kettlebell-swings', name: 'Kettlebell Swings', gear: [{ kind: 'kettlebell' }],
+    timing: [0.06, 0.4, 0.5, 0.88], shift: 6,
+    from: { hip: [-28, -90], lean: 62, head: 36, arm: { upper: -22, bend: 0 } },
+    to: { hip: [-1, -99.6], lean: 0, head: 0, arm: { upper: 86, bend: 0 } },
+  },
+  {
+    key: 'back-extensions', name: 'Back Extensions', timing: [0.1, 0.5, 0.58, 0.95], shift: 4,
+    gear: extensionBench,
+    from: { ...backExtension, lean: 45, head: 45 },
+    to: { ...backExtension, lean: 135, head: 145 },
+  },
+  {
+    key: 'machine-hip-adductions', name: 'Hip Adductions', view: 'front', legsFront: true, timing: [0.1, 0.45, 0.55, 0.95],
+    gear: [{ kind: 'pad', from: [-24, -44], to: [24, -44], legs: [0] }, { kind: 'kneepads', side: -1 }, { kind: 'handle' }],
+    from: { hip: [0, -55], thigh: 90, thighLength: 0.7, shin: 1, arm: { hand: [30, -50], elbow: -1 } },
+    to: { hip: [0, -55], thigh: 90, thighLength: 0.17, shin: 1, arm: { hand: [30, -50], elbow: -1 } },
+  },
+  {
+    key: 'cable-hip-abductions', name: 'Cable Hip Abductions', view: 'front', timing: [0.1, 0.45, 0.55, 0.95], shift: 16,
+    gear: [{ kind: 'post', from: [-82, -2], to: [-82, -196], width: 7 }, { kind: 'cable', from: [-82, -14], side: 1, on: 'ankle' }],
+    from: { ...fstand, otherThigh: 3, otherShin: 1.5, arm: { upper: 8, bend: 12 }, otherArm: { hand: [-72, -118], elbow: 1 } },
+    to: { ...fstand, thigh: 32, shin: 32, otherThigh: 3, otherShin: 1.5, arm: { upper: 8, bend: 12 }, otherArm: { hand: [-72, -118], elbow: 1 } },
   },
 ];
 

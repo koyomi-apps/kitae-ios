@@ -70,6 +70,12 @@ nonisolated extension FigurePainter {
                 fill(parts.thigh, c.body)
                 fill(parts.shin, c.body)
                 fill(parts.foot, c.body)
+                // The adductors, inside the thighs, show only from the front.
+                if let shade = muscles[.adductors] {
+                    fillInside(parts.thigh, muscleShape(l.hip, l.knee, 10.4, 6.6, at: (0.1, 0.42, 0.8),
+                                                        widths: (0.5, 0.55, 0.45), side: -l.side),
+                               shade == .primary ? c.muscle : c.muscleSecondary)
+                }
             }
         }
         func armParts(_ a: FrontFigure.Arm) -> (fd: Vec, grip: Vec, upper: Path, forearm: Path, hand: Path, all: Path) {
@@ -168,16 +174,31 @@ nonisolated extension FigurePainter {
             pad(g)
         }
 
-        // Cables run in front of the body to the hand on their side.
+        // Cables run in front of the body to the hand on their side, or to that side's ankle cuff.
         for g in motion.gear(.cable) {
             guard let pulley = g.from else { continue }
-            fill(FigureShapes.capsule(pulley, grip(side: g.side), 0.8, 0.8), c.gear)
+            let cuff = g.on == "ankle" ? f.legs.first(where: { $0.side == g.side })?.ankle : nil
+            let end = cuff ?? grip(side: g.side)
+            fill(FigureShapes.capsule(pulley, end, 0.8, 0.8), c.gear)
             fill(FigureShapes.circle(pulley, 4.2), c.gear)
             fill(FigureShapes.circle(pulley, 1.7), c.prop)
+            if cuff != nil {
+                fill(FigureShapes.circle(end, 3.6), c.gear)
+                fill(FigureShapes.circle(end, 1.8), c.body)
+            }
         }
         // A band stretched between the hands, in front of the body.
         if !motion.gear(.band).isEmpty {
             fill(FigureShapes.capsule(grip(side: 1), grip(side: -1), 1.2, 1.2), c.gear)
+        }
+        // A barbell across the front of the body: the bar through both hands, its plates edge-on.
+        for g in motion.gear(.barbell) {
+            let mid = Vec.lerp(grip(side: -1), grip(side: 1), 0.5), h = g.radius ?? 17
+            fill(FigureShapes.capsule(mid - Vec(98, 0), mid + Vec(98, 0), 1.7, 1.7), c.gear)
+            for s in [-1.0, 1] {
+                let at = mid + Vec(86 * s, 0)
+                fill(FigureShapes.capsule(at - Vec(0, h), at + Vec(0, h), 3.4, 3.4), c.gear)
+            }
         }
 
         // The arms, the -x one first. From the front the three delts are one shoulder cap, shaded
@@ -234,9 +255,10 @@ nonisolated extension FigurePainter {
                 fill(FigureShapes.circle(p.grip, 3.4), c.gear)
             }
         }
-        if !motion.gear(.kneepads).isEmpty {
+        // Outside the knees, or inside them (`side` -1).
+        for g in motion.gear(.kneepads) {
             for l in f.legs {
-                let at = l.knee + f.side * (10.5 * l.side)
+                let at = l.knee + f.side * (10.5 * l.side * g.side)
                 fill(FigureShapes.capsule(at + f.up * 8, at - f.up * 8, 4, 4), c.prop)
             }
         }

@@ -45,6 +45,8 @@ struct ExerciseMotionTests {
             case let .front(from, to):
                 #expect(from.arm.kind == to.arm.kind, "\(motion.name): arm")
                 #expect(from.otherArm?.kind == to.otherArm?.kind, "\(motion.name): other arm")
+                #expect((from.ankle == nil) == (to.ankle == nil), "\(motion.name): ankles")
+                #expect((from.otherThigh == nil) == (to.otherThigh == nil), "\(motion.name): other leg")
             }
             #expect(motion.timing.count == 4, "\(motion.name): timing")
             #expect(motion.timing == motion.timing.sorted() && motion.timing.allSatisfy { (0...1).contains($0) },
@@ -154,6 +156,19 @@ struct ExerciseMotionTests {
         let other = figure.arms[0], arm = figure.arms[1]
         #expect(abs(other.wrist.x + arm.wrist.x) < 0.01 && abs(other.wrist.y - arm.wrist.y) < 0.01)
         #expect(arm.wrist.x > 60)
+    }
+
+    @Test func theFrontFigureCanLiftOneLegOrPlantBoth() {
+        let arm = FrontArmPose.swing(upper: 6, bend: 10, upperLength: 1, foreLength: 1)
+        // One leg out to the side, the other standing as a mirrored leg would.
+        let lifted = FrontFigure(FrontPose(hip: Vec(0, -100), thigh: 30, shin: 30, arm: arm, otherThigh: 3, otherShin: 1.5))
+        let standing = FrontFigure(FrontPose(hip: Vec(0, -100), arm: arm))
+        #expect(lifted.legs[0].ankle == standing.legs[0].ankle)
+        #expect(lifted.legs[1].ankle.y < standing.legs[1].ankle.y - 5)
+        // Legs reaching for their ankles keep the feet planted, the knees bending outward.
+        let wide = FrontFigure(FrontPose(hip: Vec(0, -60), thighLength: 0.9, arm: arm, ankle: Vec(50, -7.4)))
+        #expect((wide.legs[1].ankle - Vec(50, -7.4)).length < 0.01 && (wide.legs[0].ankle - Vec(-50, -7.4)).length < 0.01)
+        #expect(wide.legs[1].knee.x > wide.legs[1].hip.x && wide.legs[0].knee.x < wide.legs[0].hip.x)
     }
 
     @Test func aLoopHoldsThenMovesThenHolds() {

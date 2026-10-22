@@ -5,9 +5,9 @@ import Foundation
 
 // The front view: the figure facing the viewer, for movements out to the sides. Angles work as in
 // the side view for the +x arm and leg (the figure's left, on the right of the picture); the other
-// arm and leg mirror them unless `otherArm` says otherwise. `turn` turns the whole figure (a side
-// plank lies at about -80), `lean` bends the body sideways above the waist, and the lengths
-// shorten parts that point toward or away from the viewer.
+// arm and leg mirror them unless `otherArm`, or `otherThigh` and `otherShin`, say otherwise. `turn`
+// turns the whole figure (a side plank lies at about -80), `lean` bends the body sideways above the
+// waist, and the lengths shorten parts that point toward or away from the viewer.
 
 nonisolated enum FrontBody {
     /// Half the distance between the shoulder joints.
@@ -83,21 +83,30 @@ nonisolated struct FrontPose: Equatable, Sendable, Decodable {
     /// Below 1 lowers the head in front of the shoulders, as when bent over; below 0.5 it hangs,
     /// showing its crown without a neck.
     var headHeight: Double
-    /// The legs' angles, for the +x leg; the other mirrors them.
+    /// The legs' angles, for the +x leg; the other mirrors them unless `otherThigh` and
+    /// `otherShin` say otherwise, mirrored the same way (one leg lifted out to the side).
     var thigh: Double
     var thighLength: Double
     var shin: Double
     var shinLength: Double
     var arm: FrontArmPose
     var otherArm: FrontArmPose?
+    var otherThigh: Double?
+    var otherShin: Double?
+    /// The +x ankle, for legs that reach for their feet instead of taking angles (feet planted wide
+    /// while the body rises and falls): the knees are worked out, bending outward, and the other
+    /// leg mirrors.
+    var ankle: Vec?
 
     nonisolated private enum Keys: String, CodingKey {
         case hip, turn, lean, torsoLength, shrug, head, headHeight, thigh, thighLength, shin, shinLength, arm, otherArm
+        case otherThigh, otherShin, ankle
     }
 
     init(hip: Vec, turn: Double = 0, lean: Double = 0, torsoLength: Double = 1, shrug: Double = 0, head: Double = 0,
          headHeight: Double = 1, thigh: Double = 3, thighLength: Double = 1, shin: Double = 1.5, shinLength: Double = 1,
-         arm: FrontArmPose, otherArm: FrontArmPose? = nil) {
+         arm: FrontArmPose, otherArm: FrontArmPose? = nil, otherThigh: Double? = nil, otherShin: Double? = nil,
+         ankle: Vec? = nil) {
         self.hip = hip
         self.turn = turn
         self.lean = lean
@@ -111,6 +120,9 @@ nonisolated struct FrontPose: Equatable, Sendable, Decodable {
         self.shinLength = shinLength
         self.arm = arm
         self.otherArm = otherArm
+        self.otherThigh = otherThigh
+        self.otherShin = otherShin
+        self.ankle = ankle
     }
 
     init(from decoder: Decoder) throws {
@@ -128,18 +140,29 @@ nonisolated struct FrontPose: Equatable, Sendable, Decodable {
         shinLength = try c.decodeIfPresent(Double.self, forKey: .shinLength) ?? 1
         arm = try c.decode(FrontArmPose.self, forKey: .arm)
         otherArm = try c.decodeIfPresent(FrontArmPose.self, forKey: .otherArm)
+        otherThigh = try c.decodeIfPresent(Double.self, forKey: .otherThigh)
+        otherShin = try c.decodeIfPresent(Double.self, forKey: .otherShin)
+        ankle = try c.decodeIfPresent(Vec.self, forKey: .ankle)
     }
 
     static func lerp(_ a: FrontPose, _ b: FrontPose, _ t: Double) -> FrontPose {
         let mix = { (x: Double, y: Double) in FigureMath.lerp(x, y, t) }
+        let mixOptional = { (x: Double?, y: Double?) -> Double? in
+            if let x, let y { return mix(x, y) }
+            return x ?? y
+        }
         var other: FrontArmPose? = a.otherArm ?? b.otherArm
         if let x = a.otherArm, let y = b.otherArm { other = .lerp(x, y, t) }
+        var ankle = a.ankle ?? b.ankle
+        if let x = a.ankle, let y = b.ankle { ankle = .lerp(x, y, t) }
         return FrontPose(
             hip: .lerp(a.hip, b.hip, t), turn: mix(a.turn, b.turn), lean: mix(a.lean, b.lean),
             torsoLength: mix(a.torsoLength, b.torsoLength), shrug: mix(a.shrug, b.shrug), head: mix(a.head, b.head),
             headHeight: mix(a.headHeight, b.headHeight), thigh: mix(a.thigh, b.thigh),
             thighLength: mix(a.thighLength, b.thighLength), shin: mix(a.shin, b.shin),
-            shinLength: mix(a.shinLength, b.shinLength), arm: .lerp(a.arm, b.arm, t), otherArm: other)
+            shinLength: mix(a.shinLength, b.shinLength), arm: .lerp(a.arm, b.arm, t), otherArm: other,
+            otherThigh: mixOptional(a.otherThigh, b.otherThigh), otherShin: mixOptional(a.otherShin, b.otherShin),
+            ankle: ankle)
     }
 }
 
@@ -204,8 +227,15 @@ nonisolated struct FrontFigure {
         func leg(_ s: Double) -> Leg {
             let hip = p.hip + side * (FrontBody.hipJoint * s)
             func mirrored(_ d: Vec) -> Vec { Vec(d.x * s, d.y) }
-            let knee = hip + mirrored(.direction(180 - p.thigh)).rotated(by: r) * (FigureBody.thigh * p.thighLength)
-            let ankle = knee + mirrored(.direction(180 - p.shin)).rotated(by: r) * (FigureBody.shin * p.shinLength)
+            let l1 = FigureBody.thigh * p.thighLength, l2 = FigureBody.shin * p.shinLength
+            if let foot = p.ankle {
+                let target = Vec(p.hip.x + (foot.x - p.hip.x) * s, foot.y)
+                let knee = FigureMath.joint(from: hip, to: target, l1, l2, bend: -s)
+                return Leg(hip: hip, knee: knee, ankle: knee + (target - knee).unit * l2, side: s)
+            }
+            let thigh = s < 0 ? p.otherThigh ?? p.thigh : p.thigh, shin = s < 0 ? p.otherShin ?? p.shin : p.shin
+            let knee = hip + mirrored(.direction(180 - thigh)).rotated(by: r) * l1
+            let ankle = knee + mirrored(.direction(180 - shin)).rotated(by: r) * l2
             return Leg(hip: hip, knee: knee, ankle: ankle, side: s)
         }
         arms = [arm(p.otherArm ?? p.arm, -1, explicit: p.otherArm != nil), arm(p.arm, 1, explicit: false)]

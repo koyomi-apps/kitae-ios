@@ -322,6 +322,14 @@ nonisolated struct FigurePainter: Sendable {
             fill(FigureShapes.capsule(at - Vec(28, 0), at + Vec(28, 0), 2.4, 2.4), c.gear)
             plate(at, g.radius ?? 17)
         }
+        // A kettlebell carries on from the near hand, its bell beyond the grip.
+        for g in motion.gear(.kettlebell) {
+            let grip = nearArm.grip, d = (grip - nearArm.arm.elbow).unit, r = g.radius ?? 9.5
+            let bell = grip + d * (r + 3)
+            fill(FigureShapes.capsule(grip, bell, 2.6, 2.6), c.gear)
+            fill(FigureShapes.circle(bell, r), c.gear)
+            fill(FigureShapes.circle(bell - d * 1.6, r * 0.55), c.gearFace)
+        }
         for g in motion.gear(.wheel) {
             plate(nearArm.grip, g.radius ?? 8)
         }

@@ -224,6 +224,17 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         // The body above the knees, most of its weight, falls and rises about two thirds as far as
         // a squat moves it.
         "nordic-hamstring-curls": .init(perKilogram: squat * 0.7, bodyShare: 0.85), // Nordic Curls
+        // The bar travels about a quarter less than in a deadlift: Escamilla et al. (2000) measured
+        // 25 to 40% more distance and work in the conventional one.
+        "barbell-sumo-deadlift": .init(perKilogram: 0.0124 * 0.75, bodyShare: 0.6), // Sumo Deadlift
+        "machine-hip-thrusts": .init(perKilogram: 0.007, bodyShare: 0.4), // Machine Hip Thrusts
+        "single-leg-hip-thrusts": .init(perKilogram: 0.007, bodyShare: 0.4, sides: 2), // Single-Leg Hip Thrusts
+        "barbell-glute-bridges": .init(perKilogram: 0.007, bodyShare: 0.4), // Barbell Glute Bridges
+        "cable-pull-throughs": .init(perKilogram: hinge, bodyShare: 0.55), // Cable Pull-throughs
+        "kettlebell-swings": .init(perKilogram: hinge, bodyShare: 0.55), // Kettlebell Swings
+        "back-extensions": .init(perKilogram: hinge, bodyShare: 0.5), // Back Extensions
+        "machine-hip-adductions": .init(perKilogram: 0.006, bodyShare: 0), // Hip Adductions
+        "cable-hip-abductions": .init(perKilogram: 0.006, bodyShare: 0.05, sides: 2), // Cable Hip Abductions
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

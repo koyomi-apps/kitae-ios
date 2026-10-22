@@ -40,12 +40,15 @@ nonisolated enum Muscle: String, Decodable, Sendable, CaseIterable {
 nonisolated struct Gear: Decodable, Sendable, Equatable {
     nonisolated enum Kind: String, Decodable, Sendable {
         /// A plate seen end-on: in the hands, across the shoulders (`on` "back"), on the front of
-        /// the shoulders ("front") or across the hips ("hips").
+        /// the shoulders ("front") or across the hips ("hips"). In the front view, a bar across the
+        /// body through both hands, its plates edge-on.
         case barbell
         /// A barbell with smaller plates.
         case ezbar
         /// A trap bar in the hands: its frame front to back through the grip, a plate at the grip.
         case trapbar
+        /// A kettlebell in the hands, its bell beyond the grip along the forearm.
+        case kettlebell
         /// In the hands, or held at the chest (`on` "chest") for a goblet squat.
         case dumbbells
         /// A bench, seat or pad: its top edge from `from` to `to`, `thick` deep, with legs down to the
@@ -57,7 +60,7 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
         case post
         /// A cable from a pulley at `from` to the hands (or `on`), ending in a `handle`:
         /// "bar", "rope", "single" or "none". `stack` draws the weight stack under the pulley.
-        /// In the front view, `side` picks the hand.
+        /// In the front view, `side` picks the hand, or with `on` "ankle" that side's ankle.
         case cable
         /// A pull-up bar seen end-on at `at`.
         case bar
@@ -73,7 +76,7 @@ nonisolated struct Gear: Decodable, Sendable, Equatable {
         case wheel
         /// A weight plate held in both hands: face-on from the front, upright and edge-on from the side.
         case plate
-        /// Pads on the outside of the knees (front view).
+        /// Pads on the outside of the knees (front view), or the inside with `side` -1.
         case kneepads
         /// A resistance band stretched between the hands (front view).
         case band
@@ -212,7 +215,7 @@ nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
 /// The muscles the figure shades for an exercise, from its muscle map: the ones it works most in
 /// olive and the ones that help lighter. The figure has no shapes of its own for the upper back
 /// and the hip's abductors, so its traps and glutes show them; the adductors, inside the thighs,
-/// aren't seen. scripts/motions/motion.js does the same for the pictures.
+/// show only from the front. scripts/motions/motion.js does the same for the pictures.
 nonisolated struct FigureMuscles: Equatable, Sendable {
     /// The lighter shade comes first, so where muscles meet the ones worked most are drawn on top.
     nonisolated enum Shade: Comparable, CaseIterable, Sendable {
@@ -232,7 +235,6 @@ nonisolated struct FigureMuscles: Equatable, Sendable {
         switch muscle {
         case .upperBack: .traps
         case .abductors: .glutes
-        case .adductors: nil
         default: muscle
         }
     }

@@ -47,12 +47,15 @@ struct ExerciseMusclesTests {
         #expect(rows[.traps] == .primary && rows[.rearDelts] == .secondary)
         let abductions = try #require(ExerciseMotions.byKey["machine-hip-abductions"]).muscles
         #expect(abductions.primary == [.glutes] && abductions.secondary.isEmpty)
+        // The adductors show from the front, inside the thighs.
+        let adductions = try #require(ExerciseMotions.byKey["machine-hip-adductions"]).muscles
+        #expect(adductions.primary == [.adductors])
         // Every animation has a muscle in olive, and shades only muscles it has shapes for.
         for motion in ExerciseMotions.all {
             let muscles = motion.muscles
             #expect(!muscles.primary.isEmpty, "\(motion.name)")
             #expect(muscles.primary.isDisjoint(with: muscles.secondary), "\(motion.name)")
-            #expect(muscles.primary.union(muscles.secondary).isDisjoint(with: [.upperBack, .adductors, .abductors]),
+            #expect(muscles.primary.union(muscles.secondary).isDisjoint(with: [.upperBack, .abductors]),
                     "\(motion.name)")
         }
     }

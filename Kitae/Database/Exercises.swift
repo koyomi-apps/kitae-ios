@@ -235,9 +235,10 @@ nonisolated enum Exercises {
     }
 
     /// Deletes an exercise. Like on Android, it goes from every plan, and its sets go from
-    /// past workouts.
+    /// past workouts. Its note goes too.
     static func delete(_ db: Database, id: Int64) throws {
         try db.execute(sql: "DELETE FROM `exercises` WHERE `id` = ?", arguments: [id])
+        try ExerciseNotes.delete(db, exerciseID: id)
     }
 
     /// The sets of an exercise done in each workout, newest first. Kitae for Android's

@@ -169,6 +169,39 @@ struct ExerciseTests {
         #expect(bests.first?.set.weightKg == 22.5 && bests.first?.previous.weightKg == 20)
     }
 
+    @Test func notesAreTrimmedAndGoWhenEmptied() throws {
+        try database.write { db in try ExerciseNotes.save(db, exerciseID: benchID, note: "  Seat on 4\n") }
+        #expect(try database.read(ExerciseNotes.all) == [benchID: "Seat on 4"])
+        try database.write { db in try ExerciseNotes.save(db, exerciseID: benchID, note: "Seat on 5") }
+        #expect(try database.read(ExerciseNotes.all) == [benchID: "Seat on 5"])
+        try database.write { db in try ExerciseNotes.save(db, exerciseID: benchID, note: " \n ") }
+        #expect(try database.read(ExerciseNotes.all).isEmpty)
+    }
+
+    @Test func deletingAnExerciseDeletesItsNote() throws {
+        try database.write { db in
+            try ExerciseNotes.save(db, exerciseID: benchID, note: "Seat on 4")
+            try Exercises.delete(db, id: benchID)
+        }
+        #expect(try database.read(ExerciseNotes.all).isEmpty)
+    }
+
+    @Test func aBackupFromAndroidGetsTheNotesTable() throws {
+        // Room's tables only, as Kitae for Android makes them.
+        let android = try DatabaseQueue()
+        try android.write { db in try Schema.create(db) }
+        try database.replaceContents(with: android)
+        #expect(try database.read { db in try db.tableExists("exercise_notes") })
+    }
+
+    @Test @MainActor func theModelSavesNotesAndResettingForgetsThem() throws {
+        let model = AppModel.testing(database)
+        model.saveNote("Seat on 4", for: benchID)
+        #expect(model.exerciseNotes == [benchID: "Seat on 4"])
+        try model.reset()
+        #expect(model.exerciseNotes.isEmpty)
+    }
+
     @Test func warmupsCountOnlyWhenNothingElseWasDone() {
         let warmups = ExerciseSession(id: 1, date: 0, sets: [
             SetDraft(reps: 15, weightKg: 10, type: .warmup),

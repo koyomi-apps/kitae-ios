@@ -32,6 +32,7 @@ struct ExerciseDetailView: View {
     @State private var page: ExercisePage?
     @State private var hasLoaded = false
     @State private var isEditing = false
+    @State private var isWritingNote = false
 
     /// How many of the exercise's workouts are listed.
     private static let recentCount = 10
@@ -78,6 +79,12 @@ struct ExerciseDetailView: View {
                     .environment(model)
             }
         }
+        .sheet(isPresented: $isWritingNote) {
+            if let exercise = page?.exercise {
+                ExerciseNoteSheet(exercise: exercise, note: model.exerciseNotes[exercise.id])
+                    .environment(model)
+            }
+        }
         .task(id: model.historyRevision) { load() }
     }
 
@@ -99,9 +106,33 @@ struct ExerciseDetailView: View {
                     chip("held")
                 }
             }
+            note(exercise)
         }
         .padding(.horizontal, 24)
         .padding(.top, 8)
+    }
+
+    /// The exercise's note, which opens to change it, or a way to write one.
+    private func note(_ exercise: Exercise) -> some View {
+        let note = model.exerciseNotes[exercise.id]
+        return Button {
+            isWritingNote = true
+        } label: {
+            HStack(alignment: .firstTextBaseline, spacing: 8) {
+                Image(systemName: note == nil ? "square.and.pencil" : "note.text")
+                    .foregroundStyle(.olive)
+                Text(note ?? "Add a note")
+                    .font(note == nil ? .callout.weight(.semibold) : .callout)
+                    .foregroundStyle(note == nil ? Color.olive : Color.ink)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+            .frame(minHeight: 44, alignment: .leading)
+            .contentShape(.rect)
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(note.map { "Note: \($0)" } ?? "Add a note")
+        .accessibilityHint(note == nil ? "For something to remember, like a seat height" : "Changes the note")
     }
 
     private func chip(_ text: String) -> some View {

@@ -94,8 +94,9 @@ enum DebugLaunch {
 
     /// Skips the welcome unless it's the screen, and follows the starter plan unless the screen
     /// is of the first launch. History, Exercises, You, the screens after a workout and adding an
-    /// exercise (for its recent ones) get example workouts. For the workout screens, starts an
-    /// example workout 23 minutes in, with two exercises done and the rest timer running.
+    /// exercise (for its recent ones) get example workouts, and the workout and exercise screens
+    /// notes on Bench Press and Incline Bench. For the workout screens, starts an example workout
+    /// 23 minutes in, with two exercises done and the rest timer running.
     static func prepare(_ model: AppModel) {
         guard let screen else { return }
         if screen != "welcome" {
@@ -109,6 +110,9 @@ enum DebugLaunch {
             addExampleBody(to: model)
             addExampleHistory(to: model, finishedToday: doneScreens.contains(screen))
         }
+        if workoutScreens.contains(screen) || exerciseScreens.contains(screen) {
+            addExampleNotes(to: model)
+        }
         guard workoutScreens.contains(screen), let day = model.selectedDay else { return }
         model.startWorkout(day, at: Date.now.addingTimeInterval(-(23 * 60 + 36)))
         guard let workout = model.workout else { return }
@@ -119,6 +123,19 @@ enum DebugLaunch {
         }
         workout.startRest(seconds: 95)
         model.isWorkoutPresented = false
+    }
+
+    private static func addExampleNotes(to model: AppModel) {
+        let notes = [
+            "Bench Press": "Grip a thumb's width outside the rings. Feet flat, shoulder blades back.",
+            "Incline Bench": "Bench on the third notch.",
+        ]
+        let exercises = (try? model.database.read { db in try Exercises.all(db) }) ?? []
+        for exercise in exercises {
+            if let note = notes[exercise.name] {
+                model.saveNote(note, for: exercise.id)
+            }
+        }
     }
 
     /// Weigh-ins every few days for five weeks, going down a little, with body fat about once a

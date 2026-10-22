@@ -61,7 +61,7 @@ struct SchemaTests {
         }
         expected["room_master_table"] = "CREATE TABLE room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)"
         // Kitae's own tables, which Room on Android leaves alone.
-        for statement in BodyTables.statements + ExerciseLibrary.statements {
+        for statement in BodyTables.statements + ExerciseNotes.statements + ExerciseLibrary.statements {
             let name = try #require(statement.firstMatch(of: #/`(\w+)`/#)?.1)
             expected[String(name)] = statement.replacingOccurrences(of: " IF NOT EXISTS", with: "")
         }

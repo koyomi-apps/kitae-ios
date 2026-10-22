@@ -10,6 +10,8 @@ struct WorkoutView: View {
 
     @FocusState private var focus: SetField?
     @State private var optionsFor: SetOptionsTarget?
+    /// The exercise whose note is being changed.
+    @State private var noteFor: Exercise?
     @State private var finishQuestion: FinishQuestion?
     @State private var confirmsDiscard = false
     /// The workout's plan, being edited over the workout.
@@ -55,6 +57,10 @@ struct WorkoutView: View {
         .sheet(item: $optionsFor) { target in
             SetOptionsSheet(workout: workout, target: target, defaultRestSeconds: model.defaultRestSeconds)
         }
+        .sheet(item: $noteFor) { exercise in
+            ExerciseNoteSheet(exercise: exercise, note: model.exerciseNotes[exercise.id])
+                .environment(model)
+        }
         .sensoryFeedback(.success, trigger: workout.doneCount) { old, new in new > old }
         .sensoryFeedback(.warning, trigger: workout.restsFinished)
         .task { await openDebugScreen() }
@@ -84,6 +90,26 @@ struct WorkoutView: View {
                     .accessibilityHint("Shows how to do it and how it's gone")
                     if let work = ExerciseMuscles.work(for: exercise.exercise) {
                         MuscleLine(work: work)
+                    }
+                    if let note = model.exerciseNotes[exercise.id] {
+                        Button {
+                            focus = nil
+                            noteFor = exercise.exercise
+                        } label: {
+                            HStack(alignment: .firstTextBaseline, spacing: 6) {
+                                Image(systemName: "note.text")
+                                    .foregroundStyle(.olive)
+                                Text(note)
+                                    .foregroundStyle(.ink)
+                                    .multilineTextAlignment(.leading)
+                                    .lineLimit(3)
+                            }
+                            .font(.footnote)
+                            .contentShape(.rect)
+                        }
+                        .buttonStyle(.plain)
+                        .accessibilityLabel("Note: \(note)")
+                        .accessibilityHint("Changes the note")
                     }
                 }
                 Spacer()

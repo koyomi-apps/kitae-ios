@@ -24,6 +24,8 @@ final class AppModel {
     private var hadDoneSets = false
     /// The profile and weigh-ins from the Body page.
     private(set) var bodyLog = BodyLog()
+    /// People's notes on their exercises, by exercise.
+    private(set) var exerciseNotes: [Exercise.ID: String] = [:]
     /// A day picked on Today instead of the one up next.
     var pickedDayID: TrainingDay.ID?
     private(set) var workout: Workout? {
@@ -124,7 +126,8 @@ final class AppModel {
                     lastDone: try Sessions.lastDoneDayID(db),
                     hasDoneSets: try Sessions.hasDoneSets(db),
                     active: try Sessions.active(db, today: today),
-                    body: try BodyStore.log(db)
+                    body: try BodyStore.log(db),
+                    notes: try ExerciseNotes.all(db)
                 )
             }
             historyRevision += 1
@@ -133,6 +136,7 @@ final class AppModel {
             upNextDayID = Plans.dayAfter(snapshot.lastDone, in: snapshot.plan?.days ?? [])?.id
             hadDoneSets = snapshot.hasDoneSets
             bodyLog = snapshot.body
+            exerciseNotes = snapshot.notes
             if let active = snapshot.active {
                 if workout?.id != active.id {
                     workout = try makeWorkout(id: active.id)
@@ -355,12 +359,23 @@ final class AppModel {
         return saved
     }
 
+    /// Saves an exercise's note, like a seat height. An empty one deletes it.
+    func saveNote(_ note: String, for id: Exercise.ID) {
+        do {
+            try database.write { db in try ExerciseNotes.save(db, exerciseID: id, note: note) }
+            exerciseNotes = try database.read { db in try ExerciseNotes.all(db) }
+        } catch {
+            report(error, "Couldn't save the note")
+        }
+    }
+
     /// Whether an exercise can be deleted: not while it's part of the workout in progress.
     func canDeleteExercise(_ id: Exercise.ID) -> Bool {
         !(workout?.exercises.contains { $0.id == id } ?? false)
     }
 
-    /// Deletes an exercise. It's taken out of every plan, and its sets out of past workouts.
+    /// Deletes an exercise. It's taken out of every plan, its sets out of past workouts, and its
+    /// note goes too.
     func deleteExercise(_ id: Exercise.ID) {
         guard canDeleteExercise(id) else { return }
         do {
@@ -400,9 +415,9 @@ final class AppModel {
 
     // MARK: Starting over
 
-    /// Erases every plan, workout, exercise, weigh-in and setting, so Kitae is as it was when it was
-    /// installed, like Kitae for Android's "Reset app", welcome and all. A workout in progress
-    /// goes too. Backups stay in their folder.
+    /// Erases every plan, workout, exercise, note, weigh-in and setting, so Kitae is as it was
+    /// when it was installed, like Kitae for Android's "Reset app", welcome and all. A workout in
+    /// progress goes too. Backups stay in their folder.
     func reset() throws {
         workout?.skipRest()
         isWorkoutPresented = false

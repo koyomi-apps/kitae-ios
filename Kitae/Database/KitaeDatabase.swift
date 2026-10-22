@@ -25,8 +25,9 @@ nonisolated enum KitaeDatabaseError: Error, LocalizedError {
 }
 
 /// Where Kitae keeps plans, workouts and exercises: one SQLite file, laid out exactly like
-/// Kitae for Android's (see `Schema`), plus Kitae's own tables for the body (see `BodyTables`)
-/// and its exercise library (see `ExerciseLibrary`), which Kitae for Android leaves alone.
+/// Kitae for Android's (see `Schema`), plus Kitae's own tables for the body (see `BodyTables`),
+/// notes on exercises (see `ExerciseNotes`) and its exercise library (see `ExerciseLibrary`),
+/// which Kitae for Android leaves alone.
 nonisolated final class KitaeDatabase: Sendable {
     let writer: any DatabaseWriter
 
@@ -122,6 +123,7 @@ nonisolated final class KitaeDatabase: Sendable {
             }
         }
         try BodyTables.create(db)
+        try ExerciseNotes.create(db)
         try ExerciseLibrary.create(db, seed: seed)
         try ExerciseLibrary.sync(db, library: seed.exercises)
     }

@@ -2,6 +2,18 @@
 
 What's new in each build of Kitae for iPhone. Builds go to [TestFlight](https://testflight.apple.com/join/GTKbw4Hg), and from 1.0 (2) each one is also on [GitHub's Releases page](https://github.com/koyomi-apps/kitae-ios/releases) as an IPA for sideloading.
 
+## 1.0 (4) · 2026-10-22
+
+- **94 more exercises,** for 169 in all. Every muscle group gets new ones: machine, cable, Smith machine and bodyweight versions of the classics, more rows, pull-downs, lunges and hip thrusts, forearm curls, a farmer's carry, and 15 for the core. Each has its own steps, muscle map and animated figure, and counts in the energy estimate. If you'd already made one of them yourself under the same name, it isn't added twice: yours gets the figure and the muscle map. Asked for in issue #6.
+- **Exercises without weight.** Exercises done with your body alone, like sit-ups, push-ups and pull-ups, now log just reps (or seconds, for holds), with no weight field. A new "Uses weight" switch in an exercise's editor sets it for any exercise. Weights you'd already logged for them are kept but not shown, and come back if you turn the switch on again.
+- **Notes.** Add a note to any exercise from its page, like your seat height or grip. It shows there and under the exercise's name during workouts, where you can tap it to change it.
+- **New bests.** The summary after a workout lists the records you beat: an exercise's heaviest set, most reps or longest hold, with what it was before. You can turn it off in Settings › Workouts.
+- **Recent exercises first.** When you add an exercise to a day, the five you've done most recently are at the top.
+- **Muscles during a workout.** Under each exercise's name, the muscles it works most show beside an olive square, and the ones that help beside a lighter one. The animated figures now shade the helping muscles lighter too, as the muscle map does.
+- **Assisted machines.** On Assisted Pull-ups and Assisted Dips, the weight you log is the machine's help, so less help counts as progress: the chart and best sets follow the least help.
+- **The Exercises title stays sharp.** Scrolling the Exercises list no longer smears the title into a blur. Reported in issue #8.
+- Kitae on Android can't restore backups from this build until it's updated to match. Its backups still restore here.
+
 ## 1.0 (3) · 2026-10-17
 
 - **The muscles each exercise works.** On an exercise's page, a body from the front and the back shows the muscles it works most in olive and the ones that help in a lighter shade, with their names. Your own exercises show their muscle group. Asked for in issue #5.

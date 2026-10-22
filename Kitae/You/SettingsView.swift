@@ -35,6 +35,10 @@ struct SettingsView: View {
                 Toggle("Summary after each workout", isOn: $model.settings.showsWorkoutSummary)
                     .listRowBackground(Color.card)
 
+                Toggle("New bests in the summary", isOn: $model.settings.showsNewBests)
+                    .disabled(!model.settings.showsWorkoutSummary)
+                    .listRowBackground(Color.card)
+
                 if model.settings.restAlerts, alertsDenied {
                     Button("Allow alerts for Kitae in Settings") {
                         if let url = URL(string: UIApplication.openNotificationSettingsURLString) {

@@ -157,6 +157,18 @@ struct ExerciseTests {
         #expect(try database.read { db in try Exercises.recentIDs(db, limit: 1) } == [done])
     }
 
+    @Test func aWorkoutsNewBestsAreReadFromItsSets() throws {
+        let first = try workout(on: Self.today - 7, bench: [SetDraft(reps: 10, weightKg: 20)])
+        let second = try workout(on: Self.today - 3, bench: [SetDraft(reps: 10, weightKg: 22.5)])
+        let (none, bests) = try database.read { db in
+            (try Exercises.newBests(db, workoutID: first), try Exercises.newBests(db, workoutID: second))
+        }
+        #expect(none.isEmpty)
+        #expect(bests.map(\.exercise.id) == [benchID])
+        #expect(bests.map(\.record) == [.heaviest])
+        #expect(bests.first?.set.weightKg == 22.5 && bests.first?.previous.weightKg == 20)
+    }
+
     @Test func warmupsCountOnlyWhenNothingElseWasDone() {
         let warmups = ExerciseSession(id: 1, date: 0, sets: [
             SetDraft(reps: 15, weightKg: 10, type: .warmup),

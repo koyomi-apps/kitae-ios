@@ -8,8 +8,9 @@ struct FinishedWorkout: Identifiable, Hashable {
     let id: Int64
 }
 
-/// After a workout: its day, how long it took, its sets, the energy it used and the muscles it
-/// worked. It opens when a workout with a set done is finished, unless Settings turn it off.
+/// After a workout: its day, how long it took, its sets, the energy it used, the records it beat
+/// (unless Settings leave them out) and the muscles it worked. It opens when a workout with a set
+/// done is finished, unless Settings turn it off.
 struct WorkoutDoneView: View {
     let workoutID: Int64
 
@@ -17,6 +18,7 @@ struct WorkoutDoneView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var summary: WorkoutSummary?
     @State private var sets: [DoneSet] = []
+    @State private var bests: [NewBest] = []
 
     var body: some View {
         NavigationStack {
@@ -27,6 +29,9 @@ struct WorkoutDoneView: View {
                         tiles(summary)
                         if model.activeKilocalories(summary, sets: sets) != nil {
                             energyNote(hasHeight: model.bodyLog.profile.heightCm != nil)
+                        }
+                        if !bests.isEmpty {
+                            NewBestsCard(bests: bests, formatter: model.weightFormatter)
                         }
                         MuscleVolumeCard(
                             subtitle: "This workout",
@@ -131,15 +136,86 @@ struct WorkoutDoneView: View {
 
     private func load() {
         let id = workoutID
+        let showsBests = model.settings.showsNewBests
         do {
-            let loaded = try model.database.read { db -> (WorkoutSummary?, [DoneSet]) in
-                guard let summary = try Sessions.summary(db, id: id) else { return (nil, []) }
-                return (summary, try Sessions.doneSets(db, from: summary.date, to: summary.date)[id] ?? [])
+            let loaded = try model.database.read { db -> (WorkoutSummary?, [DoneSet], [NewBest]) in
+                guard let summary = try Sessions.summary(db, id: id) else { return (nil, [], []) }
+                return (
+                    summary,
+                    try Sessions.doneSets(db, from: summary.date, to: summary.date)[id] ?? [],
+                    showsBests ? try Exercises.newBests(db, workoutID: id) : []
+                )
             }
             summary = loaded.0
             sets = loaded.1
+            bests = loaded.2
         } catch {
             model.problem = "Couldn't read the workout. \(error.localizedDescription)"
+        }
+    }
+}
+
+/// The records the workout's sets beat, each with the best it beat.
+private struct NewBestsCard: View {
+    let bests: [NewBest]
+    let formatter: WeightFormatter
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .firstTextBaseline) {
+                Text("New bests")
+                    .font(.kitaeDisplay(24, relativeTo: .title3))
+                    .foregroundStyle(.ink)
+                    .accessibilityAddTraits(.isHeader)
+                Spacer(minLength: 8)
+                Text(counted(bests.count, "record", "records"))
+                    .font(.footnote)
+                    .foregroundStyle(.inkSoft)
+            }
+            ForEach(bests) { best in
+                row(best)
+            }
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.card, in: .rect(cornerRadius: 24))
+    }
+
+    private func row(_ best: NewBest) -> some View {
+        HStack(alignment: .firstTextBaseline, spacing: 10) {
+            Image(systemName: "star.fill")
+                .font(.footnote)
+                .foregroundStyle(.olive)
+                .accessibilityHidden(true)
+            VStack(alignment: .leading, spacing: 3) {
+                HStack(alignment: .firstTextBaseline, spacing: 8) {
+                    Text(best.exercise.name)
+                        .font(.callout.weight(.semibold))
+                        .foregroundStyle(.ink)
+                    Spacer(minLength: 8)
+                    Text(value(best.set, of: best))
+                        .font(.kitaeMono(15, relativeTo: .subheadline, bold: true))
+                        .foregroundStyle(.ink)
+                        .layoutPriority(1)
+                }
+                Text("\(best.record.name), was \(value(best.previous, of: best))")
+                    .font(.footnote)
+                    .foregroundStyle(.inkSoft)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+
+    /// As the exercise's page shows its records: weight first for the heaviest set.
+    private func value(_ set: SetDraft, of best: NewBest) -> String {
+        let exercise = best.exercise
+        let kilograms = exercise.weight(set.weightKg)
+        switch best.record {
+        case .heaviest, .leastHelp:
+            return formatter.weightFirst(reps: set.reps, kilograms: kilograms, isIsometric: exercise.isIsometric)
+        case .mostReps, .longestHold:
+            return formatter.summary(reps: set.reps, kilograms: kilograms, isIsometric: exercise.isIsometric)
         }
     }
 }

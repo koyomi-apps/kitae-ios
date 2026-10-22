@@ -120,6 +120,65 @@ nonisolated struct ExerciseRecords: Hashable, Sendable {
     }
 }
 
+/// A record a workout's sets beat: an exercise's heaviest set (on an assisted machine, the one
+/// with the least help), or its most reps or longest hold, better than in every workout before.
+nonisolated struct NewBest: Identifiable, Hashable, Sendable {
+    enum Record: Hashable, Sendable {
+        case heaviest, leastHelp, mostReps, longestHold
+
+        /// As the exercise's page names it.
+        var name: String {
+            switch self {
+            case .heaviest: "Heaviest set"
+            case .leastHelp: "Least help"
+            case .mostReps: "Most reps"
+            case .longestHold: "Longest hold"
+            }
+        }
+    }
+
+    var exercise: Exercise
+    var record: Record
+    /// The set that beat it.
+    var set: SetDraft
+    /// The best before it.
+    var previous: SetDraft
+
+    var id: String { "\(exercise.id) \(record)" }
+
+    /// The records `workout`, one of `history`'s workouts (newest first, as `Exercises.history`
+    /// reads it), beat. They're the ones on the exercise's page: the heaviest set, the most
+    /// weight first and then the most reps; and the most reps, which have to go up, so a heavier
+    /// set with the same reps counts once. Without weight, only the reps or seconds count. None
+    /// the first time an exercise is done, as there's nothing to beat, and none from warm-ups.
+    static func find(exercise: Exercise, history: [ExerciseSession], workout id: Int64) -> [NewBest] {
+        guard let index = history.firstIndex(where: { $0.id == id }) else { return [] }
+        let sets = history[index].sets.filter { $0.type != .warmup }
+        let earlier = history[(index + 1)...].flatMap(\.workSets)
+        guard !sets.isEmpty, !earlier.isEmpty else { return [] }
+        let byReps = { (a: SetDraft, b: SetDraft) in a.reps < b.reps }
+        let reps: Record = exercise.isIsometric ? .longestHold : .mostReps
+        guard exercise.usesWeight, (sets + earlier).contains(where: { $0.weightKg > 0 }) else {
+            // A weight left from before the exercise stopped using weight doesn't count.
+            guard let now = sets.max(by: byReps), let before = earlier.max(by: byReps), now.reps > before.reps else { return [] }
+            return [NewBest(exercise: exercise, record: reps, set: now, previous: before)]
+        }
+        let assisted = exercise.isAssisted
+        // On an assisted machine, less help counts for more.
+        let load = { (set: SetDraft) in assisted ? -set.weightKg : set.weightKg }
+        let byLoad = { (a: SetDraft, b: SetDraft) in (load(a), a.reps) < (load(b), b.reps) }
+        let byRepsThenLoad = { (a: SetDraft, b: SetDraft) in (a.reps, load(a)) < (b.reps, load(b)) }
+        var bests: [NewBest] = []
+        if let now = sets.max(by: byLoad), let before = earlier.max(by: byLoad), byLoad(before, now) {
+            bests.append(NewBest(exercise: exercise, record: assisted ? .leastHelp : .heaviest, set: now, previous: before))
+        }
+        if let now = sets.max(by: byRepsThenLoad), let before = earlier.max(by: byRepsThenLoad), now.reps > before.reps {
+            bests.append(NewBest(exercise: exercise, record: reps, set: now, previous: before))
+        }
+        return bests
+    }
+}
+
 /// The exercises Kitae knows, its own and people's, read and written the way Kitae for
 /// Android does (its `ExerciseDao`).
 nonisolated enum Exercises {
@@ -227,6 +286,22 @@ nonisolated enum Exercises {
             }
         }
         return last
+    }
+
+    /// The records a finished workout's exercises beat, in the order they were done. See
+    /// `NewBest`.
+    static func newBests(_ db: Database, workoutID: Int64) throws -> [NewBest] {
+        let ids = try Int64.fetchAll(db, sql: """
+            SELECT `exerciseId`
+            FROM `sets`
+            WHERE `sessionId` = ? AND `isCompleted` = 1
+            GROUP BY `exerciseId`
+            ORDER BY MIN(`order`), MIN(`id`)
+            """, arguments: [workoutID])
+        return try ids.flatMap { id -> [NewBest] in
+            guard let exercise = try exercise(db, id: id) else { return [] }
+            return NewBest.find(exercise: exercise, history: try history(db, exerciseID: id), workout: workoutID)
+        }
     }
 
     /// The exercises done most recently, at most `limit` of them: the newest workout's in the

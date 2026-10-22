@@ -96,6 +96,8 @@ nonisolated struct AppSettings: Equatable, Sendable {
     var backUpAfterWorkouts = true
     /// Whether a summary opens after finishing a workout: its time, sets, energy and muscles.
     var showsWorkoutSummary = true
+    /// Whether that summary lists the records the workout's sets beat.
+    var showsNewBests = true
     /// Kitae for Android's colour palette, kept from a restored backup so that backups made
     /// here bring it back.
     var androidPalette: String?
@@ -116,6 +118,7 @@ nonisolated enum SettingKey {
     static let textSize = "text_size"
     static let backUpAfterWorkouts = "back_up_after_workouts"
     static let workoutSummary = "workout_summary"
+    static let newBests = "new_bests"
     static let palette = "color_palette"
     /// Kitae for Android's first launch is over once a plan is chosen.
     static let onboardingDone = "onboarding_done"
@@ -179,6 +182,9 @@ final class SettingsStore {
         if let isOn = defaults.object(forKey: SettingKey.workoutSummary) as? Bool {
             settings.showsWorkoutSummary = isOn
         }
+        if let isOn = defaults.object(forKey: SettingKey.newBests) as? Bool {
+            settings.showsNewBests = isOn
+        }
         if let name = defaults.string(forKey: SettingKey.palette), AppSettings.androidPalettes.contains(name) {
             settings.androidPalette = name
         }
@@ -195,6 +201,7 @@ final class SettingsStore {
         defaults.set(settings.textSize.rawValue, forKey: SettingKey.textSize)
         defaults.set(settings.backUpAfterWorkouts, forKey: SettingKey.backUpAfterWorkouts)
         defaults.set(settings.showsWorkoutSummary, forKey: SettingKey.workoutSummary)
+        defaults.set(settings.showsNewBests, forKey: SettingKey.newBests)
         if let palette = settings.androidPalette {
             defaults.set(palette, forKey: SettingKey.palette)
         } else {
@@ -216,6 +223,7 @@ nonisolated extension AppSettings {
             SettingKey.decimals: .string(decimals.rawValue),
             SettingKey.restAlerts: .bool(restAlerts),
             SettingKey.workoutSummary: .bool(showsWorkoutSummary),
+            SettingKey.newBests: .bool(showsNewBests),
         ]
         if planChosen {
             preferences[SettingKey.onboardingDone] = .bool(true)
@@ -246,6 +254,9 @@ nonisolated extension AppSettings {
         }
         if case .bool(let isOn)? = preferences[SettingKey.workoutSummary] {
             showsWorkoutSummary = isOn
+        }
+        if case .bool(let isOn)? = preferences[SettingKey.newBests] {
+            showsNewBests = isOn
         }
         if case .string(let name)? = preferences[SettingKey.palette], Self.androidPalettes.contains(name) {
             androidPalette = name

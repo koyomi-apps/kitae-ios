@@ -319,6 +319,21 @@ const EXERCISES = {
     'leg-press-calf-raises': ['Leg Press Calf Raises', 'calves', ''],
     'single-leg-calf-raises': ['Single-Leg Calf Raises', 'calves', ''],
     'smith-machine-calf-raises': ['Smith Machine Calf Raises', 'calves', ''],
+    'hanging-knee-raises': ['Hanging Knee Raises', 'abs', 'obliques forearms'],
+    'captains-chair-knee-raises': ["Captain's Chair Knee Raises", 'abs', 'obliques'],
+    'toes-to-bar': ['Toes-to-Bar', 'abs', 'obliques lats forearms'],
+    'decline-sit-ups': ['Decline Sit-ups', 'abs', 'obliques'],
+    'v-ups': ['V-ups', 'abs', 'obliques'],
+    'bicycle-crunches': ['Bicycle Crunches', 'abs obliques', ''],
+    'reverse-crunches': ['Reverse Crunches', 'abs', 'obliques'],
+    'machine-crunches': ['Machine Crunches', 'abs', 'obliques'],
+    'dead-bugs': ['Dead Bugs', 'abs', 'obliques'],
+    'bird-dogs': ['Bird Dogs', 'lowerBack abs', 'glutes obliques'],
+    'hollow-body-hold': ['Hollow Body Hold', 'abs', 'obliques'],
+    'mountain-climbers': ['Mountain Climbers', 'abs', 'frontDelts quads obliques'],
+    'cable-pallof-press': ['Pallof Press', 'obliques abs', ''],
+    'cable-woodchoppers': ['Cable Woodchoppers', 'obliques', 'abs frontDelts'],
+    'dumbbell-side-bends': ['Side Bends', 'obliques', 'abs'],
 };
 
 const MUSCLES = [...new Set([...Object.keys(front), ...Object.keys(back)])];

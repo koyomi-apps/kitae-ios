@@ -187,6 +187,41 @@ const calfStand = { lean: 1.5, head: 0 };
 const smithCalfBar = on({ ...calfStand, hip: add(calfLow, [-1.5, -92.6]) }, 50, -9);
 const assistedPullUps = [{ kind: 'post', from: [-96, -2], to: [-96, -236], width: 7 }, { kind: 'post', from: [-96, -228], to: [6, -228], width: 3 },
   { kind: 'bar', at: [6, -228] }, { kind: 'pad', on: 'shins', anchor: [-96, -79] }];
+// Core. The hip that puts the near shoulder at `s` for a pose's lean and curl.
+const hipUnder = (s, p) => { const q = shoulder({ ...p, hip: [0, 0] }); return [r1(s[0] - q[0]), r1(s[1] - q[1])]; };
+// A pull-up bar a little higher, for hanging at the arms' full length (toes-to-bar).
+const highBar = [{ kind: 'post', from: [-34, -2], to: [-34, -242], width: 5 }, { kind: 'post', from: [-34, -234], to: [6, -234], width: 3 },
+  { kind: 'bar', at: [6, -234] }];
+// A captain's chair: upright against its back pad, the forearms on its arm pads, the legs hanging.
+// Raising the knees tucks the pelvis under, its curl keeping the shoulders where they are.
+const captainsChair = { hip: [0, -112], lean: 0, head: 0, shrug: 6 };
+const chairTop = { lean: -10, curl: 10, head: 0, shrug: 6 };
+const chairArm = { hand: [27.2, -130.7], elbow: 1 };
+const chair = [postDown([-27, -188], 7), { kind: 'post', from: [-27, -119], to: [22, -119], width: 4 },
+  { kind: 'pad', from: [-8, -125.6], to: [30, -125.6], thick: 7 }, backPad(captainsChair, 64, 2), { kind: 'handle' }];
+// Decline sit-ups: lying down a bench tilted 30 degrees, the thighs along it, the knees bent over
+// its top and the ankles under its roller.
+const declineSitUp = { hip: [0, -76], thigh: 60, shin: 172, foot: -8, arm: { hand: [38, 10], on: 'torso', scale: 0.8, elbow: -1 } };
+const declineBench = (() => {
+  const p = { ...declineSitUp, lean: -120 }, l = body(p).nearLeg, d = M.unit(M.sub(l.knee, l.hip)), n = M.v(-d.y, d.x);
+  const sd = M.unit(M.sub(l.ankle, l.knee)), roller = pt(M.add(M.add(l.knee, M.mul(M.sub(l.ankle, l.knee), 0.8)), M.mul(M.v(sd.y, -sd.x), 8)));
+  return [postDown(roller, 4), { kind: 'pad', from: on(p, 80, -12.5), to: pt(M.add(M.add(l.knee, M.mul(n, 9.5)), M.mul(d, 4))), legs: [-48, 26] },
+    { kind: 'roller', at: roller }];
+})();
+// Lying on the back with the arms overhead and the legs long (V-ups, the hollow body hold).
+const lieLong = { hip: [0, -12.5], lean: -90, head: -90, thigh: 89, shin: 89, foot: -78, arm: { upper: 268, bend: 0 } };
+// Lying on the back for crunches with the legs in the air.
+const lieBack = { hip: [0, -12.5], lean: -90, head: -88 };
+const lieShoulderAt = shoulder(lieBack);
+// Hands behind the head, the elbows out.
+const handsBehindHead = { hand: [62, -6], on: 'torso', scale: 0.85, elbow: -1 };
+// On hands and knees: the knees under the hips, the hands under the shoulders.
+const allFours = { hip: [0, -53.1], lean: 74, head: 82, thigh: 180, shin: 270, foot: 166 };
+// Mountain climbers: a plank on the hands with the hips a little high, one knee driven in at a time.
+const climber = { hip: [30.2, -56], lean: 80, head: 70, arm: { hand: [79, -5], elbow: 1 } };
+const CLIMB_TUCK = [14, -26], CLIMB_BACK = [-55, -20.7];
+// Seated in an ab crunch machine, holding its handles beside the head.
+const machineCrunch = { hip: [-4, -60], lean: -4, head: 0, ankle: [38, -7.4], arm: { hand: [56, 12], on: 'torso', scale: 0.85, elbow: -1 } };
 
 // The front view: the figure facing the viewer. Standing hip height puts the feet on the floor.
 const fstand = { hip: [0, -100.2] };
@@ -1211,6 +1246,107 @@ const motions = [
     gear: [smithRail(smithCalfBar[0]), { kind: 'pad', from: [5, -10], to: [46, -10], thick: 10 }, { kind: 'barbell', on: 'back' }],
     from: { ...calfStand, hip: add(calfLow, [-1.5, -92.6]), ankle: calfLow, foot: -20, arm: barOnBack },
     to: { ...calfStand, hip: add(calfHigh, [-1.5, -92.6]), ankle: calfHigh, foot: 28, arm: barOnBack },
+  },
+
+  // The library's core exercises
+  {
+    key: 'hanging-knee-raises', name: 'Hanging Knee Raises', timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.78, shift: -30,
+    gear: pullUpBar,
+    from: { hip: [11.5, -117.3], lean: -6, head: -4, thigh: 182, shin: 182, foot: 2, arm: { hand: [6, -221.5], scale: 0.9, elbow: 1 } },
+    to: { hip: [10, -122.5], lean: -18, head: -8, thigh: 64, shin: 160, foot: 30, arm: { hand: [6, -221.5], scale: 0.9, elbow: 1 } },
+  },
+  {
+    key: 'captains-chair-knee-raises', name: "Captain's Chair Knee Raises", timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.86, shift: -4,
+    gear: chair,
+    from: { ...captainsChair, thigh: 181, shin: 181, foot: 14, arm: chairArm },
+    to: { ...chairTop, hip: hipUnder(shoulder(captainsChair), chairTop), thigh: 80, shin: 168, foot: 30, arm: chairArm },
+  },
+  {
+    // The arms stay straight, the shoulders swinging back under the bar as the toes come up to it.
+    key: 'toes-to-bar', name: 'Toes-to-Bar', timing: [0.1, 0.48, 0.56, 0.95], zoom: 0.74, shift: -24,
+    gear: highBar,
+    from: { hip: hipUnder([5, -165.4], { lean: -6 }), lean: -6, head: -4, thigh: 182, shin: 182, foot: 2, arm: { hand: [6, -227.5], elbow: 1 } },
+    to: { hip: [30.2, -129.5], lean: -41, head: -30, thigh: -10, shin: -10, foot: -114, arm: { hand: [6, -227.5], elbow: 1 } },
+  },
+  {
+    key: 'decline-sit-ups', name: 'Decline Sit-ups', timing: [0.1, 0.48, 0.56, 0.95], shift: 8,
+    gear: declineBench,
+    from: { ...declineSitUp, lean: -120, head: -116 },
+    to: { ...declineSitUp, lean: -18, curl: 14, head: -4 },
+  },
+  {
+    key: 'v-ups', name: 'V-ups', timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.9, shift: 9, shadow: [-4, 0], shadowWidth: 80,
+    from: lieLong,
+    to: { hip: [0, -12], lean: -38, curl: 14, head: -18, thigh: 34, shin: 34, foot: -62, arm: { upper: 152, bend: 0 } },
+  },
+  {
+    key: 'bicycle-crunches', name: 'Bicycle Crunches', timing: [0.08, 0.45, 0.55, 0.92], shift: 0, shadow: [-6, 0], shadowWidth: 70,
+    from: { ...lieBack, curl: 32, head: -40, thigh: 26, shin: 112, foot: -40, farThigh: 72, farShin: 76, farFoot: -60, arm: handsBehindHead },
+    to: { ...lieBack, curl: 32, head: -40, thigh: 72, shin: 76, foot: -60, farThigh: 26, farShin: 112, farFoot: -40, arm: handsBehindHead },
+  },
+  {
+    // The hips curl up off the floor while the shoulders stay down.
+    key: 'reverse-crunches', name: 'Reverse Crunches', timing: [0.1, 0.45, 0.55, 0.95], shift: 10, shadow: [-6, 0], shadowWidth: 70,
+    from: { ...lieBack, thigh: 2, shin: 92, foot: -40, arm: { upper: 90, bend: 0 } },
+    to: { ...lieBack, hip: hipUnder(lieShoulderAt, { lean: -115, curl: 25 }), lean: -115, curl: 25, thigh: -36, shin: 52, foot: -64,
+      arm: { upper: 90, bend: 0 } },
+  },
+  {
+    key: 'machine-crunches', name: 'Machine Crunches', timing: [0.1, 0.45, 0.55, 0.95], shift: 4,
+    gear: [{ kind: 'pad', from: [-24, SEAT], to: [12, SEAT], legs: [-6] }, backPad(machineCrunch, 72, 4),
+      { kind: 'cable', from: [-46, -196], handle: 'none', stack: true }, { kind: 'handle' }],
+    from: machineCrunch,
+    to: { ...machineCrunch, lean: 22, curl: 30, head: 40 },
+  },
+  {
+    // One arm reaches back as the other leg straightens, then they return; the other pair is the mirror.
+    key: 'dead-bugs', name: 'Dead Bugs', timing: [0.1, 0.45, 0.55, 0.95], seconds: 2.8, shift: 6, shadow: [-6, 0], shadowWidth: 70,
+    from: { ...lieBack, thigh: 0, shin: 90, foot: -30, farThigh: 0, farShin: 90, farFoot: -30,
+      arm: { upper: 180, bend: 0 }, farArm: { upper: 180, bend: 0 } },
+    to: { ...lieBack, thigh: 0, shin: 90, foot: -30, farThigh: 84, farShin: 84, farFoot: -70,
+      arm: { upper: 262, bend: 0 }, farArm: { upper: 180, bend: 0 } },
+  },
+  {
+    // One arm reaches forward as the other leg reaches back, level with the back.
+    key: 'bird-dogs', name: 'Bird Dogs', timing: [0.1, 0.45, 0.6, 0.95], seconds: 2.8, shift: -8, shadow: [0, 0], shadowWidth: 72,
+    from: { ...allFours, farThigh: 180, farShin: 270, farFoot: 166, arm: { upper: 0, bend: 0 }, farArm: { upper: 0, bend: 0 } },
+    to: { ...allFours, farThigh: 266, farShin: 266, farFoot: 76, arm: { upper: 100, bend: 0 }, farArm: { upper: 0, bend: 0 } },
+  },
+  {
+    key: 'hollow-body-hold', name: 'Hollow Body Hold', timing: [0.06, 0.28, 0.9, 0.98], seconds: 4, zoom: 0.9, shift: 9,
+    shadow: [-4, 0], shadowWidth: 90,
+    from: lieLong,
+    to: { hip: [0, -12.5], lean: -90, curl: 24, head: -62, thigh: 74, shin: 74, foot: -76, arm: { upper: 248, bend: 0 } },
+  },
+  {
+    // A knee drives in, then the legs swap.
+    key: 'mountain-climbers', name: 'Mountain Climbers', timing: [0.12, 0.38, 0.62, 0.88], seconds: 1.4, shift: -14,
+    shadow: [12, 0], shadowWidth: 82,
+    from: { ...climber, ankle: CLIMB_TUCK, foot: 110, farAnkle: CLIMB_BACK, farFoot: 70 },
+    to: { ...climber, ankle: CLIMB_BACK, foot: 70, farAnkle: CLIMB_TUCK, farFoot: 110 },
+  },
+  {
+    // From the front: the hands press the handle straight out toward the viewer, against the
+    // cable's pull from the side, and back to the chest.
+    key: 'cable-pallof-press', name: 'Pallof Press', view: 'front', timing: [0.1, 0.35, 0.65, 0.9], seconds: 3, shift: 14,
+    gear: [{ kind: 'post', from: [-90, -2], to: [-90, -200], width: 7 }, { kind: 'cable', from: [-90, -125], side: -1 }, { kind: 'handle' }],
+    from: { ...fstand, arm: { hand: [0, -124], elbow: -1 }, otherArm: { hand: [0, -124], elbow: -1 } },
+    to: { ...fstand, arm: { hand: [0, -126], upperLength: 0.42, foreLength: 0.42, elbow: -1 },
+      otherArm: { hand: [0, -126], upperLength: 0.42, foreLength: 0.42, elbow: -1 } },
+  },
+  {
+    // From the front: both hands pull the handle from high on one side down across the body,
+    // the knees bending a little.
+    key: 'cable-woodchoppers', name: 'Cable Woodchoppers', view: 'front', timing: [0.1, 0.45, 0.55, 0.95], zoom: 0.94, shift: 14,
+    gear: [{ kind: 'post', from: [-86, -2], to: [-86, -204], width: 7 }, { kind: 'cable', from: [-86, -196], side: -1 }, { kind: 'handle' }],
+    from: { hip: [0, -98], ankle: [24, -7.4], lean: -12, arm: { hand: [-40, -168], elbow: 1 }, otherArm: { hand: [-40, -168], elbow: 1 } },
+    to: { hip: [0, -94], ankle: [24, -7.4], lean: 16, arm: { hand: [26, -98], elbow: 1 }, otherArm: { hand: [26, -98], elbow: 1 } },
+  },
+  {
+    key: 'dumbbell-side-bends', name: 'Side Bends', view: 'front', gear: [{ kind: 'dumbbells', one: true }],
+    timing: [0.1, 0.45, 0.55, 0.95],
+    from: { ...fstand, lean: -4, arm: { upper: 0, bend: 2 }, otherArm: { hand: [8, 17], on: 'torso', elbow: -1 } },
+    to: { ...fstand, lean: 22, arm: { upper: 0, bend: 2 }, otherArm: { hand: [8, 17], on: 'torso', elbow: -1 } },
   },
 ];
 

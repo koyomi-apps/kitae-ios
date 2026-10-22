@@ -239,6 +239,31 @@ nonisolated struct ExerciseEnergy: Equatable, Sendable {
         "leg-press-calf-raises": .init(perKilogram: calf, bodyShare: 0, loadFactor: 0.7), // Leg Press Calf Raises
         "single-leg-calf-raises": .init(perKilogram: calf, bodyShare: 1, sides: 2), // Single-Leg Calf Raises
         "smith-machine-calf-raises": .init(perKilogram: calf, bodyShare: 1), // Smith Machine Calf Raises
+        // The shins hang, so the legs rise about 80% as far as in a hanging leg raise.
+        "hanging-knee-raises": .init(perKilogram: 0.012 * 0.8, bodyShare: 0.35), // Hanging Knee Raises
+        "captains-chair-knee-raises": .init(perKilogram: 0.012 * 0.8, bodyShare: 0.35), // Captain's Chair Knee Raises
+        // The legs rise all the way to the bar, about twice as far as in a hanging leg raise.
+        "toes-to-bar": .init(perKilogram: 0.012 * 2, bodyShare: 0.35), // Toes-to-Bar
+        // From 30 degrees below level, the upper body rises about 1.6 times as far as in a sit-up.
+        "decline-sit-ups": .init(perKilogram: core * 1.6, bodyShare: 0.5), // Decline Sit-ups
+        // A sit-up and a leg raise at once, each rising a little less far.
+        "v-ups": .init(perKilogram: core, bodyShare: 0.7), // V-ups
+        "bicycle-crunches": .init(perKilogram: 0.006, bodyShare: 0.35), // Bicycle Crunches
+        // The hips and legs curl up instead of the shoulders.
+        "reverse-crunches": .init(perKilogram: 0.006, bodyShare: 0.4), // Reverse Crunches
+        "machine-crunches": .init(perKilogram: 0.006, bodyShare: 0.35), // Machine Crunches
+        // An arm and the other leg move each rep: about a fifth of the body.
+        "dead-bugs": .init(perKilogram: core, bodyShare: 0.2), // Dead Bugs
+        "bird-dogs": .init(perKilogram: core, bodyShare: 0.2), // Bird Dogs
+        "hollow-body-hold": .init(perKilogram: 0, bodyShare: 0, holdMETs: 3.5), // Hollow Body Hold
+        // Each rep drives one leg, about a sixth of the body, in and back.
+        "mountain-climbers": .init(perKilogram: core, bodyShare: 0.16), // Mountain Climbers
+        // The hands press across the cable's pull, so the stack moves only about a quarter as far
+        // as in a press.
+        "cable-pallof-press": .init(perKilogram: arms * 0.25, bodyShare: 0.02, sides: 2), // Pallof Press
+        "cable-woodchoppers": .init(perKilogram: arms, bodyShare: 0.05, sides: 2), // Cable Woodchoppers
+        // Bending sideways costs about as much as a crunch.
+        "dumbbell-side-bends": .init(perKilogram: 0.006, bodyShare: 0.3, sides: 2), // Side Bends
     ]
 
     /// One of Kitae's exercises' own, or for people's own exercises, one for their muscle group,

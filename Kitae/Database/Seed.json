@@ -1306,6 +1306,126 @@
    "isIsometric": false,
    "usesWeight": true,
    "instructions": "Stand on a block under a Smith machine bar, the balls of your feet on its edge and the bar across your upper back.\nUnhook the bar and let your heels sink below the block.\nRise up onto your toes as high as you can, keeping your legs straight.\nLower slowly, and hook the bar back on the machine when you're done."
+  },
+  {
+   "key": "hanging-knee-raises",
+   "name": "Hanging Knee Raises",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Hang from a pull-up bar with your arms straight and your legs together.\nBend your knees and raise them towards your chest, curling your hips up at the top.\nLower your legs slowly until they hang straight again.\nKeep your body still and don't swing to lift your legs."
+  },
+  {
+   "key": "captains-chair-knee-raises",
+   "name": "Captain's Chair Knee Raises",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Rest your forearms on the pads of a captain's chair and hold its handles, with your back against the back pad and your legs hanging.\nBend your knees and raise them until your thighs are level with the floor or higher.\nLower your legs slowly until they hang straight again.\nKeep your back on the pad and don't swing your legs."
+  },
+  {
+   "key": "toes-to-bar",
+   "name": "Toes-to-Bar",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Hang from a pull-up bar with your hands about shoulder-width apart and your arms straight.\nKeeping your legs straight, raise them in front of you and bring your toes up to touch the bar.\nLower your legs slowly until they hang straight again.\nPress the bar down with straight arms as you lift, and don't let your body swing at the bottom."
+  },
+  {
+   "key": "decline-sit-ups",
+   "name": "Decline Sit-ups",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Lie back on a decline bench with your knees bent over its top and your feet hooked under the rollers.\nCross your arms on your chest and curl your upper body up until it's upright.\nLower yourself back down slowly, one part of your back at a time.\nDon't pull on your neck or jerk yourself up."
+  },
+  {
+   "key": "v-ups",
+   "name": "V-ups",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Lie on your back with your legs straight and your arms stretched out overhead.\nLift your arms and legs at the same time, reaching your hands towards your feet so your body makes a V balanced on your hips.\nLower back down slowly until your shoulders and heels are just above the floor.\nKeep your legs straight and move smoothly rather than throwing yourself up."
+  },
+  {
+   "key": "bicycle-crunches",
+   "name": "Bicycle Crunches",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Lie on your back with your hands lightly behind your head and your shoulders lifted off the floor.\nBring one knee towards your chest as you straighten the other leg, turning your opposite elbow towards the bent knee.\nSwitch sides in a pedalling motion, turning to the other side.\nKeep your lower back on the floor and don't pull on your neck."
+  },
+  {
+   "key": "reverse-crunches",
+   "name": "Reverse Crunches",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Lie on your back with your arms by your sides and your hips and knees bent at right angles, feet off the floor.\nCurl your hips up off the floor, bringing your knees towards your chest.\nLower your hips back down slowly.\nUse your abs to lift your hips rather than swinging your legs."
+  },
+  {
+   "key": "machine-crunches",
+   "name": "Machine Crunches",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Sit in the ab crunch machine with your back against the pad and hold the handles beside your head.\nCrunch forward by curling your spine, bringing your chest towards your thighs.\nSqueeze your abs at the bottom, then return slowly.\nKeep your hips on the seat so your abs do the work, not your arms."
+  },
+  {
+   "key": "dead-bugs",
+   "name": "Dead Bugs",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Lie on your back with your arms pointing at the ceiling and your knees bent at right angles above your hips.\nSlowly lower one arm overhead and straighten the opposite leg until both are just above the floor.\nBring them back up and repeat with the other arm and leg.\nKeep your lower back pressed into the floor the whole time."
+  },
+  {
+   "key": "bird-dogs",
+   "name": "Bird Dogs",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Kneel on all fours with your hands under your shoulders and your knees under your hips.\nReach one arm forward and the opposite leg back until both are level with your back.\nHold for a moment, then bring them back down and repeat with the other arm and leg.\nKeep your back flat and your hips level as you move."
+  },
+  {
+   "key": "hollow-body-hold",
+   "name": "Hollow Body Hold",
+   "target": "Core",
+   "isIsometric": true,
+   "usesWeight": false,
+   "instructions": "Lie on your back with your arms stretched out overhead and your legs straight.\nPress your lower back into the floor and lift your shoulders, arms and legs just off it.\nHold your body in a shallow curve and keep breathing.\nIf it's too hard, bend your knees or bring your arms down by your sides."
+  },
+  {
+   "key": "mountain-climbers",
+   "name": "Mountain Climbers",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": false,
+   "instructions": "Start at the top of a push-up with your hands under your shoulders and your body straight.\nDrive one knee in towards your chest.\nSwitch legs quickly, bringing the other knee in as the first leg goes back.\nKeep your hips steady and your shoulders over your hands."
+  },
+  {
+   "key": "cable-pallof-press",
+   "name": "Pallof Press",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand side-on to a cable at chest height, holding its handle with both hands at the middle of your chest.\nPress the handle straight out in front of you without letting the cable turn you.\nHold for a moment, then bring it back to your chest.\nKeep your hips and shoulders facing forward, and switch sides after your set."
+  },
+  {
+   "key": "cable-woodchoppers",
+   "name": "Cable Woodchoppers",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand side-on to a high cable, holding its handle with both hands above your shoulder on that side.\nPull the handle down and across your body to the outside of your other hip, turning your torso as you go.\nReturn slowly along the same path.\nKeep your arms fairly straight so your trunk does the turning, and switch sides after your set."
+  },
+  {
+   "key": "dumbbell-side-bends",
+   "name": "Side Bends",
+   "target": "Core",
+   "isIsometric": false,
+   "usesWeight": true,
+   "instructions": "Stand tall with a dumbbell in one hand at your side and your other hand on your hip.\nBend sideways towards the dumbbell, sliding it down your leg.\nCome back up, using the other side of your waist to pull you upright.\nDon't lean forwards or backwards, and switch sides after your set."
   }
  ],
  "plans": [

@@ -11,9 +11,32 @@ enum class SetType(val stored: String) {
     RestPause("RestPause"),
     ;
 
+    /** The letter in front of its sets' numbers, like W1; standard sets have only a number, like 01. */
+    val letter: String?
+        get() = when (this) {
+            Warmup -> "W"
+            Standard -> null
+            Failure -> "F"
+            Drop -> "D"
+            RestPause -> "R"
+        }
+
     companion object {
         /** A type as it's stored. One this version doesn't know counts as standard. */
         fun fromStored(stored: String): SetType = entries.firstOrNull { it.stored == stored } ?: Standard
+    }
+}
+
+/**
+ * The labels of sets of these [types], in order, as the iPhone numbers them: each type counts on
+ * its own, so W1 W2 01 02 03 F1.
+ */
+fun setLabels(types: List<SetType>): List<String> {
+    val counts = mutableMapOf<SetType, Int>()
+    return types.map { type ->
+        val number = (counts[type] ?: 0) + 1
+        counts[type] = number
+        type.letter?.let { "$it$number" } ?: number.toString().padStart(2, '0')
     }
 }
 

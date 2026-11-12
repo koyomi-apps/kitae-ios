@@ -20,8 +20,36 @@ jobs:
           java-version: 17
           cache: gradle
 
+      # The app's screen tests record what they draw, to compare with the Kamae canvas.
       - name: Test, lint and build a debug APK
-        run: ./gradlew check :android:assembleDebug
+        run: ./gradlew check :android:assembleDebug -Proborazzi.test.record=true
+
+      - name: Keep the screenshots
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: screenshots
+          path: android/build/outputs/roborazzi
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # Claude's cloud workspace can read this job's log but not its artifacts, so the pictures
+      # also go in the log, in base64, a file name in front of each line.
+      - name: Print the screenshots
+        if: always()
+        run: |
+          for file in android/build/outputs/roborazzi/*.png; do
+            [ -e "$file" ] || continue
+            name="$(basename "$file")"
+            base64 -w 3000 "$file" | sed "s|^|SCREENSHOT $name |"
+          done
+
+      - name: Keep the debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: kamae-debug-apk
+          path: android/build/outputs/apk/debug/*.apk
+          retention-days: 14
 
       - name: Check that Room's exported schemas are committed
         run: |

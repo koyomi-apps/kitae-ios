@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">Kamae</string>
+
+    <!-- The tabs -->
+    <string name="tab_today">Today</string>
+    <string name="tab_history">History</string>
+    <string name="tab_exercises">Exercises</string>
+    <string name="tab_you">You</string>
+
+    <!-- Today -->
+    <string name="caption_first_session">.first session</string>
+    <string name="caption_up_next">.up next</string>
+    <string name="caption_in_progress">.in progress</string>
+    <string name="caption_exercises">.exercises</string>
+    <plurals name="exercise_count">
+        <item quantity="one">%d exercise</item>
+        <item quantity="other">%d exercises</item>
+    </plurals>
+    <plurals name="set_count">
+        <item quantity="one">%d set</item>
+        <item quantity="other">%d sets</item>
+    </plurals>
+    <string name="day_summary">%1$s · %2$s</string>
+    <plurals name="sets_done">
+        <item quantity="one">%1$d/%2$d set done</item>
+        <item quantity="other">%1$d/%2$d sets done</item>
+    </plurals>
+    <string name="no_exercises_yet">no exercises yet</string>
+    <string name="start">Start</string>
+    <string name="continue_workout">Continue</string>
+    <string name="all_plans">All plans</string>
+    <string-array name="today_lines">
+        <item>show up, tick it off</item>
+        <item>forged one set at a time</item>
+        <item>small plates add up</item>
+        <item>rest, breathe, go again</item>
+        <item>the next rep is the one that counts</item>
+        <item>consistency beats intensity</item>
+    </string-array>
+    <string name="no_plan_title">No plan yet</string>
+    <string name="no_plan_text">Choose a plan to follow, and Kamae lines up its days for you.</string>
+    <string name="choose_plan">Choose a plan</string>
+    <string name="no_days_title">No days yet</string>
+    <string name="no_days_text">This plan has no days to train yet.</string>
+    <string name="workout_in_progress">Workout in progress</string>
+    <string name="not_finished_start_other">%1$s isn\'t finished yet. Finish it and start %2$s?</string>
+    <string name="finish_and_start">Finish and start %s</string>
+    <string name="continue_day">Continue %s</string>
+
+    <!-- The list of plans -->
+    <string name="plans">Plans</string>
+    <string name="plans_intro">Pick a plan to follow, and Kamae lines up its days one after another. You can switch plans or make your own any time.</string>
+    <string name="plan_summary">%1$s · %2$s</string>
+    <plurals name="day_count">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
+    <string name="finish_to_switch_plans">Finish your workout to switch plans.</string>
+    <string name="following">Following</string>
+
+    <!-- The workout -->
+    <string name="workout">Workout</string>
+    <string name="minimize_workout">Minimize workout</string>
+    <string name="more_options">More options</string>
+    <string name="discard_workout">Discard workout</string>
+    <string name="discard_workout_question">Discard workout?</string>
+    <string name="discard_workout_text">This workout and its sets will be removed. Your plan stays the same.</string>
+    <string name="discard">Discard</string>
+    <string name="cancel">Cancel</string>
+    <plurals name="workout_progress">
+        <item quantity="one">%1$s · %2$d/%3$d set</item>
+        <item quantity="other">%1$s · %2$d/%3$d sets</item>
+    </plurals>
+    <string name="field_reps">.reps</string>
+    <string name="field_seconds">.seconds</string>
+    <string name="field_weight">.weight</string>
+    <string name="add_set_to">Add a set to %s</string>
+    <string name="set_options">Set %s options</string>
+    <string name="mark_set_done">Mark set %s done</string>
+    <string name="mark_set_not_done">Mark set %s not done</string>
+    <string name="keyboard_done">Done</string>
+    <string name="open_workout">Open the workout</string>
+
+    <!-- The rest timer -->
+    <string name="rest_left">Rest, %s left</string>
+    <string name="rest_paused">Rest paused, %s left</string>
+    <string name="pause_rest">Pause rest</string>
+    <string name="resume_rest">Resume rest</string>
+    <string name="less_rest">−15s</string>
+    <string name="more_rest">+15s</string>
+    <string name="less_rest_description">15 seconds less</string>
+    <string name="more_rest_description">15 seconds more</string>
+    <string name="skip_rest">Skip rest</string>
+    <string name="finish">Finish</string>
+    <string name="finish_workout">Finish workout</string>
+
+    <!-- A set's options -->
+    <string name="set_caption">set %s</string>
+    <string name="caption_set_type">.set type</string>
+    <string name="set_type_warmup">Warm-up</string>
+    <string name="set_type_standard">Standard</string>
+    <string name="set_type_failure">Failure</string>
+    <string name="set_type_drop">Drop set</string>
+    <string name="set_type_rest_pause">Rest-pause</string>
+    <string name="rest_after_set">Rest after this set</string>
+    <string name="rest_default">Default, %s</string>
+    <string name="rest_off">Off</string>
+    <string name="delete_set">Delete set</string>
+
+    <!-- Finishing -->
+    <string name="finish_question">Finish workout?</string>
+    <string name="keep_new_sets_question">Keep the new sets?</string>
+    <string name="nothing_done">Nothing was done in this workout. Keep it as skipped, or discard it? Your plan stays the same either way.</string>
+    <plurals name="sets_not_done">
+        <item quantity="one">1 set isn\'t done. Skipping it keeps %2$s as it is. Removing it also takes it out of the plan.</item>
+        <item quantity="other">%1$d sets aren\'t done. Skipping them keeps %2$s as it is. Removing them also takes them out of the plan.</item>
+    </plurals>
+    <plurals name="sets_added">
+        <item quantity="one">You added 1 set. Add it to %2$s for next time?</item>
+        <item quantity="other">You added %1$d sets. Add them to %2$s for next time?</item>
+    </plurals>
+    <string name="keep_as_skipped">Keep as skipped</string>
+    <string name="remove_from_plan">Remove from plan</string>
+    <string name="add_to_day">Add to %s</string>
+    <string name="only_this_workout">Only this workout</string>
+
+    <!-- Tabs that come in the next pull requests -->
+    <string name="coming_title">Coming next</string>
+    <string name="coming_text">This part of Kamae is still being built.</string>
+</resources>

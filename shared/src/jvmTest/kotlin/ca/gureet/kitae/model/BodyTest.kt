@@ -18,7 +18,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -43,8 +44,11 @@ class BodyTest : DatabaseFileTest() {
     fun aDayHasOneWeighIn() = runBlocking {
         val database = open()
         val body = database.body
-        val seen = mutableListOf<BodyLog>()
-        val watching = launch(Dispatchers.Unconfined) { body.observeLog().collect { seen += it } }
+        // Someone following the log sees each change, once it's saved.
+        val latest = MutableStateFlow<BodyLog?>(null)
+        val watching = launch(Dispatchers.Default) { body.observeLog().collect { latest.value = it } }
+        suspend fun follows(dates: List<Long>) = withTimeout(5_000) { latest.first { it?.entries?.map { entry -> entry.date } == dates } }
+        follows(emptyList())
         body.save(100, 80.0, null)
         body.save(100, 79.5, 18.0)
         body.save(98, 81.0, null)
@@ -52,6 +56,7 @@ class BodyTest : DatabaseFileTest() {
         assertEquals(listOf(98L, 100L), log.entries.map { it.date })
         assertEquals(79.5, log.entries.last().weightKg)
         assertEquals(18.0, log.entries.last().bodyFatPercent)
+        follows(listOf(98L, 100L))
 
         // Moving a weigh-in to another day takes it off its old day.
         body.save(99, 81.0, null, replacingId = log.entries.first().id)
@@ -63,9 +68,7 @@ class BodyTest : DatabaseFileTest() {
         assertEquals(listOf(99L), body.log().entries.map { it.date })
         body.delete(body.log().entries.single().id)
         assertTrue(body.log().entries.isEmpty())
-
-        // Each change reaches whoever follows the log.
-        withTimeout(5_000) { while (seen.lastOrNull()?.entries?.isEmpty() != true || seen.size < 2) delay(10) }
+        follows(emptyList())
         watching.cancel()
         database.close()
     }

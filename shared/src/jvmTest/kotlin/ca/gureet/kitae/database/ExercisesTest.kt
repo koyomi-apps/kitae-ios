@@ -12,7 +12,8 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withTimeout
@@ -143,17 +144,20 @@ class ExercisesTest : DatabaseFileTest() {
 
     @Test
     fun notesAreTrimmedAndGoWhenEmptied() = runBlocking {
-        val seen = mutableListOf<Map<Long, String>>()
-        val watching = launch(Dispatchers.Unconfined) { database.notes.observeAll().collect { seen += it } }
+        // Someone following the notes sees each change, once it's saved.
+        val latest = MutableStateFlow<Map<Long, String>?>(null)
+        val watching = launch(Dispatchers.Default) { database.notes.observeAll().collect { latest.value = it } }
+        suspend fun follows(expected: Map<Long, String>) = withTimeout(5_000) { latest.first { it == expected } }
+        follows(emptyMap())
         database.notes.save(benchId, "  Seat on 4\n")
         assertEquals(mapOf(benchId to "Seat on 4"), database.notes.all())
+        follows(mapOf(benchId to "Seat on 4"))
         database.notes.save(benchId, "Seat on 5")
         assertEquals(mapOf(benchId to "Seat on 5"), database.notes.all())
+        follows(mapOf(benchId to "Seat on 5"))
         database.notes.save(benchId, " \n ")
         assertTrue(database.notes.all().isEmpty())
-        // Each change reaches whoever follows the notes.
-        withTimeout(5_000) { while (seen.lastOrNull()?.isEmpty() != true || seen.size < 2) delay(10) }
-        assertTrue(mapOf(benchId to "Seat on 5") in seen)
+        follows(emptyMap())
         watching.cancel()
     }
 

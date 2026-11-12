@@ -2,6 +2,7 @@
 
 package ca.gureet.kitae.database
 
+import androidx.sqlite.SQLiteConnection
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -34,7 +35,16 @@ class Seed(
         val reference: String? = null,
         val restSeconds: Int? = null,
         val instructions: String? = null,
-    )
+    ) {
+        /** Adds it to the `exercises` table, with its id if it has one. */
+        internal fun insert(connection: SQLiteConnection) {
+            connection.execute(
+                "INSERT INTO `exercises` (`id`, `name`, `target`, `reference`, `isIsometric`, `restSeconds`, " +
+                    "`instructions`, `libraryKey`, `usesWeight`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                id, name, target, reference, isIsometric, restSeconds, instructions, key, usesWeight,
+            )
+        }
+    }
 
     @Serializable
     class Plan(
@@ -78,6 +88,45 @@ class Seed(
     /** The library keys of the exercises that don't use weight. */
     val weightlessKeys: Set<String>
         get() = exercises.filterNot { it.usesWeight }.map { it.key }.toSet()
+
+    /**
+     * Adds the starter exercises and plan to a new database. The library's later exercises come
+     * with [ExerciseLibrary.sync].
+     */
+    internal fun insert(connection: SQLiteConnection) {
+        for (exercise in exercises) {
+            if (exercise.id != null) exercise.insert(connection)
+        }
+        // Kitae for Android's starter plan gives every set 20 kg, leg raises and pull-ups too.
+        val weightless = exercises.filterNot { it.usesWeight }.mapNotNull { it.id }.toSet()
+        for (plan in plans) {
+            val planId = connection.insert(
+                "INSERT INTO `plans` (`name`, `description`, `difficulty`, `focus`, `equipment`, `time`) " +
+                    "VALUES (?, ?, ?, ?, ?, ?)",
+                plan.name, plan.description, plan.difficulty, plan.focus, plan.equipment, plan.time,
+            )
+            plan.days.forEachIndexed { dayPosition, day ->
+                val dayId = connection.insert(
+                    "INSERT INTO `routines` (`planId`, `name`, `position`) VALUES (?, ?, ?)",
+                    planId, day.name, dayPosition,
+                )
+                day.exercises.forEachIndexed { exercisePosition, item ->
+                    val dayExerciseId = connection.insert(
+                        "INSERT INTO `routine_exercises` (`routineId`, `exerciseId`, `position`) VALUES (?, ?, ?)",
+                        dayId, item.exercise, exercisePosition,
+                    )
+                    item.sets.forEachIndexed { setPosition, set ->
+                        connection.execute(
+                            "INSERT INTO `routine_sets` (`routineExerciseId`, `reps`, `weight`, `type`, `position`, " +
+                                "`restSeconds`) VALUES (?, ?, ?, ?, ?, ?)",
+                            dayExerciseId, set.reps, if (item.exercise in weightless) 0.0 else set.weight, set.type,
+                            setPosition, set.restSeconds,
+                        )
+                    }
+                }
+            }
+        }
+    }
 
     companion object {
         // Like the iPhone's decoder, it skips what it doesn't know, so a later Seed.json reads.

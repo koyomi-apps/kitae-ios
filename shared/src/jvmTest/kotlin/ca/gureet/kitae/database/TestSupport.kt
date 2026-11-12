@@ -75,6 +75,28 @@ abstract class DatabaseFileTest {
     }
 }
 
+/** One minute, in milliseconds. */
+const val MINUTE = 60_000L
+
+/**
+ * A workout of [day] on [on], started at midday, with its first [done] sets done, finished
+ * after [minutes] as [finish] says, or left going when that's null. Returns its id.
+ */
+suspend fun KitaeDatabase.workout(
+    day: DayWithExercises,
+    on: Long,
+    done: Int,
+    minutes: Long = 45,
+    finish: FinishMode? = FinishMode.KeepSkipped,
+): Long {
+    val start = on * 86_400_000 + 12 * 60 * MINUTE
+    val workouts = workouts()
+    val id = workouts.start(day.day.id, on, start)
+    for (set in workouts.exercises(id, day.day.id).flatMap { it.sets }.take(done)) workouts.setDone(set.id, true)
+    if (finish != null) workouts.finish(id, finish, addNewSets = false, now = start + minutes * MINUTE)
+    return id
+}
+
 /** Runs [sql], which changes the database. */
 suspend fun KitaeDatabase.change(sql: String) {
     useWriterConnection { connection -> connection.usePrepared(sql) { it.step() } }

@@ -38,6 +38,10 @@ abstract class KitaeDatabase : RoomDatabase() {
     abstract fun planEdits(): PlanEdits
 
     abstract fun workouts(): Workouts
+
+    abstract fun history(): History
+
+    abstract fun stats(): Stats
 }
 
 /** Room's compiler writes this for each platform. */

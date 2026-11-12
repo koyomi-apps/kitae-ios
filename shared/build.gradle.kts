@@ -31,6 +31,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.androidx.sqlite.bundled)
             api(libs.kotlinx.datetime)
+            implementation(libs.kotlinx.io.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.room3.runtime)
         }

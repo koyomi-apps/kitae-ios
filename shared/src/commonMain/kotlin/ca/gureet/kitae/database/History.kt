@@ -71,6 +71,24 @@ abstract class History {
     )
     protected abstract suspend fun finishedSummaries(first: Long, last: Long): List<WorkoutSummary>
 
+    /** The done sets of the workouts from [first] to [last], by workout, for their energy and muscles. */
+    open suspend fun doneSets(first: Long, last: Long): Map<Long, List<DoneSet>> =
+        doneSetRows(first, last).groupBy({ it.workoutId }, { it.doneSet })
+
+    @Query(
+        """
+        SELECT `sets`.`sessionId` AS `workoutId`, `sets`.`reps`, `sets`.`weight`, `sets`.`type`,
+        `exercises`.`id` AS `exerciseId`, `exercises`.`libraryKey`, `exercises`.`target`, `exercises`.`isIsometric`,
+        `exercises`.`usesWeight`
+        FROM `sets`
+        JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
+        JOIN `exercises` ON `exercises`.`id` = `sets`.`exerciseId`
+        WHERE `sets`.`isCompleted` = 1
+        AND `sessions`.`date` BETWEEN :first AND :last
+        """,
+    )
+    protected abstract suspend fun doneSetRows(first: Long, last: Long): List<WorkoutDoneSetRow>
+
     private companion object {
         const val SUMMARIES = """
             SELECT `sessions`.*, `routines`.`name` AS `dayName`,
@@ -149,4 +167,34 @@ fun historyMonths(workouts: List<WorkoutSummary>, activeId: Long?): List<History
         )
     }
     return months
+}
+
+/** A done set, as a workout's energy estimate and its muscles need it. */
+data class DoneSet(
+    val exerciseId: Long,
+    /** The exercise's library key, when it's one of Kitae's. */
+    val libraryKey: String?,
+    /** The exercise's muscle group, as it's stored, like "Chest". */
+    val target: String,
+    val isIsometric: Boolean,
+    val reps: Int,
+    /** None for exercises without weight. */
+    val weightKg: Double,
+    val type: SetType,
+)
+
+/** A done set as [History.doneSets] reads it. */
+data class WorkoutDoneSetRow(
+    val workoutId: Long,
+    val reps: Int,
+    val weight: Double,
+    val type: String,
+    val exerciseId: Long,
+    val libraryKey: String?,
+    val target: String,
+    val isIsometric: Boolean,
+    val usesWeight: Boolean,
+) {
+    val doneSet: DoneSet
+        get() = DoneSet(exerciseId, libraryKey, target, isIsometric, reps, if (usesWeight) weight else 0.0, SetType.fromStored(type))
 }

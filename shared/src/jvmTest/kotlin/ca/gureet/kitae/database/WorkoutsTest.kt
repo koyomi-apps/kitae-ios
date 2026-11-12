@@ -2,6 +2,7 @@
 
 package ca.gureet.kitae.database
 
+import ca.gureet.kitae.model.WorkoutProgress
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -257,4 +258,60 @@ class WorkoutsTest : DatabaseFileTest() {
     private companion object {
         const val NOW = 1_791_640_000_000L
     }
+
+    @Test
+    fun addingASetCopiesTheLastOne() = runBlocking {
+        val id = workouts.start(pushA.day.id, TODAY, TODAY * 86_400_000)
+        val exercise = workouts.exercises(id, pushA.day.id).first()
+        val last = exercise.sets.last()
+        workouts.update(last.id, SetDraft(reps = 7, weightKg = last.weightKg))
+        workouts.addSetLikeLast(id, exercise.exercise.id, pushA.day.id, defaultWeightKg = 20.0)
+        val sets = workouts.exercises(id, pushA.day.id).first().sets
+        assertEquals(4, sets.size)
+        assertEquals(7, sets.last().reps)
+        assertTrue(sets.last().isAdded)
+        assertEquals(0, WorkoutProgress(workouts.exercises(id, pushA.day.id)).addedDoneCount)
+        workouts.setDone(sets.last().id, true)
+        assertEquals(1, WorkoutProgress(workouts.exercises(id, pushA.day.id)).addedDoneCount)
+        // Without a day, Finish has nothing to add to.
+        assertEquals(0, WorkoutProgress(workouts.exercises(id, pushA.day.id), hasDay = false).addedDoneCount)
+
+        // An exercise new to the workout copies the last time it was done; a warm-up is followed by a standard set.
+        val other = workouts.start(pullA.day.id, TODAY, TODAY * 86_400_000)
+        val bench = exercise.exercise.id
+        workouts.update(workouts.addSetLikeLast(other, bench, pullA.day.id, defaultWeightKg = 20.0), SetDraft(10, 40.0, SetType.Warmup))
+        val added = workouts.exercises(other, pullA.day.id).last { it.exercise.id == bench }.sets
+        assertEquals(listOf(SetType.Warmup), added.map { SetType.fromStored(it.type) })
+        workouts.addSetLikeLast(other, bench, pullA.day.id, defaultWeightKg = 20.0)
+        val copied = workouts.exercises(other, pullA.day.id).last { it.exercise.id == bench }.sets.last()
+        assertEquals(SetType.Standard, SetType.fromStored(copied.type))
+        assertEquals(40.0, copied.weightKg)
+    }
+
+    @Test
+    fun theLastSetDoesntStartARest() = runBlocking {
+        val id = workouts.start(pushA.day.id, TODAY, TODAY * 86_400_000)
+        val exercises = workouts.exercises(id, pushA.day.id)
+        val all = exercises.flatMap { it.sets }
+        assertEquals(all.first(), WorkoutProgress(exercises).nextSet?.set)
+
+        // A set's rest is its own, else its exercise's, else the default; none when that's off.
+        val (first, second) = exercises[0].sets
+        workouts.update(first.id, SetDraft(first.reps, first.weightKg, restSeconds = 45))
+        database.change("UPDATE exercises SET restSeconds = 120 WHERE id = ${exercises[0].exercise.id}")
+        val rests = WorkoutProgress(workouts.exercises(id, pushA.day.id))
+        assertEquals(45, rests.restAfterTicking(first.id, defaultRestSeconds = 90))
+        assertEquals(120, rests.restAfterTicking(second.id, defaultRestSeconds = 90))
+        assertEquals(90, rests.restAfterTicking(exercises[1].sets.first().id, defaultRestSeconds = 90))
+        assertNull(rests.restAfterTicking(exercises[1].sets.first().id, defaultRestSeconds = 0))
+
+        for (set in all.dropLast(1)) workouts.setDone(set.id, true)
+        val end = WorkoutProgress(workouts.exercises(id, pushA.day.id))
+        assertEquals(1, end.notDoneCount)
+        assertEquals(all.last().id, end.nextSet?.set?.id)
+        assertNull(end.restAfterTicking(all.last().id, defaultRestSeconds = 90))
+        // Unticking a done set starts none either.
+        assertNull(end.restAfterTicking(all.first().id, defaultRestSeconds = 90))
+    }
 }
+

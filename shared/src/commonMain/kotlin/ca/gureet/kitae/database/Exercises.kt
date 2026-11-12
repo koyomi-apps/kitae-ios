@@ -69,6 +69,45 @@ abstract class Exercises {
         return sessions
     }
 
+    /**
+     * The records a workout's sets beat, exercise by exercise in the order they were done, each
+     * against every earlier workout (see [NewBest.find]).
+     */
+    @Transaction
+    open suspend fun newBests(workoutId: Long): List<NewBest> =
+        doneExerciseIds(workoutId).flatMap { id ->
+            val exercise = exercise(id) ?: return@flatMap emptyList()
+            NewBest.find(exercise, history(id), workoutId)
+        }
+
+    @Query(
+        """
+        SELECT `exerciseId`
+        FROM `sets`
+        WHERE `sessionId` = :workoutId AND `isCompleted` = 1
+        GROUP BY `exerciseId`
+        ORDER BY MIN(`order`), MIN(`id`)
+        """,
+    )
+    protected abstract suspend fun doneExerciseIds(workoutId: Long): List<Long>
+
+    /**
+     * The exercises done most recently, at most [limit] of them: the newest workout's in the order
+     * they were done, then the ones before it.
+     */
+    open suspend fun recentIds(limit: Int): List<Long> = recentlyDoneIds().distinct().take(limit)
+
+    @Query(
+        """
+        SELECT `sets`.`exerciseId`
+        FROM `sets`
+        INNER JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
+        WHERE `sets`.`isCompleted` = 1
+        ORDER BY `sessions`.`date` DESC, `sessions`.`id` DESC, `sets`.`order` ASC, `sets`.`id` ASC
+        """,
+    )
+    protected abstract suspend fun recentlyDoneIds(): List<Long>
+
     /** For each exercise, by id, the sets done in the newest workout that had any. */
     @Transaction
     open suspend fun lastSessions(): Map<Long, ExerciseSession> {
@@ -372,5 +411,59 @@ class ExerciseRecords(history: List<ExerciseSession>, assisted: Boolean = false)
         bestDate = best?.let { best -> history.firstOrNull { best in it.workSets }?.date }
         val load = { set: SetDraft -> if (assisted) -set.weightKg else set.weightKg }
         mostReps = sets.maxWithOrNull(compareBy<SetDraft> { it.reps }.thenBy(load))
+    }
+}
+
+/** A record one of a workout's sets beat, for the summary's new bests, as the iPhone has it. */
+data class NewBest(
+    val exercise: Exercise,
+    val record: Record,
+    /** The set that beat it. */
+    val set: SetDraft,
+    /** The best before it. */
+    val previous: SetDraft,
+) {
+    /** The records an exercise's page shows, which each app names. */
+    enum class Record { Heaviest, LeastHelp, MostReps, LongestHold }
+
+    companion object {
+        /**
+         * The records [workoutId], one of [history]'s workouts (newest first, as
+         * [Exercises.history] reads it), beat. They're the ones on the exercise's page: the
+         * heaviest set, the most weight first and then the most reps; and the most reps, which have
+         * to go up, so a heavier set with the same reps counts once. Without weight, only the reps
+         * or seconds count. None the first time an exercise is done, as there's nothing to beat,
+         * and none from warm-ups.
+         */
+        fun find(exercise: Exercise, history: List<ExerciseSession>, workoutId: Long): List<NewBest> {
+            val index = history.indexOfFirst { it.id == workoutId }
+            if (index < 0) return emptyList()
+            val sets = history[index].sets.filter { it.type != SetType.Warmup }
+            val earlier = history.drop(index + 1).flatMap { it.workSets }
+            if (sets.isEmpty() || earlier.isEmpty()) return emptyList()
+            val reps = if (exercise.isIsometric) Record.LongestHold else Record.MostReps
+            if (!exercise.usesWeight || (sets + earlier).none { it.weightKg > 0 }) {
+                // A weight left from before the exercise stopped using weight doesn't count.
+                val byReps = compareBy<SetDraft> { it.reps }
+                val now = sets.maxWith(byReps)
+                val before = earlier.maxWith(byReps)
+                return if (now.reps > before.reps) listOf(NewBest(exercise, reps, now, before)) else emptyList()
+            }
+            val assisted = exercise.isAssisted
+            // On an assisted machine, less help counts for more.
+            val load = { set: SetDraft -> if (assisted) -set.weightKg else set.weightKg }
+            val byLoad = compareBy<SetDraft>({ load(it) }, { it.reps })
+            val byRepsThenLoad = compareBy<SetDraft>({ it.reps }, { load(it) })
+            return buildList {
+                val heaviest = sets.maxWith(byLoad)
+                val heaviestBefore = earlier.maxWith(byLoad)
+                if (byLoad.compare(heaviestBefore, heaviest) < 0) {
+                    add(NewBest(exercise, if (assisted) Record.LeastHelp else Record.Heaviest, heaviest, heaviestBefore))
+                }
+                val most = sets.maxWith(byRepsThenLoad)
+                val mostBefore = earlier.maxWith(byRepsThenLoad)
+                if (most.reps > mostBefore.reps) add(NewBest(exercise, reps, most, mostBefore))
+            }
+        }
     }
 }

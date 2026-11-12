@@ -2,6 +2,7 @@
 
 package ca.gureet.kitae.database
 
+import ca.gureet.kitae.model.doneSets
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -142,4 +143,21 @@ class HistoryTest : DatabaseFileTest() {
             doneCount = done,
         )
     }
+
+    @Test
+    fun doneSetsComeByWorkoutForTheirEnergy() = runBlocking {
+        val first = database.workout(plan.days[0], TODAY - 3, done = 2)
+        val second = database.workout(plan.days[1], TODAY - 1, done = 1)
+        database.workout(plan.days[2], TODAY - 9, done = 3)
+        val sets = database.history().doneSets(TODAY - 7, TODAY)
+        assertEquals(setOf(first, second), sets.keys)
+        assertEquals(2, sets.getValue(first).size)
+        // They're the workout's done sets as the workout itself has them.
+        val exercises = database.workouts().exercises(first, plan.days[0].day.id)
+        assertEquals(exercises.flatMap { it.doneSets }.toSet(), sets.getValue(first).toSet())
+        // Exercises without weight count none.
+        database.change("UPDATE exercises SET usesWeight = 0")
+        assertTrue(database.history().doneSets(TODAY - 7, TODAY).values.flatten().all { it.weightKg == 0.0 })
+    }
 }
+

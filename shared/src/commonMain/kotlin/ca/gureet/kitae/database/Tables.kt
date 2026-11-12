@@ -8,6 +8,7 @@ import androidx.room3.ForeignKey
 import androidx.room3.Index
 import androidx.room3.PrimaryKey
 import androidx.room3.RoomWarnings
+import ca.gureet.kitae.model.ExerciseEnergy
 
 // The tables of version 10, as the iPhone has them in `ios/Kitae/Database/Schema.swift`. The
 // classes are named as the iPhone names what they hold, and keep the stored table and column
@@ -73,6 +74,16 @@ data class Exercise(
 ) {
     val muscle: MuscleGroup?
         get() = MuscleGroup.fromStored(target)
+
+    /** A set's weight as it counts for this exercise: none if it doesn't use weight. */
+    fun weight(kilograms: Double): Double = if (usesWeight) kilograms else 0.0
+
+    /**
+     * Whether the weight logged is an assisted machine's help, as on assisted dips, so less of it
+     * is better: Kitae's exercises whose energy takes it off the body's weight.
+     */
+    val isAssisted: Boolean
+        get() = libraryKey?.let { ExerciseEnergy.starters[it] }?.isAssisted ?: false
 
     /** The instructions as steps, without numbers typed in front of them. */
     val steps: List<String>

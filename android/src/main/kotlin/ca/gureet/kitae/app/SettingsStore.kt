@@ -48,6 +48,24 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[onboarding] = true }
     }
 
+    /** Kamae's own text size, or null for the phone's. A size kept some other way is the nearest one. */
+    val textSize: Flow<TextSize?> = dataStore.data.map { preferences ->
+        when (val value = preferences.asMap().entries.firstOrNull { it.key.name == SettingKey.TEXT_SIZE }?.value) {
+            is String -> TextSize.fromStored(value)
+            is Float -> TextSize.nearest(value)
+            is Double -> TextSize.nearest(value.toFloat())
+            else -> null
+        }
+    }
+
+    suspend fun setTextSize(size: TextSize?) {
+        dataStore.edit { preferences ->
+            val key = stringPreferencesKey(SettingKey.TEXT_SIZE)
+            preferences.remove(key)
+            if (size != null) preferences[key] = size.stored
+        }
+    }
+
     /** This phone's backups: the folder they go in and when the last one was made. */
     val backups: Flow<BackupPlace> = dataStore.data.map { preferences ->
         BackupPlace(preferences[backupUri], preferences[lastBackupSeconds])

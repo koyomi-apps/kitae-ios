@@ -70,6 +70,7 @@ import ca.gureet.kitae.history.HistoryScreen
 import ca.gureet.kitae.history.PastWorkoutScreen
 import ca.gureet.kitae.model.AppSettings
 import ca.gureet.kitae.model.WeightFormatter
+import ca.gureet.kitae.model.activeKilocalories
 import ca.gureet.kitae.plans.ExercisePickerScreen
 import ca.gureet.kitae.plans.PlanEditorScreen
 import ca.gureet.kitae.plans.PlansSheet
@@ -83,11 +84,14 @@ import ca.gureet.kitae.ui.theme.kitaeColors
 import ca.gureet.kitae.workout.FinishQuestion
 import ca.gureet.kitae.workout.FinishQuestionDialog
 import ca.gureet.kitae.workout.WorkoutActions
+import ca.gureet.kitae.workout.WorkoutDoneSheet
 import ca.gureet.kitae.workout.WorkoutScreen
 import ca.gureet.kitae.workout.clockText
 import ca.gureet.kitae.workout.phoneDecimalSeparator
 import ca.gureet.kitae.workout.rememberNow
 import ca.gureet.kitae.workout.startedAt
+import ca.gureet.kitae.you.BodyScreen
+import ca.gureet.kitae.you.WelcomeScreen
 import ca.gureet.kitae.you.YouScreen
 import java.util.Calendar
 import kotlin.time.Instant
@@ -95,13 +99,16 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.TimeZone
 
 /** What people do around the app, beside the workout's own actions. */
-interface AppActions : WorkoutActions, EditActions, SettingsActions {
+interface AppActions : WorkoutActions, EditActions, SettingsActions, BodyActions {
     fun pickDay(id: Long)
     fun start(day: DayWithExercises)
     fun selectPlan(id: Long)
     fun choosePlan(open: Boolean)
     fun presentWorkout(open: Boolean)
     fun finishAndStart(mode: FinishMode, addNewSets: Boolean, day: DayWithExercises)
+
+    /** The summary after a workout is done with. */
+    fun closeSummary()
 }
 
 /** The four tabs, each keeping its own pages. */
@@ -126,6 +133,8 @@ fun KamaeRoot(
     pages: PageSource,
     frozenNow: Long? = null,
     navigator: Navigator = rememberSaveable(saver = Navigator.Saver) { Navigator() },
+    figureAt: Double? = null,
+    textSize: TextSize? = null,
 ) {
     val colors = kitaeColors
     val scope = rememberCoroutineScope()
@@ -159,17 +168,19 @@ fun KamaeRoot(
                     onSelectPlan = actions::selectPlan,
                     onChoosePlan = { actions.choosePlan(true) },
                     onEditPlan = { dayId -> state.plan?.let { nav.open(Route.PlanEditor(it.plan.id, dayId)) } },
+                    onOpenWorkout = { nav.open(Route.PastWorkout(it)) },
                 )
                 Tab.History -> {
-                    val months = rememberPage(state.revision) { pages.historyMonths() }
+                    val history = rememberPage(state.revision) { pages.history() }?.value
                     HistoryScreen(
-                        months?.value,
+                        history?.months,
                         state.workout,
                         today,
                         onOpen = { summary ->
                             if (summary.workout.id == state.workout?.id) actions.presentWorkout(true) else nav.open(Route.PastWorkout(summary.workout.id))
                         },
                         onDelete = actions::deleteWorkout,
+                        kilocalories = { state.bodyLog.activeKilocalories(it, history?.sets?.get(it.workout.id).orEmpty()) },
                     )
                 }
                 Tab.Exercises -> {
@@ -191,16 +202,19 @@ fun KamaeRoot(
                         onSettings = { nav.open(Route.Settings) },
                         onEditPlan = { state.plan?.let { nav.open(Route.PlanEditor(it.plan.id, state.selectedDay?.day?.id)) } },
                         onChoosePlan = { actions.choosePlan(true) },
+                        formatter = formatter,
+                        onBody = { nav.open(Route.Body) },
                     )
                 }
             }
-            Route.Settings -> SettingsScreen(settings, state.backup, version, actions, onBack = nav.back)
+            Route.Settings -> SettingsScreen(settings, state.backup, version, actions, onBack = nav.back, textSize = textSize)
+            Route.Body -> BodyScreen(state.bodyLog, formatter, today, actions, onBack = nav.back)
             Route.Workout -> state.workout?.let { workout ->
-                WorkoutScreen(workout, settings, actions, state.restsFinished, frozenNow, onOpen = nav.open)
+                WorkoutScreen(workout, settings, actions, state.restsFinished, frozenNow, onOpen = nav.open, library = state.library, notes = state.notes)
             }
             is Route.PastWorkout -> {
                 val record = rememberPage(route, state.revision) { pages.workoutRecord(route.id) }
-                PastWorkoutScreen(record?.value, record != null, formatter, today, nav.open, nav.back, actions::deleteWorkout)
+                PastWorkoutScreen(record?.value, record != null, formatter, today, nav.open, nav.back, actions::deleteWorkout, bodyLog = state.bodyLog)
             }
             is Route.ExercisePage -> {
                 val details = rememberPage(route, state.revision) { pages.exerciseDetails(route.id) }
@@ -215,6 +229,11 @@ fun KamaeRoot(
                     onBack = nav.back,
                     onSave = { draft, id -> actions.saveExercise(draft, id) },
                     onDelete = actions::deleteExercise,
+                    library = state.library,
+                    note = state.notes[route.id],
+                    onSaveNote = { actions.saveNote(route.id, it) },
+                    figureAt = figureAt,
+                    bodyLog = state.bodyLog,
                 )
             }
             is Route.PlanEditor -> {
@@ -258,6 +277,11 @@ fun KamaeRoot(
         }
     }
 
+    // The welcome, on first launch, in place of everything else.
+    if (state.isWelcoming) {
+        WelcomeScreen(settings, textSize, state.backup, formatter, actions)
+        return
+    }
     Box(Modifier.fillMaxSize().background(colors.paper)) {
         BoxWithConstraints(Modifier.fillMaxSize()) {
             val wide = maxWidth >= 600.dp
@@ -329,6 +353,22 @@ fun KamaeRoot(
         }
     }
 
+    state.finishedWorkoutId?.let { id ->
+        val done = rememberPage(id) { pages.workoutDone(id, settings.showsNewBests) }
+        WorkoutDoneSheet(
+            done?.value,
+            state.bodyLog,
+            state.library,
+            formatter,
+            today,
+            onAddBody = {
+                actions.closeSummary()
+                navigator.tab = Tab.You
+                navigator.stack(Tab.You).open(Route.Body)
+            },
+            onDismiss = actions::closeSummary,
+        )
+    }
     if (state.isChoosingPlan) {
         PlansSheet(
             state,

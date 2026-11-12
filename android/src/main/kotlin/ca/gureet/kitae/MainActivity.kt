@@ -73,8 +73,9 @@ class MainActivity : ComponentActivity() {
                     Runtime.getRuntime().exit(0)
                 }
             }
-            KamaeTheme(settings.theme) {
-                KamaeRoot(model.state, settings, model, pages = model)
+            val textSize by container.settings.textSize.collectAsStateWithLifecycle(null)
+            KamaeTheme(settings.theme, textSize) {
+                KamaeRoot(model.state, settings, model, pages = model, textSize = textSize)
             }
         }
     }

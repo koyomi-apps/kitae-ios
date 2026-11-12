@@ -30,6 +30,9 @@ sealed interface Route {
     /** Settings, from You. */
     data object Settings : Route
 
+    /** The weigh-ins and what people say about themselves, from You. */
+    data object Body : Route
+
     /** Picks an exercise to add to one of a plan's days. */
     data class Picker(val planId: Long, val dayId: Long) : Route
 }
@@ -108,6 +111,7 @@ private fun Route.encoded(): String = when (this) {
     is Route.Home -> "home:${tab.name}"
     Route.Workout -> "workout"
     Route.Settings -> "settings"
+    Route.Body -> "body"
     is Route.PastWorkout -> "past:$id"
     is Route.ExercisePage -> "exercise:$id"
     is Route.PlanEditor -> "plan:$planId:${dayId ?: ""}"
@@ -120,6 +124,7 @@ private fun decodeRoute(text: String): Route? {
         "home" -> parts.getOrNull(1)?.let { name -> Tab.entries.firstOrNull { it.name == name } }?.let(Route::Home)
         "workout" -> Route.Workout
         "settings" -> Route.Settings
+        "body" -> Route.Body
         "past" -> parts.getOrNull(1)?.toLongOrNull()?.let(Route::PastWorkout)
         "exercise" -> parts.getOrNull(1)?.toLongOrNull()?.let(Route::ExercisePage)
         "plan" -> parts.getOrNull(1)?.toLongOrNull()?.let { Route.PlanEditor(it, parts.getOrNull(2)?.toLongOrNull()) }

@@ -8,7 +8,11 @@ import ca.gureet.kitae.app.BackupPlace
 import ca.gureet.kitae.app.BackupState
 import ca.gureet.kitae.app.ExerciseDetails
 import ca.gureet.kitae.app.ExerciseList
+import ca.gureet.kitae.app.HistoryPage
+import ca.gureet.kitae.app.Library
 import ca.gureet.kitae.app.PageSource
+import ca.gureet.kitae.app.TextSize
+import ca.gureet.kitae.app.WorkoutDone
 import ca.gureet.kitae.app.WorkoutRecord
 import ca.gureet.kitae.app.WorkoutState
 import ca.gureet.kitae.app.YouData
@@ -16,16 +20,19 @@ import ca.gureet.kitae.database.ActivityWeeks
 import ca.gureet.kitae.database.DayExercise
 import ca.gureet.kitae.database.DayExerciseWithSets
 import ca.gureet.kitae.database.DayWithExercises
+import ca.gureet.kitae.database.DoneSet
 import ca.gureet.kitae.database.Exercise
 import ca.gureet.kitae.database.ExerciseDraft
 import ca.gureet.kitae.database.ExerciseSession
+import ca.gureet.kitae.database.ExerciseSetCount
 import ca.gureet.kitae.database.FinishMode
-import ca.gureet.kitae.database.HistoryMonth
+import ca.gureet.kitae.database.NewBest
 import ca.gureet.kitae.database.Plan
 import ca.gureet.kitae.database.PlanSummary
 import ca.gureet.kitae.database.PlanWithDays
 import ca.gureet.kitae.database.PlannedSet
 import ca.gureet.kitae.database.SetDraft
+import ca.gureet.kitae.database.SetType
 import ca.gureet.kitae.database.TrainingDay
 import ca.gureet.kitae.database.TrainingTotals
 import ca.gureet.kitae.database.Workout
@@ -34,16 +41,39 @@ import ca.gureet.kitae.database.WorkoutSet
 import ca.gureet.kitae.database.WorkoutSummary
 import ca.gureet.kitae.database.historyMonths
 import ca.gureet.kitae.model.AppSettings
+import ca.gureet.kitae.model.BodyEntry
+import ca.gureet.kitae.model.BodyLog
+import ca.gureet.kitae.model.BodyProfile
 import ca.gureet.kitae.model.RestTimer
+import ca.gureet.kitae.motion.ExerciseMotions
+import ca.gureet.kitae.muscles.ExerciseMuscles
+import ca.gureet.kitae.muscles.MuscleVolume
+import java.io.File
 
 /** Example data like the Kamae canvas's: the starter plan, with Push A in progress. */
 object Samples {
     /** Saturday 10 October 2026, 18:00 UTC. */
     const val NOW = 1_791_741_600_000L
 
-    private val names = listOf("Incline Bench", "Chest Fly", "Leg Raises", "Overhead Extensions", "Tricep Push Down")
-    private val exercises = names.mapIndexed { index, name ->
-        Exercise(name = name, target = "Chest", id = index + 1L, usesWeight = name != "Leg Raises")
+    /** The muscle maps and animations, from the iPhone's files, as the app's assets have them. */
+    val library: Library by lazy {
+        Library(
+            ExerciseMuscles.decode(File("../ios/Kitae/Exercises/Muscles/ExerciseMuscles.json").readText()),
+            ExerciseMotions.decode(File("../ios/Kitae/Exercises/Motion/ExerciseMotions.json").readText()),
+        )
+    }
+
+    const val NOTE = "Seat on 4, grip just outside the rings."
+
+    private val names = listOf(
+        "Incline Bench" to "barbell-incline-bench-press",
+        "Chest Fly" to "dumbbell-flyes",
+        "Leg Raises" to "lying-leg-raises",
+        "Overhead Extensions" to "dumbbell-overhead-tricep-extensions",
+        "Tricep Push Down" to "tricep-pushdowns",
+    )
+    private val exercises = names.mapIndexed { index, (name, key) ->
+        Exercise(name = name, target = if (index < 2) "Chest" else if (index == 2) "Abs" else "Triceps", id = index + 1L, usesWeight = name != "Leg Raises", libraryKey = key)
     }
 
     private fun day(id: Long, name: String, position: Int) = DayWithExercises(
@@ -68,7 +98,28 @@ object Samples {
         PlanSummary(3, "Full Body", 3, 12),
     )
 
-    val today = AppState(loaded = true, plans = plans, plan = plan, upNextDayId = 1, hadDoneSets = true)
+    // History, as the canvas has it on Thursday 22 October 2026.
+
+    private const val OCTOBER_22 = 20_748L
+
+    /** Weigh-ins most weeks since early September, with body fat now and then, and a height. */
+    val bodyLog = BodyLog(
+        BodyProfile(heightCm = 178.0, birthDate = OCTOBER_22 - 30 * 365 - 120),
+        listOf(80.6 to 19.4, 80.2 to null, 79.9 to null, 79.5 to 18.9, 79.4 to null, 78.9 to null, 78.4 to 18.5).mapIndexed { index, (kg, fat) ->
+            BodyEntry(index + 1L, OCTOBER_22 - 42 + index * 7L, kg, fat)
+        },
+    )
+
+    val today = AppState(
+        loaded = true,
+        plans = plans,
+        plan = plan,
+        upNextDayId = 1,
+        hadDoneSets = true,
+        library = library,
+        notes = mapOf(1L to NOTE, 101L to NOTE),
+        bodyLog = bodyLog,
+    )
 
     private var setId = 100L
 
@@ -98,10 +149,6 @@ object Samples {
     val backedUp = today.copy(
         backup = BackupState(BackupPlace("content://com.android.externalstorage.documents/tree/primary%3AKamae", NOW / 1000 - 3600), "Kamae"),
     )
-
-    // History, as the canvas has it on Thursday 22 October 2026.
-
-    private const val OCTOBER_22 = 20_748L
 
     private fun summary(id: Long, daysBefore: Int, name: String, minutes: Int?, sets: Int, done: Int) = WorkoutSummary(
         Workout(
@@ -140,7 +187,7 @@ object Samples {
         "Cable Crossovers" to null,
     )
 
-    private val library = chest.mapIndexed { index, (name, _) ->
+    private val chestAndBack = chest.mapIndexed { index, (name, _) ->
         Exercise(
             name = name,
             target = "Chest",
@@ -153,6 +200,7 @@ object Samples {
             },
             reference = if (name == "Incline Bench") "https://example.org/incline-bench" else null,
             usesWeight = name != "Push-ups",
+            libraryKey = if (name == "Incline Bench") "barbell-incline-bench-press" else null,
         )
     } + listOf(
         Exercise(name = "Bent-over Rows", target = "UpperBack", id = 120),
@@ -161,17 +209,38 @@ object Samples {
     )
 
     val exerciseList = ExerciseList(
-        library,
+        chestAndBack,
         chest.mapIndexedNotNull { index, (_, set) -> set?.let { 100L + index to ExerciseSession(6, OCTOBER_22 - 1, "Push A", listOf(it)) } }.toMap(),
         recentIds = listOf(120, 101, 122),
     )
 
     /** Incline Bench's heaviest sets from September 16 to October 21. */
     val inclineBench = ExerciseDetails(
-        library[1],
+        chestAndBack[1],
         listOf(26.25, 25.0, 23.75, 22.5, 21.25).mapIndexed { index, kg ->
             ExerciseSession(20L - index, OCTOBER_22 - 1 - index * 9L, "Push A", listOf(SetDraft(12, kg), SetDraft(12, kg), SetDraft(10, kg)))
         },
+    )
+
+    /** A pull day's done sets: rows, curls, pull-downs and face pulls, 15 in all. */
+    fun pullSets(): List<DoneSet> = listOf(
+        Triple("barbell-bent-over-rows", 12, 25.0),
+        Triple("ez-bar-preacher-curls", 12, 25.0),
+        Triple("lat-pulldowns", 10, 45.0),
+        Triple("face-pulls", 12, 25.0),
+        Triple("dumbbell-curls", 10, 12.5),
+    ).flatMap { (key, reps, kg) -> List(3) { DoneSet(120L, key, "UpperBack", false, reps, kg, SetType.Standard) } }
+
+    /** Pull A's summary, with the four records the canvas has. */
+    val workoutDone = WorkoutDone(
+        history[1],
+        pullSets(),
+        listOf(
+            NewBest(Exercise(name = "Bent-over Rows", target = "UpperBack"), NewBest.Record.Heaviest, SetDraft(12, 25.0), SetDraft(12, 23.75)),
+            NewBest(Exercise(name = "Preacher Curls", target = "Biceps"), NewBest.Record.Heaviest, SetDraft(12, 25.0), SetDraft(12, 23.75)),
+            NewBest(Exercise(name = "Lat Pull-down", target = "Lats"), NewBest.Record.MostReps, SetDraft(10, 45.0), SetDraft(8, 45.0)),
+            NewBest(Exercise(name = "Face Pulls", target = "UpperBack"), NewBest.Record.Heaviest, SetDraft(12, 25.0), SetDraft(12, 23.75)),
+        ),
     )
 
     val pastWorkout = WorkoutRecord(
@@ -187,7 +256,13 @@ object Samples {
 
 /** The pages' data, from the samples above. */
 object SamplePages : PageSource {
-    override suspend fun historyMonths(): List<HistoryMonth> = historyMonths(Samples.history, activeId = 7)
+    override suspend fun history(): HistoryPage = HistoryPage(
+        historyMonths(Samples.history, activeId = 7),
+        Samples.history.filter { it.doneCount > 0 }.associate { it.workout.id to Samples.pullSets() },
+    )
+
+    override suspend fun workoutDone(id: Long, withBests: Boolean): WorkoutDone? =
+        Samples.workoutDone.takeIf { id == it.summary.workout.id }?.let { if (withBests) it else it.copy(bests = emptyList()) }
 
     override suspend fun workoutRecord(id: Long): WorkoutRecord? = Samples.pastWorkout.takeIf { id == it.summary.workout.id }
 
@@ -197,10 +272,24 @@ object SamplePages : PageSource {
 
     override suspend fun plan(id: Long): PlanWithDays? = Samples.plan.takeIf { id == it.plan.id }
 
-    /** Three or four days a week for the last 16 weeks. */
+    /** Three or four days a week for the last 16 weeks; a push day and a pull day in the last 7. */
     override suspend fun youData(today: Long, firstWeekday: Int): YouData = YouData(
         TrainingTotals(lifts = 288, days = 20, exercises = 169),
         ActivityWeeks(today, firstWeekday, (0L until 112L).filter { it % 7 in setOf(0L, 2L, 4L) || it % 11 == 3L }.map { today - it }.toSet()),
+        MuscleVolume(
+            listOf(
+                "barbell-incline-bench-press" to 6,
+                "dumbbell-flyes" to 3,
+                "tricep-pushdowns" to 3,
+                "lat-pulldowns" to 6,
+                "barbell-bent-over-rows" to 6,
+                "dumbbell-curls" to 3,
+            ).map { (key, sets) -> ExerciseSetCount(Exercise(name = key, target = "Chest", libraryKey = key), sets) },
+            Samples.library.muscles,
+        ),
+        // The pull day and the push day this week.
+        Samples.history.filter { it.workout.id == 6L || it.workout.id == 4L },
+        mapOf(6L to Samples.pullSets(), 4L to Samples.pullSets().take(12)),
     )
 }
 
@@ -218,6 +307,15 @@ class RecordedActions : AppActions {
     override fun resumeRest() { calls += "resumeRest" }
     override fun addRest(seconds: Int) { calls += "addRest $seconds" }
     override fun skipRest() { calls += "skipRest" }
+    override fun saveNote(exerciseId: Long, note: String) { calls += "saveNote $exerciseId $note" }
+    override fun closeSummary() { calls += "closeSummary" }
+    override fun saveWeighIn(date: Long, weightKg: Double?, bodyFatPercent: Double?, replacingId: Long?) {
+        calls += "saveWeighIn $date $weightKg $bodyFatPercent $replacingId"
+    }
+    override fun deleteWeighIn(id: Long) { calls += "deleteWeighIn $id" }
+    override fun saveProfile(profile: BodyProfile) { calls += "saveProfile $profile" }
+    override fun finishWelcome() { calls += "finishWelcome" }
+    override fun setTextSize(size: TextSize?) { calls += "setTextSize $size" }
     override fun pickDay(id: Long) { calls += "pickDay $id" }
     override fun start(day: DayWithExercises) { calls += "start ${day.day.name}" }
     override fun selectPlan(id: Long) { calls += "selectPlan $id" }

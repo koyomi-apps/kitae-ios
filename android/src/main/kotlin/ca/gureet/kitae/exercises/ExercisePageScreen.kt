@@ -39,12 +39,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ca.gureet.kitae.R
 import ca.gureet.kitae.app.ExerciseDetails
+import ca.gureet.kitae.app.Library
 import ca.gureet.kitae.app.Route
 import ca.gureet.kitae.database.ExerciseDraft
 import ca.gureet.kitae.database.ExerciseProgress
 import ca.gureet.kitae.database.ExerciseSession
+import ca.gureet.kitae.model.BodyLog
 import ca.gureet.kitae.model.WeightFormatter
 import ca.gureet.kitae.model.restLabel
+import ca.gureet.kitae.motion.ExerciseMotionCard
+import ca.gureet.kitae.muscles.MuscleMapCard
 import ca.gureet.kitae.ui.Dates
 import ca.gureet.kitae.ui.components.BarTextButton
 import ca.gureet.kitae.ui.components.Caption
@@ -82,9 +86,15 @@ fun ExercisePageScreen(
     onSave: suspend (ExerciseDraft, Long) -> Long,
     onDelete: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    library: Library? = null,
+    note: String? = null,
+    onSaveNote: (String) -> Unit = {},
+    figureAt: Double? = null,
+    bodyLog: BodyLog = BodyLog(),
 ) {
     val colors = kitaeColors
     var isEditing by remember { mutableStateOf(false) }
+    var isWritingNote by remember { mutableStateOf(false) }
     Column(modifier.fillMaxSize()) {
         PageTopBar(onBack) {
             if (details != null) BarTextButton(stringResource(R.string.edit), onClick = { isEditing = true })
@@ -115,16 +125,20 @@ fun ExercisePageScreen(
                     Chip(stringResource(R.string.rest_chip, if (rest > 0) restLabel(rest) else stringResource(R.string.rest_off)))
                     if (exercise.isIsometric) Chip(stringResource(R.string.held))
                 }
+                NoteRow(note, onClick = { isWritingNote = true }, Modifier.padding(top = 8.dp))
             }
             if (progress.points.size > 1) {
                 ProgressCard(progress, formatter, today, Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp))
             }
             if (details.history.isNotEmpty()) {
-                RecordTiles(details, formatter, Modifier.padding(start = 16.dp, end = 16.dp, top = if (progress.points.size > 1) 12.dp else 24.dp))
+                RecordTiles(details, formatter, bodyLog, Modifier.padding(start = 16.dp, end = 16.dp, top = if (progress.points.size > 1) 12.dp else 24.dp))
             }
-            HowTo(details, Modifier.padding(start = 22.dp, end = 24.dp, top = 28.dp))
+            HowTo(details, library, figureAt, Modifier.padding(top = 28.dp))
             Recent(details, formatter, today, onOpen, Modifier.padding(top = 32.dp))
         }
+    }
+    if (isWritingNote && details != null) {
+        ExerciseNoteSheet(details.exercise.name, note, onSave = onSaveNote, onDismiss = { isWritingNote = false })
     }
     if (isEditing && details != null) {
         ExerciseEditorSheet(
@@ -245,7 +259,7 @@ private fun ProgressCard(progress: ExerciseProgress, formatter: WeightFormatter,
 
 /** Best-set tiles: the heaviest set (or least help) and the most reps, or the most reps and the workouts. */
 @Composable
-private fun RecordTiles(details: ExerciseDetails, formatter: WeightFormatter, modifier: Modifier = Modifier) {
+private fun RecordTiles(details: ExerciseDetails, formatter: WeightFormatter, bodyLog: BodyLog, modifier: Modifier = Modifier) {
     val exercise = details.exercise
     val records = details.records
     val isIsometric = exercise.isIsometric
@@ -255,10 +269,13 @@ private fun RecordTiles(details: ExerciseDetails, formatter: WeightFormatter, mo
             ExerciseProgress.Measure.Weight, ExerciseProgress.Measure.Help -> {
                 records.best?.let { best ->
                     val isHelp = details.progress.measure == ExerciseProgress.Measure.Help
+                    // "1.25 × body weight", against the weight of the day it was lifted, once people weigh in.
+                    val body = records.bestDate?.let(bodyLog::weightKg)?.takeIf { !isHelp && best.weightKg > 0 && it > 0 }
                     Tile(
                         stringResource(if (isHelp) R.string.tile_least_help else R.string.tile_heaviest_set),
                         weightFirst(formatter, best.reps, best.weightKg, isIsometric),
                         Modifier.weight(1f),
+                        note = body?.let { stringResource(R.string.body_weight_ratio, formatter.number(best.weightKg / it)) },
                     )
                 }
                 records.mostReps?.let { most ->
@@ -276,7 +293,7 @@ private fun RecordTiles(details: ExerciseDetails, formatter: WeightFormatter, mo
 }
 
 @Composable
-private fun Tile(title: String, value: String, modifier: Modifier = Modifier) {
+private fun Tile(title: String, value: String, modifier: Modifier = Modifier, note: String? = null) {
     val colors = kitaeColors
     Column(
         modifier
@@ -288,35 +305,51 @@ private fun Tile(title: String, value: String, modifier: Modifier = Modifier) {
     ) {
         Text(title, color = colors.ink, fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.Medium)
         Text(value, color = colors.ink, style = KitaeType.step.copy(fontSize = 19.sp, lineHeight = 26.sp, fontWeight = FontWeight.Bold), maxLines = 1)
+        if (note != null) Text(note, color = colors.olive, fontSize = 13.sp, lineHeight = 18.sp, maxLines = 1)
     }
 }
 
-/** "How to do it": the steps, numbered, and "See it done" for the reference link. */
+/**
+ * "How to do it": the animation and the muscle map, 16 from the edges like the cards above, then
+ * the steps, numbered, and "See it done" for the reference link.
+ */
 @Composable
-private fun HowTo(details: ExerciseDetails, modifier: Modifier = Modifier) {
+private fun HowTo(details: ExerciseDetails, library: Library?, figureAt: Double?, modifier: Modifier = Modifier) {
     val colors = kitaeColors
     val uriHandler = LocalUriHandler.current
-    val steps = details.exercise.steps
+    val exercise = details.exercise
+    val steps = exercise.steps
+    val text = Modifier.padding(start = 24.dp, end = 24.dp)
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Text(
             stringResource(R.string.how_to_do_it),
-            Modifier.semantics { heading() },
+            Modifier.padding(start = 22.dp, end = 24.dp).semantics { heading() },
             color = colors.ink,
             style = KitaeType.sectionTitle.copy(fontSize = 28.sp, lineHeight = 32.sp),
         )
-        if (steps.isEmpty()) Text(stringResource(R.string.no_instructions), Modifier.padding(start = 2.dp), color = colors.inkSoft, fontSize = 16.sp)
+        if (library != null) {
+            val motion = remember(exercise.libraryKey, library) { library.motions.motion(exercise) }
+            if (motion != null) {
+                val figure = remember(motion, library) { motion.muscles(library.muscles) }
+                ExerciseMotionCard(motion, figure, Modifier.padding(horizontal = 16.dp), at = figureAt)
+            }
+            library.muscles.work(exercise)?.let { work ->
+                MuscleMapCard(library.muscles.map, work, Modifier.padding(start = 16.dp, end = 16.dp, bottom = 4.dp))
+            }
+        }
+        if (steps.isEmpty()) Text(stringResource(R.string.no_instructions), text, color = colors.inkSoft, fontSize = 16.sp)
         steps.forEachIndexed { index, step ->
             val label = stringResource(R.string.step_label, index + 1, step)
-            Row(Modifier.padding(start = 2.dp).clearAndSetSemantics { contentDescription = label }, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(text.clearAndSetSemantics { contentDescription = label }, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Box(Modifier.size(26.dp).background(colors.oliveSoft, CircleShape), contentAlignment = Alignment.Center) {
                     Text("${index + 1}", color = colors.onOliveSoft, style = KitaeType.smallCaption.copy(fontWeight = FontWeight.Bold))
                 }
                 Text(step, Modifier.padding(top = 2.dp), color = colors.ink, fontSize = 16.sp, lineHeight = 22.sp)
             }
         }
-        details.exercise.referenceLink?.let { link ->
+        exercise.referenceLink?.let { link ->
             Row(
-                Modifier.clickable(role = Role.Button) { uriHandler.openUri(link) }.heightIn(min = 44.dp).padding(start = 2.dp, end = 8.dp),
+                Modifier.padding(start = 22.dp).clickable(role = Role.Button) { uriHandler.openUri(link) }.heightIn(min = 44.dp).padding(start = 2.dp, end = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {

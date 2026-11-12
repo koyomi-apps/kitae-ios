@@ -2,8 +2,10 @@
 
 package ca.gureet.kitae.you
 
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -36,31 +38,51 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ca.gureet.kitae.R
 import ca.gureet.kitae.app.AppState
 import ca.gureet.kitae.app.YouData
 import ca.gureet.kitae.database.ActivityWeeks
+import ca.gureet.kitae.model.BodyEntry
+import ca.gureet.kitae.model.BodyLog
+import ca.gureet.kitae.model.WeightFormatter
+import ca.gureet.kitae.model.WorkoutTotals
+import ca.gureet.kitae.model.roundedKilocalories
+import ca.gureet.kitae.model.totals
+import ca.gureet.kitae.muscles.MuscleVolumeCard
 import ca.gureet.kitae.plans.planSizeLabel
 import ca.gureet.kitae.ui.Dates
 import ca.gureet.kitae.ui.components.BigTitleBar
 import ca.gureet.kitae.ui.components.DisplayText
 import ca.gureet.kitae.ui.components.KamaeIcon
+import ca.gureet.kitae.ui.durationLabel
 import ca.gureet.kitae.ui.theme.KitaeType
 import ca.gureet.kitae.ui.theme.kitaeColors
 import java.time.LocalDate
 import java.time.format.TextStyle
+import kotlin.math.abs
 import kotlin.random.Random
 
 /**
@@ -75,7 +97,9 @@ fun YouScreen(
     onSettings: () -> Unit,
     onEditPlan: () -> Unit,
     onChoosePlan: () -> Unit,
+    formatter: WeightFormatter,
     modifier: Modifier = Modifier,
+    onBody: () -> Unit = {},
     line: Int = rememberSaveable { Random.nextInt(5) },
 ) {
     val colors = kitaeColors
@@ -99,6 +123,17 @@ fun YouScreen(
                 StatTile(stringResource(R.string.tile_days), totals?.days, Modifier.weight(1f))
                 StatTile(stringResource(R.string.tab_exercises), totals?.exercises, Modifier.weight(1f))
             }
+            if (data != null) {
+                WeekTile(state.bodyLog.totals(data.week, data.weekSets), onAddWeight = onBody)
+                MuscleVolumeCard(
+                    stringResource(R.string.last_7_days),
+                    data.muscles,
+                    state.library?.muscles?.map,
+                    formatter,
+                    empty = stringResource(R.string.no_sets_this_week),
+                )
+            }
+            BodyCard(state.bodyLog, formatter, onClick = onBody)
             data?.weeks?.let { ActivityCard(it) }
             if (data != null) {
                 Text(
@@ -211,8 +246,8 @@ private fun ActivityCard(weeks: ActivityWeeks) {
         verticalArrangement = Arrangement.spacedBy(14.dp),
     ) {
         Row(verticalAlignment = Alignment.Bottom) {
-            Text(stringResource(R.string.activity), Modifier.weight(1f).alignByBaseline().semantics { heading() }, color = colors.ink, style = KitaeType.workoutTitle)
-            Text(stringResource(R.string.last_16_weeks), Modifier.alignByBaseline(), color = colors.inkSoft, fontSize = 13.sp)
+            Text(stringResource(R.string.activity), Modifier.weight(1f).alignByBaseline().semantics { heading() }, color = colors.ink, fontSize = 17.sp, lineHeight = 24.sp, fontWeight = FontWeight.Medium)
+            Text(stringResource(R.string.last_16_weeks), Modifier.alignByBaseline(), color = colors.inkSoft, style = KitaeType.sectionCaption)
         }
         Column(Modifier.clearAndSetSemantics { contentDescription = description }, verticalArrangement = Arrangement.spacedBy(8.dp)) {
             BoxWithConstraints(Modifier.fillMaxWidth()) {
@@ -255,5 +290,147 @@ private fun ActivityCard(weeks: ActivityWeeks) {
                 Text(Dates.dayAndMonth(weeks.today), color = colors.inkSoft, style = KitaeType.fieldCaption.copy(fontSize = 11.sp))
             }
         }
+    }
+}
+
+/** This week's workouts and their time, and the energy they used once a weight is known. */
+@Composable
+private fun WeekTile(totals: WorkoutTotals, onAddWeight: () -> Unit) {
+    val colors = kitaeColors
+    Column(
+        Modifier
+            .fillMaxWidth()
+            .heightIn(min = 96.dp)
+            .background(colors.card, RoundedCornerShape(22.dp))
+            .padding(start = 14.dp, end = 14.dp, top = 14.dp, bottom = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+    ) {
+        Row(verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(stringResource(R.string.this_week), Modifier.weight(1f).alignByBaseline(), color = colors.ink, fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.Medium)
+            Text(
+                if (totals.workouts == 0) {
+                    stringResource(R.string.no_workouts_yet)
+                } else {
+                    pluralStringResource(R.plurals.workouts_count, totals.workouts, totals.workouts) + stringResource(R.string.details_separator) + durationLabel(totals.minutes)
+                },
+                Modifier.alignByBaseline(),
+                color = colors.inkSoft,
+                style = KitaeType.sectionCaption,
+                maxLines = 1,
+            )
+        }
+        val kilocalories = totals.kilocalories
+        if (kilocalories != null) {
+            val rounded = roundedKilocalories(kilocalories)
+            val spoken = stringResource(R.string.kcal_burned_spoken, rounded)
+            Text(
+                buildAnnotatedString {
+                    append(stringResource(R.string.kcal_about_short, rounded))
+                    withStyle(SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Normal, color = colors.inkSoft)) {
+                        append(" " + stringResource(R.string.kcal_burned))
+                    }
+                },
+                Modifier.clearAndSetSemantics { contentDescription = spoken },
+                color = colors.ink,
+                style = KitaeType.tileNumber.copy(lineHeight = 32.sp, letterSpacing = (-1).sp),
+                maxLines = 1,
+            )
+        } else {
+            Text(
+                stringResource(R.string.add_weight_for_kcal),
+                Modifier.clickable(onClickLabel = stringResource(R.string.open_body), role = Role.Button, onClick = onAddWeight).heightIn(min = 32.dp).padding(top = 6.dp),
+                color = colors.olive,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
+/** Body: the latest weight and how it's gone in the last 30 days, or an invitation to add one. Opens Body. */
+@Composable
+private fun BodyCard(log: BodyLog, formatter: WeightFormatter, onClick: () -> Unit) {
+    val colors = kitaeColors
+    val latest = log.latestWeight
+    val kilograms = latest?.weightKg
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(colors.card)
+            .clickable(onClickLabel = stringResource(R.string.open_weigh_ins), role = Role.Button, onClick = onClick)
+            .heightIn(min = 96.dp)
+            .padding(start = 18.dp, end = 14.dp, top = 14.dp, bottom = 14.dp)
+            .semantics(mergeDescendants = true) {},
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Text(stringResource(R.string.body), color = colors.ink, fontSize = 15.sp, lineHeight = 20.sp, fontWeight = FontWeight.Medium)
+            if (latest != null && kilograms != null) {
+                Text(
+                    buildAnnotatedString {
+                        append(formatter.bodyNumber(kilograms))
+                        withStyle(SpanStyle(fontSize = 12.sp, fontWeight = FontWeight.Normal)) { append(" " + formatter.unit.symbol) }
+                    },
+                    color = colors.ink,
+                    style = KitaeType.tileNumber.copy(lineHeight = 32.sp, letterSpacing = (-1).sp),
+                    maxLines = 1,
+                )
+                bodyDetail(log, latest, formatter)?.let { Text(it, color = colors.inkSoft, fontSize = 12.sp, lineHeight = 16.sp) }
+            } else {
+                Text(stringResource(R.string.track_your_weight), color = colors.ink, style = KitaeType.workoutTitle.copy(fontSize = 28.sp, lineHeight = 30.sp))
+                Text(stringResource(R.string.body_card_empty), color = colors.inkSoft, fontSize = 12.sp, lineHeight = 16.sp)
+            }
+        }
+        val recent = log.entries.mapNotNull { it.weightKg }.takeLast(12)
+        if (recent.size >= 2) Sparkline(recent, Modifier.size(76.dp, 40.dp))
+        KamaeIcon(R.drawable.ic_chevron_forward, null, tint = colors.inkSoft, size = 20.dp)
+    }
+}
+
+/** "18.5% body fat · −1.8 kg since Sep 16": the change since the first weigh-in of the last 30 days. */
+@Composable
+private fun bodyDetail(log: BodyLog, latest: BodyEntry, formatter: WeightFormatter): String? {
+    val parts = mutableListOf<String>()
+    log.latestBodyFat?.bodyFatPercent?.let { parts += stringResource(R.string.body_fat_part, formatter.percent(it)) }
+    val kilograms = latest.weightKg
+    val first = log.entries.firstOrNull { it.weightKg != null && it.date >= latest.date - 30 }
+    val firstKilograms = first?.weightKg
+    if (kilograms != null && first != null && firstKilograms != null && first.date < latest.date) {
+        val change = formatter.unit.fromKilograms(kilograms) - formatter.unit.fromKilograms(firstKilograms)
+        val sign = when {
+            change > 0.05 -> "+"
+            change < -0.05 -> "−"
+            else -> "±"
+        }
+        parts += stringResource(R.string.change_since, "$sign${formatter.tenthsOrWhole(abs(change))} ${formatter.unit.symbol}", Dates.dayAndMonth(first.date))
+    }
+    return parts.takeIf { it.isNotEmpty() }?.joinToString(stringResource(R.string.details_separator))
+}
+
+/** A small line of recent values, without axes. */
+@Composable
+private fun Sparkline(values: List<Double>, modifier: Modifier = Modifier) {
+    val color = kitaeColors.olive
+    Canvas(modifier.clearAndSetSemantics {}) {
+        val low = values.min()
+        val high = values.max()
+        val pad = maxOf((high - low) * 0.15, 0.25)
+        val stroke = 2.2.dp.toPx()
+        fun point(index: Int) = Offset(
+            stroke + index * (size.width - 2 * stroke) / (values.size - 1),
+            (stroke + (high + pad - values[index]) / (high - low + 2 * pad) * (size.height - 2 * stroke)).toFloat(),
+        )
+        val path = Path().apply {
+            moveTo(point(0).x, point(0).y)
+            for (i in 1 until values.size) {
+                val a = point(i - 1)
+                val b = point(i)
+                val middle = (a.x + b.x) / 2
+                cubicTo(middle, a.y, middle, b.y, b.x, b.y)
+            }
+        }
+        drawPath(path, color, style = Stroke(stroke, cap = StrokeCap.Round, join = StrokeJoin.Round))
     }
 }

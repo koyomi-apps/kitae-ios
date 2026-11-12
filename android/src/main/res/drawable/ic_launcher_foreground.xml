@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kamae's icon: the iPhone's barbell from the side (scripts/make_icon.py), OliveSoft on Olive. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="1536"
+    android:viewportHeight="1536">
+    <group
+        android:translateX="256"
+        android:translateY="256">
+        <path
+            android:fillColor="#F7F3A1"
+            android:pathData="M176,486 H848 A26,26 0 0 1 874,512 V512 A26,26 0 0 1 848,538 H176 A26,26 0 0 1 150,512 V512 A26,26 0 0 1 176,486 Z" />
+        <path
+            android:fillColor="#F7F3A1"
+            android:pathData="M330,288 H354 A36,36 0 0 1 390,324 V700 A36,36 0 0 1 354,736 H330 A36,36 0 0 1 294,700 V324 A36,36 0 0 1 330,288 Z" />
+        <path
+            android:fillColor="#F7F3A1"
+            android:pathData="M670,288 H694 A36,36 0 0 1 730,324 V700 A36,36 0 0 1 694,736 H670 A36,36 0 0 1 634,700 V324 A36,36 0 0 1 670,288 Z" />
+        <path
+            android:fillColor="#F7F3A1"
+            android:pathData="M248,362 H258 A26,26 0 0 1 284,388 V636 A26,26 0 0 1 258,662 H248 A26,26 0 0 1 222,636 V388 A26,26 0 0 1 248,362 Z" />
+        <path
+            android:fillColor="#F7F3A1"
+            android:pathData="M766,362 H776 A26,26 0 0 1 802,388 V636 A26,26 0 0 1 776,662 H766 A26,26 0 0 1 740,636 V388 A26,26 0 0 1 766,362 Z" />
+    </group>
+</vector>

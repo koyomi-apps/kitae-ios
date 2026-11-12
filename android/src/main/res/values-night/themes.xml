@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="paper">#14140E</color>
+    <style name="Theme.Kamae" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/paper</item>
+    </style>
+</resources>

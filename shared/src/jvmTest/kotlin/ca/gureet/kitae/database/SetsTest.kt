@@ -29,4 +29,11 @@ class SetsTest {
         assertEquals(SetType.RestPause, SetType.fromStored("RestPause"))
         assertEquals(SetType.Standard, SetType.fromStored("Cluster"))
     }
+
+    @Test
+    fun setsAreNumberedByType() {
+        val types = listOf(SetType.Warmup, SetType.Warmup, SetType.Standard, SetType.Standard, SetType.Failure, SetType.Drop, SetType.RestPause)
+        assertEquals(listOf("W1", "W2", "01", "02", "F1", "D1", "R1"), setLabels(types))
+        assertEquals("10", setLabels(List(10) { SetType.Standard }).last())
+    }
 }

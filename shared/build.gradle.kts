@@ -33,7 +33,7 @@ kotlin {
             api(libs.kotlinx.datetime)
             implementation(libs.kotlinx.io.core)
             implementation(libs.kotlinx.serialization.json)
-            implementation(libs.room3.runtime)
+            api(libs.room3.runtime)
         }
         jvmTest.dependencies {
             implementation(kotlin("test"))

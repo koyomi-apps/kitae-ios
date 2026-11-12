@@ -70,7 +70,33 @@ data class Exercise(
     val libraryKey: String? = null,
     /** False for exercises done with the body alone, like sit-ups: their sets have no weight. */
     @ColumnInfo(defaultValue = "1") val usesWeight: Boolean = true,
-)
+) {
+    val muscle: MuscleGroup?
+        get() = MuscleGroup.fromStored(target)
+
+    /** The instructions as steps, without numbers typed in front of them. */
+    val steps: List<String>
+        get() = instructions.orEmpty().lines()
+            .map { it.trim().replaceFirst(typedNumber, "") }
+            .filter { it.isNotEmpty() }
+
+    /** The reference, if it's a web address: http or https, with a host that has a dot. */
+    val referenceLink: String?
+        get() {
+            val reference = reference ?: return null
+            if (reference.any { it.isWhitespace() }) return null
+            val scheme = reference.substringBefore("://", missingDelimiterValue = "").lowercase()
+            if (scheme != "https" && scheme != "http") return null
+            val host = reference.substringAfter("://")
+                .substringBefore('/').substringBefore('?').substringBefore('#')
+                .substringAfterLast('@').substringBefore(':')
+            return if ('.' in host) reference else null
+        }
+
+    private companion object {
+        val typedNumber = Regex("""^\d+[.)]\s*""")
+    }
+}
 
 @Entity(tableName = "plans")
 data class Plan(

@@ -61,10 +61,12 @@ tasks.named<Test>("jvmTest") {
     val iPhoneSchema = layout.projectDirectory.file("../ios/KitaeTests/RoomSchema10.json")
     val seed = layout.projectDirectory.file("../ios/Kitae/Database/Seed.json")
     val muscles = layout.projectDirectory.file("../ios/Kitae/Exercises/Muscles/ExerciseMuscles.json")
+    val motions = layout.projectDirectory.file("../ios/Kitae/Exercises/Motion/ExerciseMotions.json")
     inputs.dir(schemas).withPathSensitivity(PathSensitivity.RELATIVE)
-    inputs.files(iPhoneSchema, seed, muscles).withPathSensitivity(PathSensitivity.NONE)
+    inputs.files(iPhoneSchema, seed, muscles, motions).withPathSensitivity(PathSensitivity.NONE)
     systemProperty("kitae.schemas", schemas.asFile.path)
     systemProperty("kitae.iPhoneSchema", iPhoneSchema.asFile.path)
     systemProperty("kitae.seed", seed.asFile.path)
     systemProperty("kitae.muscles", muscles.asFile.path)
+    systemProperty("kitae.motions", motions.asFile.path)
 }

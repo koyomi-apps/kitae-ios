@@ -32,7 +32,9 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
     version = 10,
 )
 @ConstructedBy(KitaeDatabaseConstructor::class)
-abstract class KitaeDatabase : RoomDatabase()
+abstract class KitaeDatabase : RoomDatabase() {
+    abstract fun plans(): Plans
+}
 
 /** Room's compiler writes this for each platform. */
 @Suppress("KotlinNoActualForExpect")

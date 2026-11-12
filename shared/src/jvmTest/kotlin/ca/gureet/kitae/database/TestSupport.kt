@@ -34,6 +34,18 @@ abstract class DatabaseFileTest {
     fun open(seed: Seed = bundledSeed): KitaeDatabase =
         Room.databaseBuilder(file.toString()) { KitaeDatabaseConstructor.initialize() }.buildKitaeDatabase(seed)
 
+    /** Opens a new database that follows the starter plan from [today], as if it was chosen on first launch. */
+    suspend fun openFollowingStarterPlan(today: Long = TODAY): KitaeDatabase {
+        val database = open()
+        database.plans().setCurrent(database.plans().all().first().id, today)
+        return database
+    }
+
+    companion object {
+        /** The day the iPhone's tests take as today: 10 October 2026, in days since 1970. */
+        const val TODAY = 20_736L
+    }
+
     /**
      * Makes the file a database as Kitae made it at [version], 8 or 9: Room's tables from the
      * iPhone's schema file for that version, with the starter exercises (and from version 9

@@ -4,11 +4,15 @@ package ca.gureet.kitae
 
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onAllNodesWithContentDescription
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import ca.gureet.kitae.app.AppState
 import ca.gureet.kitae.app.KamaeRoot
+import ca.gureet.kitae.app.Navigator
+import ca.gureet.kitae.app.Route
+import ca.gureet.kitae.app.Tab
 import ca.gureet.kitae.model.AppSettings
 import ca.gureet.kitae.model.AppTheme
 import ca.gureet.kitae.ui.theme.KamaeTheme
@@ -36,11 +40,15 @@ class ScreensTest {
 
     private val actions = RecordedActions()
 
-    private fun show(state: AppState, theme: AppTheme = AppTheme.Light) {
+    private fun show(state: AppState, theme: AppTheme = AppTheme.Light, navigator: Navigator = Navigator()) {
         compose.setContent {
-            KamaeTheme(theme) { KamaeRoot(state, AppSettings(), actions, frozenNow = Samples.NOW) }
+            KamaeTheme(theme) { KamaeRoot(state, AppSettings(), actions, SamplePages, frozenNow = Samples.NOW, navigator = navigator) }
         }
+        compose.waitForIdle()
     }
+
+    /** [tab] showing, with [routes] opened on it. */
+    private fun on(tab: Tab, vararg routes: Route) = Navigator(tab).apply { stack(tab).addAll(routes) }
 
     /** The whole screen, sheets and dialogs too. */
     @OptIn(ExperimentalRoborazziApi::class)
@@ -119,5 +127,100 @@ class ScreensTest {
         capture("plans")
         compose.onNodeWithText("Upper Lower").performClick()
         assertEquals(listOf("selectPlan 2"), actions.calls)
+    }
+
+    @Test
+    fun history() {
+        show(Samples.inProgress.copy(isWorkoutPresented = false), navigator = on(Tab.History))
+        capture("history")
+        compose.onNodeWithText(".in progress · 6/15 sets").performClick()
+        assertEquals(listOf("presentWorkout true"), actions.calls)
+    }
+
+    @Test
+    fun historyDark() {
+        show(Samples.inProgress.copy(isWorkoutPresented = false), AppTheme.Dark, on(Tab.History))
+        capture("history-dark")
+    }
+
+    @Test
+    fun pastWorkout() {
+        show(Samples.today, navigator = on(Tab.History, Route.PastWorkout(6)))
+        capture("past-workout")
+        compose.onNodeWithContentDescription("More options").performClick()
+        compose.onNodeWithText("Delete workout").performClick()
+        compose.waitForIdle()
+        capture("past-workout-delete")
+    }
+
+    @Test
+    fun exercises() {
+        show(Samples.today, navigator = on(Tab.Exercises))
+        capture("exercises")
+    }
+
+    @Test
+    fun exercisePage() {
+        show(Samples.today, navigator = on(Tab.Exercises, Route.ExercisePage(101)))
+        capture("exercise")
+    }
+
+    @Test
+    fun exercisePageDark() {
+        show(Samples.today, AppTheme.Dark, on(Tab.Exercises, Route.ExercisePage(101)))
+        capture("exercise-dark")
+    }
+
+    @Test
+    fun exerciseEditor() {
+        show(Samples.today, navigator = on(Tab.Exercises, Route.ExercisePage(101)))
+        compose.onNodeWithText("Edit").performClick()
+        compose.waitForIdle()
+        capture("exercise-editor")
+    }
+
+    @Test
+    fun planEditor() {
+        show(Samples.today, navigator = on(Tab.Today, Route.PlanEditor(1, 1)))
+        capture("plan-editor")
+        compose.onAllNodesWithText("Add set")[0].performClick()
+        assertEquals(listOf("addPlannedSet 1 SetDraft(reps=10, weightKg=20.0, type=Standard, restSeconds=null)"), actions.calls)
+    }
+
+    @Test
+    fun plannedSet() {
+        show(Samples.today, navigator = on(Tab.Today, Route.PlanEditor(1, 1)))
+        compose.onAllNodesWithText("10 × 20.0 kg")[0].performClick()
+        compose.waitForIdle()
+        capture("planned-set")
+    }
+
+    @Test
+    fun picker() {
+        show(Samples.today, navigator = on(Tab.Today, Route.PlanEditor(1, 1), Route.Picker(1, 1)))
+        capture("picker")
+        compose.onNodeWithText("Lat Pull-down").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("addExerciseToDay 1 122"), actions.calls)
+    }
+
+    @Test
+    fun you() {
+        show(Samples.today, navigator = on(Tab.You))
+        capture("you")
+    }
+
+    @Test
+    fun youDark() {
+        show(Samples.today, AppTheme.Dark, on(Tab.You))
+        capture("you-dark")
+    }
+
+    @Test
+    fun settings() {
+        show(Samples.backedUp, navigator = on(Tab.You, Route.Settings))
+        capture("settings")
+        compose.onNodeWithText("lb").performClick()
+        assertTrue(actions.calls.single().startsWith("updateSettings AppSettings(unit=Pounds"))
     }
 }

@@ -151,7 +151,7 @@ fun SetRow(
  * while typing. [parse] reads what's typed; [onValue] gets each value that can be read.
  */
 @Composable
-private fun <T> NumberField(
+internal fun <T> NumberField(
     caption: String,
     value: String,
     keyboardType: KeyboardType,

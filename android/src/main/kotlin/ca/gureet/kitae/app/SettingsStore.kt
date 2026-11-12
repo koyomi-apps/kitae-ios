@@ -5,9 +5,14 @@ package ca.gureet.kitae.app
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.byteArrayPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
 import ca.gureet.kitae.backup.PreferenceValue
 import ca.gureet.kitae.model.AppSettings
 import ca.gureet.kitae.model.SettingKey
@@ -43,11 +48,72 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
         dataStore.edit { it[onboarding] = true }
     }
 
+    /** This phone's backups: the folder they go in and when the last one was made. */
+    val backups: Flow<BackupPlace> = dataStore.data.map { preferences ->
+        BackupPlace(preferences[backupUri], preferences[lastBackupSeconds])
+    }
+
+    suspend fun setBackupFolder(uri: String) {
+        dataStore.edit { it[backupUri] = uri }
+    }
+
+    suspend fun setLastBackup(seconds: Long) {
+        dataStore.edit { it[lastBackupSeconds] = seconds }
+    }
+
+    /**
+     * Takes a restored backup's settings, from either app, in place of these ones. This phone's
+     * own stay: its backup folder, its last backup and whether it backs up after each workout,
+     * as on the iPhone.
+     */
+    suspend fun restore(values: Map<String, PreferenceValue>?) {
+        dataStore.edit { preferences ->
+            val kept = preferences.asMap().filterKeys { it.name in PHONE_KEYS }
+            preferences.clear()
+            for ((name, value) in values.orEmpty()) {
+                if (name in PHONE_KEYS) continue
+                when (value) {
+                    is PreferenceValue.BoolValue -> preferences[booleanPreferencesKey(name)] = value.value
+                    is PreferenceValue.IntValue -> preferences[intPreferencesKey(name)] = value.value
+                    is PreferenceValue.LongValue -> preferences[longPreferencesKey(name)] = value.value
+                    is PreferenceValue.FloatValue -> preferences[floatPreferencesKey(name)] = value.value
+                    is PreferenceValue.DoubleValue -> preferences[doublePreferencesKey(name)] = value.value
+                    is PreferenceValue.StringValue -> preferences[stringPreferencesKey(name)] = value.value
+                    is PreferenceValue.StringSetValue -> preferences[stringSetPreferencesKey(name)] = value.value.toSet()
+                    is PreferenceValue.BytesValue -> preferences[byteArrayPreferencesKey(name)] = value.value
+                }
+            }
+            @Suppress("UNCHECKED_CAST")
+            for ((key, value) in kept) preferences[key as Preferences.Key<Any>] = value
+        }
+    }
+
+    /** Back to a fresh install's settings, keeping this phone's backup folder and last backup. */
+    suspend fun reset() {
+        dataStore.edit { preferences ->
+            val folder = preferences[backupUri]
+            val last = preferences[lastBackupSeconds]
+            preferences.clear()
+            folder?.let { preferences[backupUri] = it }
+            last?.let { preferences[lastBackupSeconds] = it }
+        }
+    }
+
     companion object {
         /** The DataStore file's name, Kitae for Android 2.0.0's. */
         const val FILE_NAME = "settings"
 
         private val onboarding = booleanPreferencesKey(SettingKey.ONBOARDING_DONE)
+        private val backupUri = stringPreferencesKey(SettingKey.BACKUP_URI)
+        private val lastBackupSeconds = longPreferencesKey(SettingKey.LAST_BACKUP_TIME_SECONDS)
+
+        /** The settings that belong to this phone, not to backups. */
+        private val PHONE_KEYS = setOf(
+            SettingKey.BACKUP_URI,
+            SettingKey.LAST_BACKUP_TIME_SECONDS,
+            SettingKey.BACK_UP_AFTER_WORKOUTS,
+            SettingKey.TEXT_SIZE,
+        )
 
         /** Settings from what DataStore keeps, read the way a backup's are. */
         fun read(preferences: Preferences): AppSettings {
@@ -70,3 +136,6 @@ class SettingsStore(private val dataStore: DataStore<Preferences>) {
         }
     }
 }
+
+/** Where this phone's backups go, as a folder picked with Android's picker, and when the last one was made. */
+data class BackupPlace(val folderUri: String? = null, val lastBackupSeconds: Long? = null)

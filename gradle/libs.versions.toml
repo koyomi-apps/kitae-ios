@@ -5,12 +5,14 @@ android-minSdk = "26"
 android-targetSdk = "37"
 androidx-sqlite = "2.7.1"
 kotlin = "2.4.21"
+kotlinx-datetime = "0.8.0"
 kotlinx-serialization = "1.13.0"
 ksp = "2.3.13"
 room3 = "3.0.3"
 
 [libraries]
 androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "androidx-sqlite" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 room3-compiler = { module = "androidx.room3:room3-compiler", version.ref = "room3" }
 room3-runtime = { module = "androidx.room3:room3-runtime", version.ref = "room3" }

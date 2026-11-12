@@ -42,7 +42,8 @@
     <string name="no_plan_text">Choose a plan to follow, and Kamae lines up its days for you.</string>
     <string name="choose_plan">Choose a plan</string>
     <string name="no_days_title">No days yet</string>
-    <string name="no_days_text">This plan has no days to train yet.</string>
+    <string name="no_days_text">Add a training day to this plan to start.</string>
+    <string name="edit_plan">Edit plan</string>
     <string name="workout_in_progress">Workout in progress</string>
     <string name="not_finished_start_other">%1$s isn\'t finished yet. Finish it and start %2$s?</string>
     <string name="finish_and_start">Finish and start %s</string>
@@ -126,6 +127,257 @@
     <string name="only_this_workout">Only this workout</string>
 
     <!-- Tabs that come in the next pull requests -->
-    <string name="coming_title">Coming next</string>
-    <string name="coming_text">This part of Kamae is still being built.</string>
+
+    <!-- Around the pages -->
+    <string name="back">Back</string>
+    <string name="close">Close</string>
+    <string name="edit">Edit</string>
+    <string name="edit_named">Edit %s</string>
+    <string name="delete">Delete</string>
+    <string name="delete_named">Delete %s?</string>
+    <string name="save">Save</string>
+    <string name="add">Add</string>
+    <string name="create">Create</string>
+    <string name="done">Done</string>
+    <string name="options">Options</string>
+    <string name="ok">OK</string>
+    <string name="duration_minutes">%d min</string>
+    <string name="duration_hours">%1$d h %2$d min</string>
+    <plurals name="sets_fraction">
+        <item quantity="one">%1$d/%2$d set</item>
+        <item quantity="other">%1$d/%2$d sets</item>
+    </plurals>
+    <string name="details_separator">" · "</string>
+    <plurals name="reps">
+        <item quantity="one">%d rep</item>
+        <item quantity="other">%d reps</item>
+    </plurals>
+
+    <!-- History -->
+    <string name="history_title">History</string>
+    <string name="history_empty_title">No workouts yet</string>
+    <string name="history_empty_text">Workouts you do show up here, with every set.</string>
+    <plurals name="workout_count">
+        <item quantity="one">%d workout</item>
+        <item quantity="other">%d workouts</item>
+    </plurals>
+    <plurals name="in_progress_sets">
+        <item quantity="one">.in progress · %1$d/%2$d set</item>
+        <item quantity="other">.in progress · %1$d/%2$d sets</item>
+    </plurals>
+    <string name="skipped">.skipped</string>
+    <string name="opens_workout">Open the workout</string>
+    <string name="shows_sets">Show its sets</string>
+    <string name="delete_workout">Delete workout</string>
+    <string name="delete_workout_question">Delete this workout?</string>
+    <string name="delete_workout_named">%1$s on %2$s will be removed with its sets. Your plan stays the same.</string>
+    <string name="delete_workout_text">It will be removed with its sets. Your plan stays the same.</string>
+    <string name="previous_workout">Previous %s</string>
+    <string name="no_sets_saved">No sets were saved for this workout.</string>
+    <string name="workout_deleted">This workout was deleted</string>
+    <string name="shows_exercise">Show the exercise\'s page</string>
+
+    <!-- Exercises -->
+    <string name="exercises_title">Exercises</string>
+    <string name="new_exercise">New exercise</string>
+    <plurals name="search_exercises">
+        <item quantity="one">Search %d exercise</item>
+        <item quantity="other">Search %d exercises</item>
+    </plurals>
+    <string name="all">All</string>
+    <string name="muscle_chest">Chest</string>
+    <string name="muscle_upper_back">Back</string>
+    <string name="muscle_lats">Lats</string>
+    <string name="muscle_shoulders">Shoulders</string>
+    <string name="muscle_biceps">Biceps</string>
+    <string name="muscle_triceps">Triceps</string>
+    <string name="muscle_traps">Traps</string>
+    <string name="muscle_core">Core</string>
+    <string name="muscle_quads">Quads</string>
+    <string name="muscle_hamstrings">Hamstrings</string>
+    <string name="muscle_glutes">Glutes</string>
+    <string name="muscle_calves">Calves</string>
+    <string name="muscle_other">Other</string>
+    <string name="no_exercise_found">No “%s”</string>
+    <string name="no_exercise_found_text">Check the spelling, or make it an exercise of your own.</string>
+    <string name="last_time">Last time %s</string>
+    <string name="exercise_gone">This exercise no longer exists</string>
+    <string name="rest_chip">rest %s</string>
+    <string name="held">held</string>
+    <string name="caption_heaviest_set">.heaviest set</string>
+    <string name="caption_least_help">.least help</string>
+    <string name="caption_most_reps">.most reps</string>
+    <string name="caption_longest_hold">.longest hold</string>
+    <string name="measure_heaviest_set">heaviest set</string>
+    <string name="measure_least_help">least help</string>
+    <string name="measure_most_reps">most reps</string>
+    <string name="measure_longest_hold">longest hold</string>
+    <string name="change_since">%1$s since %2$s</string>
+    <string name="no_change_since">No change since %s</string>
+    <string name="less_help_since">%1$s less help since %2$s</string>
+    <string name="more_help_since">%1$s more help since %2$s</string>
+    <string name="chart_description">Your %1$s went from %2$s on %3$s to %4$s on %5$s</string>
+    <string name="tile_heaviest_set">Heaviest set</string>
+    <string name="tile_least_help">Least help</string>
+    <string name="tile_most_reps">Most reps</string>
+    <string name="tile_longest_hold">Longest hold</string>
+    <string name="tile_workouts">Workouts</string>
+    <string name="how_to_do_it">How to do it</string>
+    <string name="no_instructions">No instructions yet. You can write your own with Edit.</string>
+    <string name="step_label">Step %1$d: %2$s</string>
+    <string name="see_it_done">See it done</string>
+    <string name="caption_recent_workouts">.recent workouts</string>
+    <string name="no_recent_workouts">Sets you do of this exercise show up here.</string>
+
+    <!-- The exercise editor -->
+    <string name="edit_exercise">Edit exercise</string>
+    <string name="name">Name</string>
+    <string name="muscle">Muscle</string>
+    <string name="isometric">Isometric</string>
+    <string name="uses_weight">Uses weight</string>
+    <string name="exercise_kinds_footer">Isometric exercises, like a plank, are held, so they count seconds instead of reps. Exercises done with your body alone, like sit-ups, don\'t use weight, so their sets have none.</string>
+    <string name="rest_after_each_set">Rest after each set</string>
+    <string name="rest_footer">Used after each set of this exercise, unless the set has its own rest.</string>
+    <string name="caption_how_to">.how to do it</string>
+    <string name="one_step_per_line">One step per line</string>
+    <string name="caption_see_it_done">.see it done</string>
+    <string name="link_placeholder">A link to a video or page</string>
+    <string name="not_a_link">That doesn\'t look like a web address.</string>
+    <string name="delete_exercise">Delete exercise</string>
+    <string name="cant_delete_exercise">It can\'t be deleted while it\'s in the workout you\'re doing.</string>
+    <string name="delete_exercise_text">It will be taken out of your plans, and its sets out of past workouts. This can\'t be undone.</string>
+    <string name="name_empty">Give it a name.</string>
+    <string name="plan_name_taken">Another plan already has that name.</string>
+    <string name="exercise_name_taken">Another exercise already has that name.</string>
+    <string name="couldnt_save">Couldn\'t save it. %s</string>
+
+    <!-- Plans -->
+    <string name="new_plan">New plan</string>
+    <string name="plan_name">Plan name</string>
+    <string name="day_name">Day name</string>
+    <string name="new_day">New day</string>
+    <string name="rename_day">Rename day</string>
+    <string name="rename_plan">Rename plan</string>
+    <string name="move_earlier">Move earlier</string>
+    <string name="move_later">Move later</string>
+    <string name="move_up">Move up</string>
+    <string name="move_down">Move down</string>
+    <string name="reorder_exercises">Reorder exercises</string>
+    <string name="order_of">Order of %s</string>
+    <string name="delete_day">Delete day</string>
+    <string name="delete_plan">Delete plan</string>
+    <string name="delete_day_text">%s and its planned sets will be removed from this plan. Workouts you did stay.</string>
+    <string name="delete_plan_text">Its days and planned sets will be removed. Workouts you did stay.</string>
+    <string name="empty_plan_title">This plan has no exercises</string>
+    <string name="empty_plan_text">Add an exercise to a day to keep it.</string>
+    <string name="keep_editing">Keep editing</string>
+    <string name="plan_your_days">Plan your days</string>
+    <string name="plan_your_days_text">Name the first day, like Push or Upper. You can add more days and change their order later.</string>
+    <string name="another_name">Another name…</string>
+    <string name="no_exercises_title">No exercises yet</string>
+    <string name="add_one_below">Add one with the button below.</string>
+    <string name="add_set">Add set</string>
+    <string name="add_exercise_to">Add exercise to %s</string>
+    <string name="add_a_day">Add a day</string>
+    <string name="remove">Remove</string>
+    <string name="remove_from_day">Remove from %s</string>
+    <string name="add_to">Add to %s</string>
+    <string name="caption_recent">.recent</string>
+    <!-- You -->
+    <string name="you_title">You</string>
+    <string name="settings">Settings</string>
+    <string name="caption_current_plan">.current plan</string>
+    <string name="caption_no_plan_yet">.no plan yet</string>
+    <string name="pick_plan_text">Pick one to follow, or make your own</string>
+    <string name="opens_plan">Open the plan to change its days and exercises</string>
+    <string name="tile_lifts">Lifts</string>
+    <string name="tile_days">Days</string>
+    <string name="activity">Activity</string>
+    <string name="last_16_weeks">Last 16 weeks</string>
+    <string name="days_trained">Days trained in the last 16 weeks: %d</string>
+    <string-array name="you_lines">
+        <item>every filled square is a day you showed up</item>
+        <item>strength is built on ordinary days</item>
+        <item>the log remembers so you don\'t have to</item>
+        <item>light days count too</item>
+        <item>slow progress is still progress</item>
+    </string-array>
+    <string name="you_line_first">tick off a set and the first square fills in</string>
+
+    <!-- Settings -->
+    <string name="caption_workouts">.workouts</string>
+    <string name="caption_appearance">.appearance</string>
+    <string name="caption_backups">.backups</string>
+    <string name="caption_reset">.reset</string>
+    <string name="caption_about">.about</string>
+    <string name="units">Units</string>
+    <string name="decimals">Decimals</string>
+    <string name="decimals_auto">Auto</string>
+    <string name="decimals_footer">You can type a point or a comma either way. This sets how weights are shown.</string>
+    <string name="default_rest">Default rest</string>
+    <string name="rest_timer_alerts">Rest timer alerts</string>
+    <string name="allow_alerts">Allow alerts for Kamae in Android\'s settings</string>
+    <string name="theme">Theme</string>
+    <string name="theme_system">System</string>
+    <string name="theme_light">Light</string>
+    <string name="theme_dark">Dark</string>
+    <string name="back_up_after_workouts">Back up after each workout</string>
+    <string name="back_up_needs_folder">Choose a backup folder, and Kamae saves a backup there after each workout.</string>
+    <string name="backup_folder">Backup folder</string>
+    <string name="choose_folder">Choose…</string>
+    <string name="back_up_now">Back up now</string>
+    <string name="restore_backup">Restore from a backup</string>
+    <string name="last_backup">Last backup: %s. Kitae on iPhone can restore these backups too.</string>
+    <string name="no_backups_yet">No backups yet. Kitae on iPhone can restore these backups too.</string>
+    <string name="last_backup_failed">The last backup didn\'t work. %s</string>
+    <string name="couldnt_open_that">Couldn\'t open that</string>
+    <string name="cant_restore_now">Can\'t restore a backup now</string>
+    <string name="restore_question">Restore this backup?</string>
+    <string name="restore_text">Your plans, workouts, exercises, weigh-ins and settings will be replaced by the ones in %1$s. What\'s in Kamae now is saved first, as %2$s in your backup folder.</string>
+    <string name="restore_text_no_folder">Your plans, workouts, exercises, weigh-ins and settings will be replaced by the ones in %s. Kamae opens again afterwards.</string>
+    <string name="restore">Restore</string>
+    <string name="reset_kamae">Reset Kamae</string>
+    <string name="reset_footer">Deletes all plans, workouts, exercises, weigh-ins and settings, like a fresh install. Backups are kept.</string>
+    <string name="reset_question">Reset Kamae?</string>
+    <string name="reset_text">This permanently deletes all your plans, workouts, exercises, weigh-ins and settings, and Kamae starts again with its starter plan and exercises. Backups in your backup folder are kept.</string>
+    <string name="reset">Reset</string>
+    <string name="version">Version</string>
+    <string name="source_code">Source code</string>
+    <string name="problem_not_kitae">This file isn\'t a Kitae backup.</string>
+    <string name="problem_older">This backup is from an older version of Kitae. Restore it in Kitae for Android 2.0.0, then back up again from there.</string>
+    <string name="problem_newer">This backup is from a newer version of Kitae. Update Kamae, then try again.</string>
+    <string name="problem_damaged">This backup is damaged, so it can\'t be restored.</string>
+    <string name="problem_workout">Finish or discard the workout in progress first.</string>
+    <string name="problem_folder">Kamae can\'t reach the backup folder. Choose it again in Settings.</string>
+
+    <!-- The rest notification -->
+    <string name="channel_rest">Rest timer</string>
+    <string name="channel_rest_text">The rest between sets, counting down.</string>
+    <string name="channel_rest_over">Rest over</string>
+    <string name="channel_rest_over_text">When a rest runs out, if Rest timer alerts are on in Settings.</string>
+    <string name="resting">Resting</string>
+    <string name="rest_paused_title">Paused</string>
+    <string name="rest_paused_text">%1$s left · %2$s</string>
+    <string name="rest_detail_next">%1$s · next: %2$s, %3$s</string>
+    <string name="pause">Pause</string>
+    <string name="resume">Resume</string>
+    <string name="add_15_seconds">+15s</string>
+    <string name="skip">Skip</string>
+    <string name="rest_over">Rest over</string>
+    <string name="time_for_next_set">Time for your next set</string>
+
+    <string-array name="day_name_suggestions">
+        <item>Push</item>
+        <item>Pull</item>
+        <item>Legs</item>
+        <item>Upper</item>
+        <item>Lower</item>
+        <item>Full Body</item>
+        <item>Chest</item>
+        <item>Back</item>
+        <item>Shoulders</item>
+        <item>Arms</item>
+        <item>Core</item>
+        <item>Cardio</item>
+    </string-array>
 </resources>

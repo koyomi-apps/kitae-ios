@@ -92,56 +92,73 @@ fun SetOptionsSheet(
                 Text(exercise.exercise.name, color = colors.olive, style = KitaeType.sectionTitle)
                 Caption(stringResource(R.string.set_caption, label), style = KitaeType.smallCaption)
             }
-            SectionCaption(stringResource(R.string.caption_set_type), Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 8.dp))
-            for (option in SetType.entries) {
-                val picked = option == type
-                Row(
-                    Modifier
-                        .fillMaxWidth()
-                        .clickable(role = Role.RadioButton) { if (!picked) onType(option) }
-                        .semantics { selected = picked }
-                        .heightIn(min = 56.dp)
-                        .padding(horizontal = 24.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    Box(
-                        Modifier
-                            .size(width = 40.dp, height = 32.dp)
-                            .background(if (picked) colors.oliveSoft else colors.field, RoundedCornerShape(16.dp)),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            if (picked) label else option.letter ?: "01",
-                            color = if (picked) colors.onOliveSoft else colors.inkSoft,
-                            style = KitaeType.chip.copy(fontWeight = FontWeight.Bold),
-                        )
-                    }
-                    Text(setTypeName(option), Modifier.weight(1f), color = colors.ink, fontSize = 16.sp, fontWeight = if (picked) FontWeight.Medium else FontWeight.Normal)
-                    if (picked) KamaeIcon(R.drawable.ic_check, null, tint = colors.olive)
-                }
-            }
+            SetTypeChoices(label, type, onType)
             Hairline(Modifier.padding(vertical = 4.dp, horizontal = 24.dp), start = 0.dp)
             RestRow(set.restSeconds, defaultRestSeconds, onRest)
             Hairline(Modifier.padding(vertical = 4.dp, horizontal = 24.dp), start = 0.dp)
+            DeleteSetRow(onDelete)
+        }
+    }
+}
+
+/** ".set type" and the five types, the picked one showing the set's label (the iPhone's `SetTypeSection`). */
+@Composable
+fun SetTypeChoices(label: String, type: SetType, onType: (SetType) -> Unit) {
+    val colors = kitaeColors
+    Column {
+        SectionCaption(stringResource(R.string.caption_set_type), Modifier.padding(start = 24.dp, end = 24.dp, top = 20.dp, bottom = 8.dp))
+        for (option in SetType.entries) {
+            val picked = option == type
             Row(
                 Modifier
                     .fillMaxWidth()
-                    .clickable(role = Role.Button, onClick = onDelete)
+                    .clickable(role = Role.RadioButton) { if (!picked) onType(option) }
+                    .semantics { selected = picked }
                     .heightIn(min = 56.dp)
                     .padding(horizontal = 24.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                KamaeIcon(R.drawable.ic_delete, null, tint = colors.error)
-                Text(stringResource(R.string.delete_set), color = colors.error, fontSize = 16.sp)
+                Box(
+                    Modifier
+                        .size(width = 40.dp, height = 32.dp)
+                        .background(if (picked) colors.oliveSoft else colors.field, RoundedCornerShape(16.dp)),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        if (picked) label else option.letter ?: "01",
+                        color = if (picked) colors.onOliveSoft else colors.inkSoft,
+                        style = KitaeType.chip.copy(fontWeight = FontWeight.Bold),
+                    )
+                }
+                Text(setTypeName(option), Modifier.weight(1f), color = colors.ink, fontSize = 16.sp, fontWeight = if (picked) FontWeight.Medium else FontWeight.Normal)
+                if (picked) KamaeIcon(R.drawable.ic_check, null, tint = colors.olive)
             }
         }
     }
 }
 
+/** Delete set, in red. */
 @Composable
-private fun RestRow(rest: Int?, defaultRestSeconds: Int, onRest: (Int?) -> Unit) {
+fun DeleteSetRow(onDelete: () -> Unit) {
+    val colors = kitaeColors
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(role = Role.Button, onClick = onDelete)
+            .heightIn(min = 56.dp)
+            .padding(horizontal = 24.dp),
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        KamaeIcon(R.drawable.ic_delete, null, tint = colors.error)
+        Text(stringResource(R.string.delete_set), color = colors.error, fontSize = 16.sp)
+    }
+}
+
+/** The rest after a set: the default, or one of its own (the iPhone's `RestSection`). */
+@Composable
+fun RestRow(rest: Int?, defaultRestSeconds: Int, onRest: (Int?) -> Unit) {
     val colors = kitaeColors
     var open by remember { mutableStateOf(false) }
     val defaultText = stringResource(R.string.rest_default, if (defaultRestSeconds > 0) restLabel(defaultRestSeconds) else stringResource(R.string.rest_off))

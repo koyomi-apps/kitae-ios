@@ -2,30 +2,48 @@
 
 package ca.gureet.kitae.app
 
+import androidx.core.net.toUri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ca.gureet.kitae.backup.BackupContents
+import ca.gureet.kitae.backup.BackupException
+import ca.gureet.kitae.backup.BackupProblem
+import ca.gureet.kitae.backup.Backups
+import ca.gureet.kitae.database.ActivityWeeks
+import ca.gureet.kitae.database.DatabaseFiles
 import ca.gureet.kitae.database.DayWithExercises
 import ca.gureet.kitae.database.EpochDay
+import ca.gureet.kitae.database.ExerciseDraft
 import ca.gureet.kitae.database.FinishMode
+import ca.gureet.kitae.database.HistoryMonth
 import ca.gureet.kitae.database.PlanSummary
 import ca.gureet.kitae.database.PlanWithDays
 import ca.gureet.kitae.database.SetDraft
+import ca.gureet.kitae.database.SetType
+import ca.gureet.kitae.database.TrainingTotals
 import ca.gureet.kitae.database.Workout
 import ca.gureet.kitae.database.WorkoutExercise
+import ca.gureet.kitae.database.historyMonths
 import ca.gureet.kitae.model.AppSettings
 import ca.gureet.kitae.model.RestTimer
+import ca.gureet.kitae.model.WeightFormatter
 import ca.gureet.kitae.model.WeightUnit
 import ca.gureet.kitae.model.WorkoutProgress
+import ca.gureet.kitae.workout.phoneDecimalSeparator
+import java.io.File
 import kotlin.time.Instant
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.datetime.TimeZone
 
 /** What Today and the workout show, as the iPhone's `AppModel` keeps it. */
@@ -44,6 +62,11 @@ data class AppState(
     val isChoosingPlan: Boolean = false,
     /** Goes up each time a rest runs out, so the screen can tap the phone. */
     val restsFinished: Int = 0,
+    /** Goes up each time what's saved is read again, so the pages read theirs again too. */
+    val revision: Int = 0,
+    val backup: BackupState = BackupState(),
+    /** Set once a backup is restored or Kamae is reset, for Kamae to start again. */
+    val restarting: Boolean = false,
 ) {
     val days: List<DayWithExercises>
         get() = plan?.days.orEmpty()
@@ -58,6 +81,26 @@ data class AppState(
     val hasDoneSets: Boolean
         get() = hadDoneSets || (workout?.progress?.doneCount ?: 0) > 0
 }
+
+/** Where backups go, how the last one went, and a backup being restored. */
+data class BackupState(
+    val place: BackupPlace = BackupPlace(),
+    /** The backup folder's name, as Android's picker shows it. */
+    val folderName: String? = null,
+    val isWorking: Boolean = false,
+    /** Why the last backup didn't work. */
+    val lastProblem: BackupProblem? = null,
+    /** Why a backup can't be restored, to say in a dialog. */
+    val restoreProblem: BackupProblem? = null,
+    /** A backup that was checked and waits for "Restore this backup?". */
+    val restoring: PendingRestore? = null,
+)
+
+/** A checked backup, and the name of its file. */
+class PendingRestore(val name: String, val contents: BackupContents)
+
+/** You's totals and activity. */
+data class YouData(val totals: TrainingTotals, val weeks: ActivityWeeks)
 
 /** The workout in progress, its exercises and sets as the screen shows them, and its rest. */
 data class WorkoutState(
@@ -77,12 +120,15 @@ data class WorkoutState(
         get() = WorkoutProgress(exercises, hasDay = workout.dayId != null)
 }
 
-/** Kamae's state and what people do with it, for Today, the list of plans and the workout. */
+/**
+ * Kamae's state and what people do with it: Today, the list of plans and the workout, the pages'
+ * data, and the changes made on them, each of which reads everything again.
+ */
 class AppModel(
     private val container: AppContainer,
     private val clock: () -> Long = System::currentTimeMillis,
     private val timeZone: () -> TimeZone = TimeZone::currentSystemDefault,
-) : ViewModel(), AppActions {
+) : ViewModel(), AppActions, PageSource {
     private val database get() = container.database
 
     var state by mutableStateOf(AppState())
@@ -96,6 +142,23 @@ class AppModel(
         viewModelScope.launch {
             reload()
             if (state.plan == null) state = state.copy(isChoosingPlan = true)
+        }
+        viewModelScope.launch {
+            container.settings.backups.collect { place ->
+                val name = place.folderUri?.let { uri ->
+                    withContext(Dispatchers.IO) { BackupFolder(container.resolver, uri.toUri()).name }
+                }
+                state = state.copy(backup = state.backup.copy(place = place, folderName = name))
+            }
+        }
+        // The notification's buttons, and the end of a rest while Kamae is closed.
+        viewModelScope.launch {
+            container.restNotifications.changed.collect {
+                val workout = state.workout ?: return@collect
+                val rest = container.rest.load(workout.id, clock())
+                if (rest != workout.rest) state = state.copy(workout = workout.copy(rest = rest))
+                scheduleRestEnd()
+            }
         }
     }
 
@@ -120,8 +183,10 @@ class AppModel(
             hadDoneSets = workouts.hasDoneSets(),
             workout = workout,
             isWorkoutPresented = state.isWorkoutPresented && workout != null,
+            revision = state.revision + 1,
         )
         scheduleRestEnd()
+        syncRest()
     }
 
     /** Reads everything again, as when Kamae comes back to the front, maybe on another day. */
@@ -178,6 +243,7 @@ class AppModel(
         database.workouts().finish(workout.id, mode, addNewSets, clock())
         close(workout.id)
         reload()
+        if (settings.value.backUpAfterWorkouts && state.backup.place.folderUri != null) backUp()
         if (then != null) state.days.firstOrNull { it.day.id == then.day.id }?.let { begin(it) }
     }
 
@@ -201,12 +267,24 @@ class AppModel(
         restEnd?.cancel()
         container.rest.save(workoutId, RestTimer())
         state = state.copy(workout = null, isWorkoutPresented = false)
+        container.restNotifications.refresh(clock())
     }
 
     private suspend fun reloadWorkout() {
         val workout = state.workout ?: return
         val exercises = database.workouts().exercises(workout.id, workout.dayId)
         state = state.copy(workout = state.workout?.copy(exercises = exercises))
+        syncRest()
+    }
+
+    /** Keeps the rest notification showing the rest going, with the sets done and the next one. */
+    private fun syncRest() {
+        val workout = state.workout
+        if (workout != null && workout.rest.isActive) {
+            val settings = settings.value
+            container.restNotifications.describe(workout, WeightFormatter(settings.unit, settings.decimals, phoneDecimalSeparator()), settings.restAlerts)
+        }
+        container.restNotifications.refresh(clock())
     }
 
     /** Ticks a set off, or unticks it. Ticking starts the rest, unless it was the last set. */
@@ -254,6 +332,7 @@ class AppModel(
         state = state.copy(workout = workout.copy(rest = rest))
         container.rest.save(workout.id, rest)
         scheduleRestEnd()
+        syncRest()
     }
 
     /** When a rest runs out, it ends, and the screen taps the phone. */
@@ -264,8 +343,257 @@ class AppModel(
             delay(maxOf(endsAt - clock(), 0))
             val workout = state.workout ?: return@launch
             if (workout.rest.endsAt != endsAt) return@launch
+            // Ends it for the notification too, which says "Rest over" when Kamae isn't on screen.
+            container.restNotifications.handle(RestNotifications.ACTION_END, clock())
             container.rest.save(workout.id, RestTimer())
             state = state.copy(workout = workout.copy(rest = RestTimer()), restsFinished = state.restsFinished + 1)
         }
+    }
+    // The pages' data
+
+    override suspend fun historyMonths(): List<HistoryMonth> {
+        val activeId = state.workout?.id
+        return historyMonths(database.history().workouts(activeId), activeId)
+    }
+
+    override suspend fun workoutRecord(id: Long): WorkoutRecord? {
+        val history = database.history()
+        val summary = history.summary(id) ?: return null
+        return WorkoutRecord(
+            summary,
+            database.workouts().exercises(id, dayId = null),
+            history.previousId(id, summary.workout.dayId, summary.workout.date),
+        )
+    }
+
+    override suspend fun exerciseList(recent: Int): ExerciseList {
+        val exercises = database.exercises()
+        return ExerciseList(
+            exercises.all(),
+            exercises.lastSessions(),
+            if (recent > 0) exercises.recentIds(recent) else emptyList(),
+        )
+    }
+
+    override suspend fun exerciseDetails(id: Long): ExerciseDetails? {
+        val exercises = database.exercises()
+        val exercise = exercises.exercise(id) ?: return null
+        return ExerciseDetails(exercise, exercises.history(id))
+    }
+
+    override suspend fun plan(id: Long): PlanWithDays? = database.plans().plan(id)
+
+    // Changes on the pages
+
+    /** What a new set weighs when there's nothing to copy: three sets of 12 at 20 kg, or 45 lb. */
+    private val newSet: SetDraft
+        get() = SetDraft(12, settings.value.unit.defaultWeightKg)
+
+    override fun deleteWorkout(id: Long) = launch {
+        if (id == state.workout?.id) return@launch
+        database.workouts().discard(id)
+        reload()
+    }
+
+    override suspend fun saveExercise(draft: ExerciseDraft, id: Long?): Long {
+        val exercises = database.exercises()
+        val saved = if (id == null) exercises.create(draft) else id.also { exercises.update(it, draft) }
+        reload()
+        return saved
+    }
+
+    /** Not while the exercise is in the workout going. */
+    override fun deleteExercise(id: Long) = launch {
+        if (state.workout?.exercises?.any { it.exercise.id == id } == true) return@launch
+        database.exercises().delete(id)
+        reload()
+    }
+
+    override suspend fun createPlan(name: String): Long = database.planEdits().create(name).also { reload() }
+
+    override suspend fun renamePlan(planId: Long, name: String) {
+        database.planEdits().rename(planId, name)
+        reload()
+    }
+
+    /** Not the plan of the workout going. */
+    override fun deletePlan(planId: Long) = launch {
+        if (planId == state.workout?.workout?.planId) return@launch
+        database.planEdits().delete(planId)
+        state = state.copy(pickedDayId = null)
+        reload()
+    }
+
+    override suspend fun addDay(planId: Long, name: String): Long = database.planEdits().addDay(planId, name).also { reload() }
+
+    override suspend fun renameDay(dayId: Long, name: String) {
+        database.planEdits().renameDay(dayId, name)
+        reload()
+    }
+
+    /** Not the day of the workout going. */
+    override fun deleteDay(dayId: Long) = launch {
+        if (dayId == state.workout?.dayId) return@launch
+        database.planEdits().deleteDay(dayId)
+        if (state.pickedDayId == dayId) state = state.copy(pickedDayId = null)
+        reload()
+    }
+
+    override fun orderDays(dayIds: List<Long>) = launch {
+        database.planEdits().orderDays(dayIds)
+        reload()
+    }
+
+    override suspend fun addExerciseToDay(dayId: Long, exerciseId: Long): Long {
+        val edits = database.planEdits()
+        val sets = edits.suggestedSets(exerciseId, newSet)
+        return edits.addExercise(dayId, exerciseId, sets).also { reload() }
+    }
+
+    override fun removeFromDay(dayExerciseId: Long) = launch {
+        database.planEdits().removeExercise(dayExerciseId)
+        reload()
+    }
+
+    override fun orderExercises(dayExerciseIds: List<Long>) = launch {
+        database.planEdits().orderExercises(dayExerciseIds)
+        reload()
+    }
+
+    override fun addPlannedSet(dayExerciseId: Long, last: SetDraft?) = launch {
+        val set = last ?: newSet
+        database.planEdits().addSet(dayExerciseId, if (set.type == SetType.Warmup) set.copy(type = SetType.Standard) else set)
+        reload()
+    }
+
+    override fun updatePlannedSet(plannedSetId: Long, set: SetDraft) = launch {
+        database.planEdits().updateSet(plannedSetId, set)
+        reload()
+    }
+
+    override fun deletePlannedSet(plannedSetId: Long) = launch {
+        database.planEdits().deleteSet(plannedSetId)
+        reload()
+    }
+
+    // You
+
+    override suspend fun youData(today: Long, firstWeekday: Int): YouData {
+        val stats = database.stats()
+        return YouData(stats.totals(), stats.activity(today, firstWeekday))
+    }
+
+    // Settings
+
+    override fun updateSettings(change: (AppSettings) -> AppSettings) = launch { container.settings.update(change) }
+
+    override fun setBackupFolder(uri: String) = launch {
+        runCatching { BackupFolder.keep(container.resolver, uri.toUri()) }
+        container.settings.setBackupFolder(uri)
+        state = state.copy(backup = state.backup.copy(lastProblem = null))
+    }
+
+    override fun backUpNow() = launch { backUp() }
+
+    /** Saves a backup in the backup folder, as kitae_backup_DD_MM.zip, or [name]. */
+    private suspend fun backUp(name: String? = null): Boolean {
+        val uri = state.backup.place.folderUri ?: return false
+        state = state.copy(backup = state.backup.copy(isWorking = true))
+        val problem = withContext(Dispatchers.IO) {
+            try {
+                val folder = BackupFolder(container.resolver, uri.toUri())
+                if (!BackupFolder.isReachable(container.resolver, folder.uri)) return@withContext BackupProblem.FolderUnavailable
+                // Its own folder, apart from a backup being restored, which this one may come before.
+                val work = File(container.backupWork, "make").apply { deleteRecursively(); mkdirs() }
+                val zip = Backups.makeArchive(database, settings.value.backupPreferences(planChosen = state.plan != null), work.path, ZipArchive)
+                folder.save(File(zip), name ?: Backups.fileName(today()))
+                null
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (_: Exception) {
+                BackupProblem.FolderUnavailable
+            }
+        }
+        if (problem == null && name == null) container.settings.setLastBackup(clock() / 1000)
+        state = state.copy(backup = state.backup.copy(isWorking = false, lastProblem = problem))
+        return problem == null
+    }
+
+    /** Checks the backup at [uri] before asking whether to restore it. */
+    override fun openBackup(uri: String) = launch {
+        if (state.workout != null) {
+            state = state.copy(backup = state.backup.copy(restoreProblem = BackupProblem.WorkoutInProgress))
+            return@launch
+        }
+        state = state.copy(backup = state.backup.copy(isWorking = true))
+        val result = withContext(Dispatchers.IO) {
+            try {
+                val work = File(container.backupWork, "restore").apply { deleteRecursively(); mkdirs() }
+                val zip = File(work, "backup.zip")
+                val source = uri.toUri()
+                (container.resolver.openInputStream(source) ?: throw BackupException(BackupProblem.NotKitae)).use { input ->
+                    zip.outputStream().use { input.copyTo(it) }
+                }
+                Result.success(PendingRestore(displayName(container.resolver, source), Backups.open(zip.path, work.path, ZipArchive)))
+            } catch (problem: BackupException) {
+                Result.failure(problem)
+            } catch (cancelled: CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                Result.failure(BackupException(BackupProblem.NotKitae, error))
+            }
+        }
+        state = state.copy(
+            backup = state.backup.copy(
+                isWorking = false,
+                restoring = result.getOrNull(),
+                restoreProblem = (result.exceptionOrNull() as? BackupException)?.problem,
+            ),
+        )
+    }
+
+    override fun cancelRestore() {
+        state = state.copy(backup = state.backup.copy(restoring = null, restoreProblem = null))
+    }
+
+    /**
+     * Restores the checked backup: what's in Kamae now is saved first in the backup folder, then
+     * the database and settings are replaced and Kamae starts again, so nothing keeps using the
+     * closed database.
+     */
+    override fun restoreBackup() = launch {
+        val pending = state.backup.restoring ?: return@launch
+        if (state.workout != null) {
+            state = state.copy(backup = state.backup.copy(restoring = null, restoreProblem = BackupProblem.WorkoutInProgress))
+            return@launch
+        }
+        if (state.backup.place.folderUri != null && !backUp(Backups.BEFORE_RESTORE_NAME)) {
+            state = state.copy(backup = state.backup.copy(restoring = null, restoreProblem = BackupProblem.FolderUnavailable))
+            return@launch
+        }
+        restEnd?.cancel()
+        withContext(Dispatchers.IO) {
+            container.database.close()
+            Backups.install(pending.contents, container.databasePath)
+        }
+        container.settings.restore(pending.contents.preferences)
+        state = state.copy(restarting = true)
+    }
+
+    /** Deletes everything but the backups, like a fresh install, and starts again. */
+    override fun resetKamae() = launch {
+        restEnd?.cancel()
+        state.workout?.let { container.rest.save(it.id, RestTimer()) }
+        container.restNotifications.refresh(clock())
+        withContext(Dispatchers.IO) {
+            container.database.close()
+            DatabaseFiles.delete(container.databasePath)
+        }
+        container.settings.reset()
+        state = state.copy(restarting = true)
+    }
+
+    override fun dismissBackupProblem() {
+        state = state.copy(backup = state.backup.copy(restoreProblem = null))
     }
 }

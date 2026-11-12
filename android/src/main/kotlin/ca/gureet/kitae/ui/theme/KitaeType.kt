@@ -122,7 +122,14 @@ val KamaeTypography: Typography = Typography().let { base ->
         displayMedium = base.displayMedium.copy(fontFamily = DarkerGrotesque, fontWeight = FontWeight.Bold),
         displaySmall = base.displaySmall.copy(fontFamily = DarkerGrotesque, fontWeight = FontWeight.Bold),
         headlineLarge = base.headlineLarge.copy(fontFamily = DarkerGrotesque, fontWeight = FontWeight.Bold),
-        headlineMedium = base.headlineMedium.copy(fontFamily = DarkerGrotesque, fontWeight = FontWeight.Bold),
+        // The big titles of History and Exercises, in the large top app bar.
+        headlineMedium = base.headlineMedium.copy(
+            fontFamily = DarkerGrotesque,
+            fontWeight = FontWeight.Bold,
+            fontSize = 48.sp,
+            lineHeight = 52.sp,
+            letterSpacing = (-0.5).sp,
+        ),
         headlineSmall = base.headlineSmall.copy(fontFamily = DarkerGrotesque, fontWeight = FontWeight.Bold),
     )
 }

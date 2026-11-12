@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -67,12 +68,13 @@ fun TodayScreen(
     onSelectPlan: (Long) -> Unit,
     onChoosePlan: () -> Unit,
     modifier: Modifier = Modifier,
+    onEditPlan: (dayId: Long?) -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(),
     line: Int = rememberSaveable { Random.nextInt(6) },
 ) {
     val plan = state.plan
     Column(modifier.fillMaxSize().padding(contentPadding)) {
-        TopBar(state, onSelectPlan, onChoosePlan)
+        TopBar(state, onSelectPlan, onChoosePlan, onEditPlan)
         when {
             !state.loaded -> Unit
             plan == null -> Centered {
@@ -85,9 +87,15 @@ fun TodayScreen(
                 )
             }
             plan.days.isEmpty() -> Centered {
-                EmptyState(R.drawable.ic_today, stringResource(R.string.no_days_title), stringResource(R.string.no_days_text))
+                EmptyState(
+                    R.drawable.ic_today,
+                    stringResource(R.string.no_days_title),
+                    stringResource(R.string.no_days_text),
+                    action = stringResource(R.string.edit_plan),
+                    onAction = { onEditPlan(null) },
+                )
             }
-            else -> Day(state, state.selectedDay ?: plan.days.first(), onPickDay, onStart, line)
+            else -> Day(state, state.selectedDay ?: plan.days.first(), onPickDay, onStart, { onEditPlan(it) }, line)
         }
     }
 }
@@ -98,7 +106,7 @@ private fun Centered(content: @Composable () -> Unit) {
 }
 
 @Composable
-private fun TopBar(state: AppState, onSelectPlan: (Long) -> Unit, onChoosePlan: () -> Unit) {
+private fun TopBar(state: AppState, onSelectPlan: (Long) -> Unit, onChoosePlan: () -> Unit, onEditPlan: (Long?) -> Unit) {
     val colors = kitaeColors
     var menuOpen by rememberSaveable { mutableStateOf(false) }
     Row(Modifier.fillMaxWidth().height(64.dp).padding(horizontal = 4.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -139,6 +147,12 @@ private fun TopBar(state: AppState, onSelectPlan: (Long) -> Unit, onChoosePlan: 
                 )
             }
         }
+        Box(Modifier.weight(1f))
+        state.selectedDay?.let { day ->
+            IconButton(onClick = { onEditPlan(day.day.id) }) {
+                KamaeIcon(R.drawable.ic_edit, stringResource(R.string.edit_named, day.day.name), tint = colors.ink)
+            }
+        }
     }
 }
 
@@ -148,6 +162,7 @@ private fun Day(
     day: DayWithExercises,
     onPickDay: (Long) -> Unit,
     onStart: (DayWithExercises) -> Unit,
+    onEdit: (Long) -> Unit,
     line: Int,
 ) {
     val colors = kitaeColors
@@ -189,11 +204,18 @@ private fun Day(
                 DayChip(option.day.name, option.day.id == day.day.id, onClick = { onPickDay(option.day.id) })
             }
         }
-        if (day.exercises.isNotEmpty()) {
-            MauveButton(onClick = { onStart(day) }, modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 20.dp)) {
-                Text(stringResource(if (isGoing) R.string.continue_workout else R.string.start), style = KitaeType.bigButton)
-                KamaeIcon(R.drawable.ic_start, null, tint = colors.onMauve, size = 18.dp)
+        val isEmpty = day.exercises.isEmpty() && !isGoing
+        MauveButton(
+            onClick = { if (isEmpty) onEdit(day.day.id) else onStart(day) },
+            modifier = Modifier.fillMaxWidth().padding(start = 24.dp, end = 24.dp, top = 20.dp),
+        ) {
+            val text = when {
+                isGoing -> stringResource(R.string.continue_workout)
+                isEmpty -> stringResource(R.string.edit_named, day.day.name)
+                else -> stringResource(R.string.start)
             }
+            Text(text, style = KitaeType.bigButton, maxLines = 1, overflow = TextOverflow.Ellipsis)
+            KamaeIcon(if (isEmpty) R.drawable.ic_edit else R.drawable.ic_start, null, tint = colors.onMauve, size = 18.dp)
         }
         Text(
             stringArrayResource(R.array.today_lines)[line % 6],

@@ -4,6 +4,7 @@ package ca.gureet.kitae.workout
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,6 +27,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -42,6 +44,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.pointer.pointerInput
@@ -49,12 +52,14 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ca.gureet.kitae.R
+import ca.gureet.kitae.app.Route
 import ca.gureet.kitae.app.WorkoutState
 import ca.gureet.kitae.database.EpochDay
 import ca.gureet.kitae.database.FinishMode
@@ -121,6 +126,7 @@ fun WorkoutScreen(
     actions: WorkoutActions,
     restsFinished: Int = 0,
     frozenNow: Long? = null,
+    onOpen: (Route) -> Unit = {},
 ) {
     val colors = kitaeColors
     val now = rememberNow(frozenNow)
@@ -147,7 +153,15 @@ fun WorkoutScreen(
     ) {
         val narrow = maxWidth < 380.dp
         Column(Modifier.fillMaxSize()) {
-            Header(workout, dayName, now, typing = focused != null, onMinimize = actions::minimize, onDiscard = { confirmDiscard = true })
+            Header(
+                workout,
+                dayName,
+                now,
+                typing = focused != null,
+                onMinimize = actions::minimize,
+                onDiscard = { confirmDiscard = true },
+                onEdit = { planId, dayId -> onOpen(Route.PlanEditor(planId, dayId)) },
+            )
             LazyColumn(
                 Modifier.fillMaxWidth(),
                 state = list,
@@ -162,6 +176,7 @@ fun WorkoutScreen(
                         focused,
                         onFocus = { focused = it },
                         onOptions = { optionsFor = it },
+                        onOpen = { onOpen(Route.ExercisePage(exercise.exercise.id)) },
                         actions,
                         Modifier.widthIn(max = 600.dp),
                     )
@@ -215,7 +230,15 @@ fun WorkoutScreen(
 }
 
 @Composable
-private fun Header(workout: WorkoutState, dayName: String, now: Long, typing: Boolean, onMinimize: () -> Unit, onDiscard: () -> Unit) {
+private fun Header(
+    workout: WorkoutState,
+    dayName: String,
+    now: Long,
+    typing: Boolean,
+    onMinimize: () -> Unit,
+    onDiscard: () -> Unit,
+    onEdit: (planId: Long, dayId: Long) -> Unit,
+) {
     val colors = kitaeColors
     var menuOpen by remember { mutableStateOf(false) }
     Row(
@@ -248,17 +271,26 @@ private fun Header(workout: WorkoutState, dayName: String, now: Long, typing: Bo
                 maxLines = 1,
             )
         }
-        Box(Modifier.width(100.dp), contentAlignment = Alignment.CenterEnd) {
-            IconButton(onClick = { menuOpen = true }) { KamaeIcon(R.drawable.ic_more, stringResource(R.string.more_options), tint = colors.inkSoft) }
-            DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
-                DropdownMenuItem(
-                    text = { Text(stringResource(R.string.discard_workout), color = colors.error) },
-                    leadingIcon = { KamaeIcon(R.drawable.ic_delete, null, tint = colors.error) },
-                    onClick = {
-                        menuOpen = false
-                        onDiscard()
-                    },
-                )
+        Row(Modifier.width(100.dp), horizontalArrangement = Arrangement.End) {
+            val planId = workout.workout.planId
+            val dayId = workout.dayId
+            if (planId != null && dayId != null && workout.dayName != null) {
+                IconButton(onClick = { onEdit(planId, dayId) }) {
+                    KamaeIcon(R.drawable.ic_edit, stringResource(R.string.edit_named, dayName), tint = colors.inkSoft)
+                }
+            }
+            Box {
+                IconButton(onClick = { menuOpen = true }) { KamaeIcon(R.drawable.ic_more, stringResource(R.string.more_options), tint = colors.inkSoft) }
+                DropdownMenu(expanded = menuOpen, onDismissRequest = { menuOpen = false }) {
+                    DropdownMenuItem(
+                        text = { Text(stringResource(R.string.discard_workout), color = colors.error) },
+                        leadingIcon = { KamaeIcon(R.drawable.ic_delete, null, tint = colors.error) },
+                        onClick = {
+                            menuOpen = false
+                            onDiscard()
+                        },
+                    )
+                }
             }
         }
     }
@@ -271,18 +303,31 @@ private fun ExerciseSection(
     focused: FieldKey?,
     onFocus: (FieldKey?) -> Unit,
     onOptions: (Long) -> Unit,
+    onOpen: () -> Unit,
     actions: WorkoutActions,
     modifier: Modifier = Modifier,
 ) {
     val colors = kitaeColors
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.Top) {
-            Text(
-                exercise.exercise.name,
-                Modifier.weight(1f).padding(start = 4.dp, top = 4.dp).semantics { heading() },
-                color = colors.olive,
-                style = KitaeType.sectionTitle,
-            )
+            Row(
+                Modifier
+                    .weight(1f)
+                    .padding(top = 2.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable(onClickLabel = stringResource(R.string.shows_exercise), role = Role.Button, onClick = onOpen)
+                    .padding(start = 4.dp, top = 2.dp, end = 8.dp, bottom = 2.dp),
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    exercise.exercise.name,
+                    Modifier.weight(1f, fill = false).semantics { heading() },
+                    color = colors.olive,
+                    style = KitaeType.sectionTitle,
+                )
+                KamaeIcon(R.drawable.ic_chevron_forward, null, tint = colors.inkFaint, size = 16.dp)
+            }
             val addLabel = stringResource(R.string.add_set_to, exercise.exercise.name)
             IconButton(onClick = { actions.addSet(exercise.exercise.id) }, modifier = Modifier.size(48.dp)) {
                 Box(Modifier.size(36.dp).background(colors.oliveSoft, CircleShape), contentAlignment = Alignment.Center) {
@@ -387,7 +432,7 @@ private fun BoxScope.KeyboardBar(
 }
 
 @Composable
-private fun StepButton(text: String, onClick: () -> Unit) {
+internal fun StepButton(text: String, onClick: () -> Unit) {
     val colors = kitaeColors
     Surface(onClick = onClick, shape = CircleShape, color = colors.field, contentColor = colors.ink) {
         Text(text, Modifier.padding(horizontal = 14.dp, vertical = 9.dp), style = KitaeType.step)

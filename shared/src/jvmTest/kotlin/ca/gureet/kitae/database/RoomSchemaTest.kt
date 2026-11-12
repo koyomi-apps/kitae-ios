@@ -20,8 +20,8 @@ import kotlinx.serialization.json.jsonPrimitive
  * hash matches, so a difference here means neither app could open the other's files.
  */
 class RoomSchemaTest {
-    private val exported = database("kitae.exportedSchema")
-    private val iPhone = database("kitae.iPhoneSchema")
+    private val exported = database(File(System.getProperty("kitae.schemas"), "ca.gureet.kitae.database.KitaeDatabase/10.json"))
+    private val iPhone = database(File(System.getProperty("kitae.iPhoneSchema")))
 
     @Test
     fun versionTenHasTheIPhonesIdentityHash() {
@@ -44,11 +44,9 @@ class RoomSchemaTest {
         assertEquals(iPhone.withoutFieldPaths(), exported.withoutFieldPaths())
     }
 
-    /** The schema's `database`, from the file a system property names (see `shared/build.gradle.kts`). */
-    private fun database(property: String): JsonObject {
-        val path = checkNotNull(System.getProperty(property)) { "$property isn't set." }
-        return Json.parseToJsonElement(File(path).readText()).jsonObject.getValue("database").jsonObject
-    }
+    /** A schema file's `database`. `shared/build.gradle.kts` says where the files are. */
+    private fun database(file: File): JsonObject =
+        Json.parseToJsonElement(file.readText()).jsonObject.getValue("database").jsonObject
 
     private fun JsonObject.string(key: String) = getValue(key).jsonPrimitive.content
 

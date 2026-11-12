@@ -6,6 +6,7 @@ import androidx.room3.ConstructedBy
 import androidx.room3.Database
 import androidx.room3.RoomDatabase
 import androidx.room3.RoomDatabaseConstructor
+import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 
 /**
  * Kitae's database, version 10: the same tables as Kitae for iPhone's, so that each app opens
@@ -37,3 +38,13 @@ abstract class KitaeDatabase : RoomDatabase()
 expect object KitaeDatabaseConstructor : RoomDatabaseConstructor<KitaeDatabase> {
     override fun initialize(): KitaeDatabase
 }
+
+/**
+ * Builds Kitae's database from this builder, which each platform makes for its file. SQLite
+ * comes with the app, as Kitae's own tables need a newer one than older Android versions have, and
+ * databases and backups from versions 8 and 9 are brought up to 10 with what [seed] says.
+ */
+fun RoomDatabase.Builder<KitaeDatabase>.buildKitaeDatabase(seed: Seed): KitaeDatabase =
+    setDriver(BundledSQLiteDriver())
+        .addMigrations(*kitaeMigrations(seed))
+        .build()

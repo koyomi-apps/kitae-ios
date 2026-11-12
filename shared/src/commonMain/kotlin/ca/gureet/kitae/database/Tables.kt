@@ -176,7 +176,10 @@ data class PlannedSet(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     /** Rest after this set. Null uses the exercise's rest, or the default. */
     val restSeconds: Int? = null,
-)
+) {
+    val setType: SetType
+        get() = SetType.fromStored(type)
+}
 
 /**
  * A set of a workout.
@@ -228,7 +231,14 @@ data class WorkoutSet(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     /** Rest after this set. Null uses the exercise's rest, or the default. */
     val restSeconds: Int? = null,
-)
+) {
+    val setType: SetType
+        get() = SetType.fromStored(type)
+
+    /** Added during the workout rather than planned. */
+    val isAdded: Boolean
+        get() = plannedSetId == null
+}
 
 /**
  * How much each set type counted towards Kitae for Android's performance rating. Kitae for

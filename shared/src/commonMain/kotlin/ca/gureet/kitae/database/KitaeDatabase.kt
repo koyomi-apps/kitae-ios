@@ -34,6 +34,8 @@ import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 @ConstructedBy(KitaeDatabaseConstructor::class)
 abstract class KitaeDatabase : RoomDatabase() {
     abstract fun plans(): Plans
+
+    abstract fun workouts(): Workouts
 }
 
 /** Room's compiler writes this for each platform. */

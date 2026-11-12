@@ -64,6 +64,145 @@ abstract class Plans {
         }
     }
 
+    // Taking a workout back into the plan
+
+    /**
+     * Copies what was done in a workout back into its day, so next time starts from there. With
+     * [addNewSets], sets added during the workout join the day too.
+     */
+    @Transaction
+    internal open suspend fun applyWorkout(workoutId: Long, addNewSets: Boolean) {
+        copyDoneSets(workoutId)
+        for (dayExerciseId in dayExercisesDone(workoutId)) groupWarmups(dayExerciseId)
+        if (!addNewSets) return
+        val dayId = dayOfWorkout(workoutId) ?: return
+        for ((exerciseId, sets) in addedSetsDone(workoutId).groupBy { it.exerciseId }) {
+            val dayExerciseId = dayExerciseFor(dayId, exerciseId)
+            for (set in sets) {
+                val plannedSetId = insertPlannedSetAtEnd(dayExerciseId, set.reps, set.weightKg, set.type, set.restSeconds)
+                linkToPlannedSet(set.id, plannedSetId)
+            }
+            groupWarmups(dayExerciseId)
+        }
+    }
+
+    /** Moves an exercise's planned warm-ups in front of its other sets. */
+    internal suspend fun groupWarmups(dayExerciseId: Long) {
+        val moves = warmupsFirst(plannedSetsOf(dayExerciseId), { it.position }, { it.setType == SetType.Warmup })
+        for ((set, position) in moves) setPosition(set.id, position)
+    }
+
+    /** The exercise's first place in the day, added at the end if it isn't there yet. */
+    private suspend fun dayExerciseFor(dayId: Long, exerciseId: Long): Long =
+        firstDayExercise(dayId, exerciseId) ?: insertDayExerciseAtEnd(dayId, exerciseId)
+
+    @Query(
+        """
+        UPDATE `routine_sets` SET
+        `reps` =
+        (SELECT `sets`.`reps`
+        FROM `sets`
+        WHERE `sets`.`routineSetId` = `routine_sets`.`id`
+        AND `sets`.`sessionId` = :workoutId
+        AND `sets`.`isCompleted` = 1),
+        `weight` =
+        (SELECT `sets`.`weight`
+        FROM `sets`
+        WHERE `sets`.`routineSetId` = `routine_sets`.`id`
+        AND `sets`.`sessionId` = :workoutId
+        AND `sets`.`isCompleted` = 1),
+        `type` =
+        (SELECT `sets`.`type`
+        FROM `sets`
+        WHERE `sets`.`routineSetId` = `routine_sets`.`id`
+        AND `sets`.`sessionId` = :workoutId
+        AND `sets`.`isCompleted` = 1),
+        `restSeconds` =
+        (SELECT `sets`.`restSeconds`
+        FROM `sets`
+        WHERE `sets`.`routineSetId` = `routine_sets`.`id`
+        AND `sets`.`sessionId` = :workoutId
+        AND `sets`.`isCompleted` = 1)
+        WHERE `id` IN
+        (SELECT `routineSetId`
+        FROM `sets`
+        WHERE `sessionId` = :workoutId
+        AND `isCompleted` = 1
+        AND `routineSetId` IS NOT NULL)
+        """,
+    )
+    protected abstract suspend fun copyDoneSets(workoutId: Long)
+
+    @Query(
+        """
+        SELECT DISTINCT `routine_sets`.`routineExerciseId`
+        FROM `routine_sets`
+        INNER JOIN `sets` ON `sets`.`routineSetId` = `routine_sets`.`id`
+        WHERE `sets`.`sessionId` = :workoutId
+        AND `sets`.`isCompleted` = 1
+        """,
+    )
+    protected abstract suspend fun dayExercisesDone(workoutId: Long): List<Long>
+
+    @Query("SELECT `routineId` FROM `sessions` WHERE `id` = :workoutId")
+    protected abstract suspend fun dayOfWorkout(workoutId: Long): Long?
+
+    @Query(
+        """
+        SELECT *
+        FROM `sets`
+        WHERE `sessionId` = :workoutId
+        AND `isCompleted` = 1
+        AND `routineSetId` IS NULL
+        ORDER BY `order` ASC, `id` ASC
+        """,
+    )
+    protected abstract suspend fun addedSetsDone(workoutId: Long): List<WorkoutSet>
+
+    @Query(
+        """
+        SELECT `id`
+        FROM `routine_exercises`
+        WHERE `routineId` = :dayId
+        AND `exerciseId` = :exerciseId
+        ORDER BY `position` ASC, `id` ASC
+        LIMIT 1
+        """,
+    )
+    protected abstract suspend fun firstDayExercise(dayId: Long, exerciseId: Long): Long?
+
+    @Query(
+        """
+        INSERT INTO `routine_exercises` (`routineId`, `exerciseId`, `position`)
+        VALUES (:dayId, :exerciseId, (SELECT COALESCE(MAX(`position`), -1) + 1 FROM `routine_exercises` WHERE `routineId` = :dayId))
+        """,
+    )
+    protected abstract suspend fun insertDayExerciseAtEnd(dayId: Long, exerciseId: Long): Long
+
+    @Query(
+        """
+        INSERT INTO `routine_sets` (`routineExerciseId`, `reps`, `weight`, `type`, `position`, `restSeconds`)
+        VALUES (:dayExerciseId, :reps, :weightKg, :type,
+        (SELECT COALESCE(MAX(`position`), -1) + 1 FROM `routine_sets` WHERE `routineExerciseId` = :dayExerciseId), :restSeconds)
+        """,
+    )
+    protected abstract suspend fun insertPlannedSetAtEnd(
+        dayExerciseId: Long,
+        reps: Int,
+        weightKg: Double,
+        type: String,
+        restSeconds: Int?,
+    ): Long
+
+    @Query("UPDATE `sets` SET `routineSetId` = :plannedSetId WHERE `id` = :setId")
+    protected abstract suspend fun linkToPlannedSet(setId: Long, plannedSetId: Long)
+
+    @Query("SELECT * FROM `routine_sets` WHERE `routineExerciseId` = :dayExerciseId ORDER BY `position` ASC, `id` ASC")
+    protected abstract suspend fun plannedSetsOf(dayExerciseId: Long): List<PlannedSet>
+
+    @Query("UPDATE `routine_sets` SET `position` = :position WHERE `id` = :plannedSetId")
+    protected abstract suspend fun setPosition(plannedSetId: Long, position: Int)
+
     @Query("SELECT * FROM `plan_history` WHERE `end` IS NULL AND `start` IS NOT NULL")
     protected abstract suspend fun currentHistory(): PlanHistory?
 

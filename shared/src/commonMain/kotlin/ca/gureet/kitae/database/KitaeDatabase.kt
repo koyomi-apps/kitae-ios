@@ -42,6 +42,8 @@ abstract class KitaeDatabase : RoomDatabase() {
     abstract fun history(): History
 
     abstract fun stats(): Stats
+
+    abstract fun exercises(): Exercises
 }
 
 /** Room's compiler writes this for each platform. */

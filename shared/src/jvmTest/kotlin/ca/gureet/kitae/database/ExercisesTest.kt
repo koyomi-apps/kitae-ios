@@ -2,7 +2,6 @@
 
 package ca.gureet.kitae.database
 
-import androidx.room3.useWriterConnection
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -12,7 +11,11 @@ import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeout
 
 /** Exercises: their details, making and changing them, and how they've gone, as the iPhone's `ExerciseTests` check them. */
 class ExercisesTest : DatabaseFileTest() {
@@ -132,11 +135,112 @@ class ExercisesTest : DatabaseFileTest() {
 
     @Test
     fun deletingAnExerciseDeletesItsNote() = runBlocking {
-        database.useWriterConnection { connection ->
-            connection.usePrepared("INSERT INTO exercise_notes (exerciseId, note) VALUES ($benchId, 'Seat on 4')") { it.step() }
-        }
+        database.notes.save(benchId, "Seat on 4")
         exercises.delete(benchId)
         assertEquals(0, database.number("SELECT COUNT(*) FROM exercise_notes"))
+        assertTrue(database.notes.all().isEmpty())
+    }
+
+    @Test
+    fun notesAreTrimmedAndGoWhenEmptied() = runBlocking {
+        val seen = mutableListOf<Map<Long, String>>()
+        val watching = launch(Dispatchers.Unconfined) { database.notes.observeAll().collect { seen += it } }
+        database.notes.save(benchId, "  Seat on 4\n")
+        assertEquals(mapOf(benchId to "Seat on 4"), database.notes.all())
+        database.notes.save(benchId, "Seat on 5")
+        assertEquals(mapOf(benchId to "Seat on 5"), database.notes.all())
+        database.notes.save(benchId, " \n ")
+        assertTrue(database.notes.all().isEmpty())
+        // Each change reaches whoever follows the notes.
+        withTimeout(5_000) { while (seen.lastOrNull()?.isEmpty() != true || seen.size < 2) delay(10) }
+        assertTrue(mapOf(benchId to "Seat on 5") in seen)
+        watching.cancel()
+    }
+
+    @Test
+    fun recentExercisesAreTheNewestDone() = runBlocking {
+        workout(TODAY - 7, listOf(SetDraft(reps = 10, weightKg = 20.0)))
+        val day = plan.days[1]
+        val workouts = database.workouts()
+        val date = TODAY - 3
+        val id = workouts.start(day.day.id, date, date * 86_400_000)
+        val dayExercises = workouts.exercises(id, day.day.id)
+        workouts.setDone(dayExercises[1].sets.first().id, true)
+        workouts.finish(id, FinishMode.KeepSkipped, addNewSets = false, now = date * 86_400_000 + 3_600_000)
+        val done = dayExercises[1].exercise.id
+        val recent = exercises.recentIds(5)
+        // The day's first exercise had no set done, so it isn't recent.
+        assertEquals(listOf(done, benchId), recent)
+        assertTrue(dayExercises[0].exercise.id !in recent)
+        assertEquals(listOf(done), exercises.recentIds(1))
+    }
+
+    @Test
+    fun aWorkoutsNewBestsAreReadFromItsSets() = runBlocking {
+        val first = workout(TODAY - 7, listOf(SetDraft(reps = 10, weightKg = 20.0)))
+        val second = workout(TODAY - 3, listOf(SetDraft(reps = 10, weightKg = 22.5)))
+        assertTrue(exercises.newBests(first).isEmpty())
+        val bests = exercises.newBests(second)
+        assertEquals(listOf(benchId), bests.map { it.exercise.id })
+        assertEquals(listOf(NewBest.Record.Heaviest), bests.map { it.record })
+        assertEquals(22.5, bests.first().set.weightKg)
+        assertEquals(20.0, bests.first().previous.weightKg)
+    }
+
+    @Test
+    fun newBestsBeatEveryWorkoutBefore() {
+        val bench = Exercise(id = 1, name = "Bench Press", target = "Chest")
+        val history = listOf(
+            ExerciseSession(id = 4, date = 40, sets = listOf(SetDraft(reps = 5, weightKg = 90.0))),
+            ExerciseSession(
+                id = 3,
+                date = 30,
+                sets = listOf(
+                    SetDraft(reps = 15, weightKg = 40.0, type = SetType.Warmup),
+                    SetDraft(reps = 6, weightKg = 100.0),
+                    SetDraft(reps = 9, weightKg = 80.0),
+                ),
+            ),
+            ExerciseSession(id = 2, date = 20, sets = listOf(SetDraft(reps = 5, weightKg = 100.0), SetDraft(reps = 8, weightKg = 80.0))),
+            ExerciseSession(id = 1, date = 10, sets = listOf(SetDraft(reps = 5, weightKg = 95.0), SetDraft(reps = 8, weightKg = 80.0))),
+        )
+        fun records(id: Long) = NewBest.find(bench, history, id).map { it.record }
+        // The first time there's nothing to beat, and a heavier set with the same reps counts once.
+        assertTrue(records(1).isEmpty())
+        assertEquals(listOf(NewBest.Record.Heaviest), records(2))
+        val third = NewBest.find(bench, history, 3)
+        assertEquals(listOf(NewBest.Record.Heaviest, NewBest.Record.MostReps), third.map { it.record })
+        assertEquals(SetDraft(reps = 6, weightKg = 100.0), third[0].set)
+        assertEquals(SetDraft(reps = 5, weightKg = 100.0), third[0].previous)
+        // The warm-up's 15 reps don't count.
+        assertEquals(SetDraft(reps = 9, weightKg = 80.0), third[1].set)
+        assertEquals(SetDraft(reps = 8, weightKg = 80.0), third[1].previous)
+        assertTrue(records(4).isEmpty())
+    }
+
+    @Test
+    fun newBestsWithoutWeightOrWithHelp() {
+        // A weight left from before sit-ups stopped using weight doesn't count.
+        val situps = Exercise(id = 2, name = "Sit-ups", target = "Core", usesWeight = false)
+        val reps = listOf(
+            ExerciseSession(id = 2, date = 20, sets = listOf(SetDraft(reps = 21, weightKg = 0.0))),
+            ExerciseSession(id = 1, date = 10, sets = listOf(SetDraft(reps = 20, weightKg = 10.0))),
+        )
+        assertEquals(listOf(NewBest.Record.MostReps), NewBest.find(situps, reps, 2).map { it.record })
+        val plank = Exercise(id = 3, name = "Plank", target = "Core", isIsometric = true, usesWeight = false)
+        val holds = listOf(
+            ExerciseSession(id = 2, date = 20, sets = listOf(SetDraft(reps = 75, weightKg = 0.0))),
+            ExerciseSession(id = 1, date = 10, sets = listOf(SetDraft(reps = 60, weightKg = 0.0))),
+        )
+        assertEquals(listOf(NewBest.Record.LongestHold), NewBest.find(plank, holds, 2).map { it.record })
+        val assisted = Exercise(id = 4, name = "Assisted Pull-ups", target = "Lats", libraryKey = "assisted-pull-ups")
+        val help = listOf(
+            ExerciseSession(id = 2, date = 20, sets = listOf(SetDraft(reps = 8, weightKg = 25.0))),
+            ExerciseSession(id = 1, date = 10, sets = listOf(SetDraft(reps = 8, weightKg = 30.0))),
+        )
+        val bests = NewBest.find(assisted, help, 2)
+        assertEquals(listOf(NewBest.Record.LeastHelp), bests.map { it.record })
+        assertEquals(30.0, bests.first().previous.weightKg)
     }
 
     @Test
@@ -231,5 +335,10 @@ class ExercisesTest : DatabaseFileTest() {
         assertEquals(SetDraft(reps = 8, weightKg = 20.0), records.best)
         assertEquals(3, records.bestDate)
         assertEquals(SetDraft(reps = 10, weightKg = 25.0), records.mostReps)
+        // Kitae's assisted dips and pull-ups are assisted; its dips and people's own exercises aren't.
+        assertTrue(Exercise(id = 1, name = "Assisted Dips", target = "Triceps", libraryKey = "assisted-dips").isAssisted)
+        assertTrue(Exercise(id = 4, name = "Assisted Pull-ups", target = "Lats", libraryKey = "assisted-pull-ups").isAssisted)
+        assertFalse(Exercise(id = 2, name = "Dips", target = "Triceps", libraryKey = "dips").isAssisted)
+        assertFalse(Exercise(id = 3, name = "Assisted Dips", target = "Triceps").isAssisted)
     }
 }

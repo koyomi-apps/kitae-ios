@@ -2,6 +2,7 @@
 
 package ca.gureet.kitae.database
 
+import androidx.room3.PooledConnection
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.execSQL
@@ -55,6 +56,20 @@ internal inline fun SQLiteConnection.transaction(block: () -> Unit) {
     }
     execSQL("END TRANSACTION")
 }
+
+/** Runs [sql] with [arguments] on one of Room's connections, as Kitae's own tables are written. */
+internal suspend fun PooledConnection.execute(sql: String, vararg arguments: Any?) {
+    usePrepared(sql) { statement ->
+        statement.bind(arguments)
+        statement.step()
+    }
+}
+
+internal fun SQLiteStatement.doubleOrNull(index: Int): Double? = if (isNull(index)) null else getDouble(index)
+
+internal fun SQLiteStatement.longOrNull(index: Int): Long? = if (isNull(index)) null else getLong(index)
+
+internal fun SQLiteStatement.textOrNull(index: Int): String? = if (isNull(index)) null else getText(index)
 
 private fun SQLiteStatement.bind(arguments: Array<out Any?>) {
     arguments.forEachIndexed { index, argument ->

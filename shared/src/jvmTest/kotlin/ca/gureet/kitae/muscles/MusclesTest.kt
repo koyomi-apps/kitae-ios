@@ -3,6 +3,7 @@
 package ca.gureet.kitae.muscles
 
 import ca.gureet.kitae.database.DatabaseFileTest
+import ca.gureet.kitae.database.DoneSet
 import ca.gureet.kitae.database.Exercise
 import ca.gureet.kitae.database.ExerciseSetCount
 import ca.gureet.kitae.database.FinishMode
@@ -92,4 +93,17 @@ class MusclesTest : DatabaseFileTest() {
         assertEquals(first.sets.size - 1, counts.single().sets)
         database.close()
     }
+
+    @Test
+    fun aWorkoutsMusclesComeFromItsSetsButNotItsWarmUps() {
+        val sets = listOf(
+            DoneSet(21, "barbell-bench-press", "Chest", isIsometric = false, reps = 10, weightKg = 60.0, type = SetType.Standard),
+            DoneSet(21, "barbell-bench-press", "Chest", isIsometric = false, reps = 10, weightKg = 40.0, type = SetType.Warmup),
+        )
+        val volume = MuscleVolume.of(sets, muscles)
+        assertEquals(1, volume.totalSets)
+        assertEquals(1.0, volume.sets[Muscle.Chest])
+        assertEquals(0.5, volume.sets[Muscle.Triceps])
+    }
 }
+

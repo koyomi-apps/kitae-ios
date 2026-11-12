@@ -2,9 +2,11 @@
 
 package ca.gureet.kitae.muscles
 
+import ca.gureet.kitae.database.DoneSet
 import ca.gureet.kitae.database.Exercise
 import ca.gureet.kitae.database.ExerciseSetCount
 import ca.gureet.kitae.database.MuscleGroup
+import ca.gureet.kitae.database.SetType
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -134,21 +136,30 @@ class ExerciseMuscles(val map: MuscleMap) {
  * half for the ones that help, as its page's muscle map shows them. Warm-ups don't count, so
  * [counts] leaves them out (see `Stats.exerciseSets`).
  */
-class MuscleVolume(counts: List<ExerciseSetCount> = emptyList(), muscles: ExerciseMuscles? = null) {
+class MuscleVolume private constructor(counted: List<Pair<MuscleWork?, Int>>) {
     val sets: Map<Muscle, Double>
     val totalSets: Int
+
+    constructor(counts: List<ExerciseSetCount> = emptyList(), muscles: ExerciseMuscles? = null) :
+        this(counts.map { muscles?.work(it.exercise) to it.sets })
 
     init {
         val sets = HashMap<Muscle, Double>()
         var total = 0
-        for (count in counts) {
-            total += count.sets
-            val work = muscles?.work(count.exercise) ?: continue
-            for (muscle in work.primary) sets[muscle] = (sets[muscle] ?: 0.0) + count.sets
-            for (muscle in work.secondary) sets[muscle] = (sets[muscle] ?: 0.0) + count.sets / 2.0
+        for ((work, count) in counted) {
+            total += count
+            if (work == null) continue
+            for (muscle in work.primary) sets[muscle] = (sets[muscle] ?: 0.0) + count
+            for (muscle in work.secondary) sets[muscle] = (sets[muscle] ?: 0.0) + count / 2.0
         }
         this.sets = sets
         totalSets = total
+    }
+
+    companion object {
+        /** A workout's muscles, from its done sets, leaving out warm-ups, as its summary shows them. */
+        fun of(doneSets: List<DoneSet>, muscles: ExerciseMuscles?): MuscleVolume =
+            MuscleVolume(doneSets.filter { it.type != SetType.Warmup }.map { muscles?.work(it.libraryKey, it.target) to 1 })
     }
 
     /** The muscles worked, most sets first, then in [Muscle]'s order. */

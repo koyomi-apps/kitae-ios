@@ -43,6 +43,12 @@ abstract class KitaeDatabase : RoomDatabase() {
 
     abstract fun stats(): Stats
 
+    /** The weigh-ins and the profile, in Kitae's own tables. */
+    val body: BodyStore by lazy { BodyStore(this) }
+
+    /** People's notes on their exercises, in Kitae's own table. */
+    val notes: ExerciseNotes by lazy { ExerciseNotes(this) }
+
     abstract fun exercises(): Exercises
 }
 

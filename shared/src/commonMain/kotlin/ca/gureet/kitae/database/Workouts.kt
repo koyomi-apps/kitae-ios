@@ -162,6 +162,21 @@ abstract class Workouts(private val database: KitaeDatabase) {
         return setId
     }
 
+    /**
+     * Adds a set like the exercise's last one in the workout, not done yet, as the + beside an
+     * exercise does, and returns its id. A warm-up is followed by a standard set. With no set to
+     * copy, it's like the day's planned sets or the last time the exercise was done, or 12 reps of
+     * [defaultWeightKg].
+     */
+    @Transaction
+    open suspend fun addSetLikeLast(workoutId: Long, exerciseId: Long, dayId: Long?, defaultWeightKg: Double): Long {
+        val last = setsOfExercise(workoutId, exerciseId).lastOrNull()?.let {
+            SetDraft(it.reps, it.weightKg, SetType.fromStored(it.type), it.restSeconds)
+        }
+        val set = last ?: lastKnownSet(exerciseId, dayId) ?: SetDraft(reps = 12, weightKg = defaultWeightKg)
+        return addSet(workoutId, exerciseId, if (set.type == SetType.Warmup) set.copy(type = SetType.Standard) else set)
+    }
+
     @Query("DELETE FROM `sets` WHERE `id` = :setId")
     abstract suspend fun deleteSet(setId: Long)
 

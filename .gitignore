@@ -13,3 +13,8 @@ build/
 # scripts/motions
 node_modules/
 package-lock.json
+
+# Gradle
+.gradle/
+.kotlin/
+local.properties

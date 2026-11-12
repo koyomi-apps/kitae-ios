@@ -1,7 +1,7 @@
 # Exercise animations
 
-`Kitae/Exercises/Motion/ExerciseMotions.json` holds each exercise's animation: its start and end
-poses and the gear it uses, keyed by the exercises' library keys (Seed.json's `key`, the
+`ios/Kitae/Exercises/Motion/ExerciseMotions.json` holds each exercise's animation: its start and
+end poses and the gear it uses, keyed by the exercises' library keys (Seed.json's `key`, the
 database's `exercises.libraryKey`). `make.js` writes it (edit the
 poses there, not in the JSON). `sheet.js` and `zoom.js` draw it as pictures, so poses can be
 checked without building the app. They draw with `motion.js`, which matches `FigureRig.swift` and
@@ -15,9 +15,9 @@ adductors, inside the thighs, show only from the front.
 
     npm install          # only needed for the pictures
     node make.js
-    node check.js ../../Kitae/Exercises/Motion/ExerciseMotions.json
-    node sheet.js ../../Kitae/Exercises/Motion/ExerciseMotions.json sheet.png light barbell-bench-press,barbell-incline-bench-press
-    node zoom.js ../../Kitae/Exercises/Motion/ExerciseMotions.json zoom.png barbell-bench-press:0 barbell-bench-press:0.55 barbell-bench-press:still
+    node check.js ../../ios/Kitae/Exercises/Motion/ExerciseMotions.json
+    node sheet.js ../../ios/Kitae/Exercises/Motion/ExerciseMotions.json sheet.png light barbell-bench-press,barbell-incline-bench-press
+    node zoom.js ../../ios/Kitae/Exercises/Motion/ExerciseMotions.json zoom.png barbell-bench-press:0 barbell-bench-press:0.55 barbell-bench-press:still
 
 `check.js` runs every loop and reports limbs that stretch, hands that can't reach what they hold
 and anything below the floor (a bar trailing straight arms mid-lift is fine). `sheet.js` draws a
@@ -48,15 +48,15 @@ bent-over body, and `legsFront` draws sitting legs over the body.
 
 ## Muscle map
 
-`Kitae/Exercises/Muscles/ExerciseMuscles.json` holds the muscle map under an exercise's
+`ios/Kitae/Exercises/Muscles/ExerciseMuscles.json` holds the muscle map under an exercise's
 animation: a body from the front and from the back, each muscle a shape on it, and for every
 starter exercise the muscles it works most (primary) and the ones that help (secondary).
 `muscles.js` writes it; edit the shapes and the exercises' muscles there. `muscle-sheet.js` draws
 maps the way the app does, in its colours:
 
     node muscles.js
-    node muscle-sheet.js ../../Kitae/Exercises/Muscles/ExerciseMuscles.json muscles.png light barbell-bench-press,barbell-deadlift
-    node muscle-sheet.js ../../Kitae/Exercises/Muscles/ExerciseMuscles.json muscles.png dark all-muscles
+    node muscle-sheet.js ../../ios/Kitae/Exercises/Muscles/ExerciseMuscles.json muscles.png light barbell-bench-press,barbell-deadlift
+    node muscle-sheet.js ../../ios/Kitae/Exercises/Muscles/ExerciseMuscles.json muscles.png dark all-muscles
 
 The picture is 100 units wide and 222 tall, facing the viewer, with y growing downward. Each
 shape is a list of points that a smooth closed curve (Catmull-Rom) passes through, written out as

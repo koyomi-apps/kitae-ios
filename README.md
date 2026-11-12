@@ -17,7 +17,7 @@ More screenshots, in light and dark mode, are in [docs/screenshots](docs/screens
 
 Join the beta at [testflight.apple.com/join/GTKbw4Hg](https://testflight.apple.com/join/GTKbw4Hg) on an iPhone with iOS 26 or newer. The link opens Apple's TestFlight app, which installs Kitae and its updates. Send feedback from TestFlight, or report bugs and ask for features in [the issues on GitHub](https://github.com/koyomi-apps/kitae-ios/issues).
 
-To sideload it instead, each [release on GitHub](https://github.com/koyomi-apps/kitae-ios/releases) has an IPA to install with AltStore, SideStore or Sideloadly, which sign it with your own Apple Account. With a free account, Kitae stops opening after seven days until it's refreshed, and it uses two of the account's App IDs, one for the rest timer on the Lock Screen. Sideloaded copies don't update by themselves, and they keep their data apart from the TestFlight one; move between them with a backup. What's new in each build is in the [changelog](CHANGELOG.md).
+To sideload it instead, each [release on GitHub](https://github.com/koyomi-apps/kitae-ios/releases) has an IPA to install with AltStore, SideStore or Sideloadly, which sign it with your own Apple Account. With a free account, Kitae stops opening after seven days until it's refreshed, and it uses two of the account's App IDs, one for the rest timer on the Lock Screen. Sideloaded copies don't update by themselves, and they keep their data apart from the TestFlight one; move between them with a backup. What's new in each build is in the [changelog](ios/CHANGELOG.md).
 
 ## Goals
 

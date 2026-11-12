@@ -727,7 +727,7 @@ function card(m, t, theme, x, y, w, h, still = false) {
 }
 
 // Reads the animations, and the muscle map's file for their muscles.
-function load(file, musclesFile = require('path').join(__dirname, '../../Kitae/Exercises/Muscles/ExerciseMuscles.json')) {
+function load(file, musclesFile = require('path').join(__dirname, '../../ios/Kitae/Exercises/Muscles/ExerciseMuscles.json')) {
   WORK = new Map(JSON.parse(fs.readFileSync(musclesFile, 'utf8')).exercises.map(e => [e.key, e]));
   return JSON.parse(fs.readFileSync(file, 'utf8')).map(motion);
 }

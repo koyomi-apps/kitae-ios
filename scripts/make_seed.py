@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # Kitae for iPhone
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""Writes Kitae/Database/Seed.json from Kitae for Android's starter database.
+"""Writes ios/Kitae/Database/Seed.json from Kitae for Android's starter database.
 
 Kitae for Android ships its exercises and its starter plan in app/src/main/assets/kenko.db.
 Kitae for iPhone starts from the same exercises, with the same ids, and the same plan, so
@@ -163,7 +163,7 @@ def main() -> None:
         entry["days"] = days
         plans.append(entry)
 
-    out = Path(__file__).resolve().parent.parent / "Kitae" / "Database" / "Seed.json"
+    out = Path(__file__).resolve().parent.parent / "ios" / "Kitae" / "Database" / "Seed.json"
     # Kitae's library: the exercises after the starters, which Kitae for Android's database
     # doesn't have. They're written in Seed.json by hand, without ids, and kept as they are.
     if out.exists():

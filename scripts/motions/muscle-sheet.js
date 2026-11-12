@@ -94,7 +94,7 @@ function main() {
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}">
       <rect width="100%" height="100%" fill="${c.page}"/>${cards.join('')}</svg>`;
     const fonts = ['SpaceMono-Regular.ttf', 'DarkerGrotesque-Bold.ttf', 'DarkerGrotesque-SemiBold.ttf']
-        .map((f) => path.join(__dirname, '../../Shared/Fonts', f));
+        .map((f) => path.join(__dirname, '../../ios/Shared/Fonts', f));
     const png = new Resvg(svg, { fitTo: { mode: 'zoom', value: 2 }, font: { fontFiles: fonts, loadSystemFonts: false, defaultFontFamily: 'Space Mono' } }).render().asPng();
     fs.writeFileSync(out, png);
     console.log(`${out}: ${items.length} maps`);

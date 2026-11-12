@@ -14,7 +14,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
 SHOTS = ROOT / "docs" / "screenshots"
-FONT = ROOT / "Shared" / "Fonts" / "SpaceMono-Regular.ttf"
+FONT = ROOT / "ios" / "Shared" / "Fonts" / "SpaceMono-Regular.ttf"
 
 # Each screenshot's name without -light or -dark, and its caption.
 SCREENS = [

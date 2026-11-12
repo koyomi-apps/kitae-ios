@@ -1350,6 +1350,6 @@ const motions = [
   },
 ];
 
-const out = process.argv[2] || require('path').join(__dirname, '../../Kitae/Exercises/Motion/ExerciseMotions.json');
+const out = process.argv[2] || require('path').join(__dirname, '../../ios/Kitae/Exercises/Motion/ExerciseMotions.json');
 fs.writeFileSync(out, JSON.stringify(motions, null, 1) + '\n');
 console.log(motions.length, 'motions');

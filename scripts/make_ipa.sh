@@ -28,7 +28,7 @@ archive="$out/Kitae.xcarchive"
 rm -rf "$archive" "$out/Payload"
 mkdir -p "$out"
 
-args=(-project Kitae.xcodeproj -scheme Kitae -configuration Release
+args=(-project ios/Kitae.xcodeproj -scheme Kitae -configuration Release
       -destination "generic/platform=iOS" -archivePath "$archive"
       CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" PROVISIONING_PROFILE_SPECIFIER="")
 if [ -n "$build" ]; then

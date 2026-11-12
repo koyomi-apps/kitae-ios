@@ -1,9 +1,9 @@
 // Kitae for iPhone
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Writes Kitae/Exercises/Muscles/ExerciseMuscles.json: the muscle map Kitae draws on an exercise's
-// page (a body from the front and from the back, each muscle a shape on it) and, for every starter
-// exercise, the muscles it works most (primary) and the ones that help (secondary).
+// Writes ios/Kitae/Exercises/Muscles/ExerciseMuscles.json: the muscle map Kitae draws on an
+// exercise's page (a body from the front and from the back, each muscle a shape on it) and, for
+// every starter exercise, the muscles it works most (primary) and the ones that help (secondary).
 //
 //     node muscles.js [out.json]
 //
@@ -348,7 +348,7 @@ const exercises = Object.entries(EXERCISES).map(([key, [name, primary, secondary
 module.exports = { W, H, body, front, back, exercises, MUSCLES };
 
 if (require.main === module) {
-    const out = process.argv[2] || path.join(__dirname, '../../Kitae/Exercises/Muscles/ExerciseMuscles.json');
+    const out = process.argv[2] || path.join(__dirname, '../../ios/Kitae/Exercises/Muscles/ExerciseMuscles.json');
     const json = { width: W, height: H, body, front, back, exercises };
     fs.mkdirSync(path.dirname(out), { recursive: true });
     fs.writeFileSync(out, JSON.stringify(json) + '\n');

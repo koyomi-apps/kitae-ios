@@ -4,7 +4,7 @@
 """Draws Kitae's app icon: a barbell seen from the side, in Kitae's olive colours.
 
 Writes the three 1024 x 1024 images the app icon set needs, for light and dark Home Screens
-and for tinted icons, into Kitae/Assets.xcassets/AppIcon.appiconset. Needs Pillow:
+and for tinted icons, into ios/Kitae/Assets.xcassets/AppIcon.appiconset. Needs Pillow:
 
     python3 -m pip install Pillow
     python3 scripts/make_icon.py
@@ -17,9 +17,9 @@ from PIL import Image, ImageDraw
 SIZE = 1024
 # Drawn four times larger, then scaled down, for smooth edges.
 SCALE = 4
-FOLDER = Path(__file__).resolve().parent.parent / "Kitae" / "Assets.xcassets" / "AppIcon.appiconset"
+FOLDER = Path(__file__).resolve().parent.parent / "ios" / "Kitae" / "Assets.xcassets" / "AppIcon.appiconset"
 
-# Background and barbell for each look, from Shared/Colors.xcassets: Olive with OliveSoft,
+# Background and barbell for each look, from ios/Shared/Colors.xcassets: Olive with OliveSoft,
 # and the dark Paper with the dark Olive.
 LOOKS = {
     "AppIcon.png": ("#63611E", "#F7F3A1"),

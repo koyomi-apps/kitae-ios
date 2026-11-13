@@ -325,16 +325,19 @@ private fun ProfileRows(
         listOf(notSet to null) + Sex.entries.map { sexes.getValue(it) to it },
     ) { sex -> actions.saveProfile(profile.copy(sex = sex)) }
     Hairline()
+    // The level's name in the row, and in the menu with what it means under it.
     val levels = activityLevelNames()
     ChoiceRow(
         stringResource(R.string.activity_level),
-        profile.activityLevel?.let(levels::getValue) ?: notSet,
-        listOf(notSet to null) + ActivityLevel.entries.map { levels.getValue(it) to it },
+        profile.activityLevel?.let { levels.getValue(it).first } ?: notSet,
+        listOf(notSet to null) + ActivityLevel.entries.map { levels.getValue(it).first to it },
+        details = listOf(null) + ActivityLevel.entries.map { levels.getValue(it).second },
     ) { level -> actions.saveProfile(profile.copy(activityLevel = level)) }
 }
 
+/** Each level's name and what it means. */
 @Composable
-private fun activityLevelNames(): Map<ActivityLevel, String> = ActivityLevel.entries.associateWith {
+private fun activityLevelNames(): Map<ActivityLevel, Pair<String, String>> = ActivityLevel.entries.associateWith {
     val (name, detail) = when (it) {
         ActivityLevel.Sedentary -> R.string.activity_sedentary to R.string.activity_sedentary_detail
         ActivityLevel.LightlyActive -> R.string.activity_lightly_active to R.string.activity_lightly_active_detail
@@ -342,7 +345,7 @@ private fun activityLevelNames(): Map<ActivityLevel, String> = ActivityLevel.ent
         ActivityLevel.VeryActive -> R.string.activity_very_active to R.string.activity_very_active_detail
         ActivityLevel.ExtraActive -> R.string.activity_extra_active to R.string.activity_extra_active_detail
     }
-    stringResource(name) + stringResource(R.string.details_separator) + stringResource(detail)
+    stringResource(name) to stringResource(detail)
 }
 
 @Composable

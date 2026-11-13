@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -52,6 +53,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ca.gureet.kitae.R
@@ -289,29 +291,47 @@ internal fun FormField(
 
 /** A setting with a few choices, as a row whose value opens a menu. */
 @Composable
-fun <T> ChoiceRow(label: String, value: String, choices: List<Pair<String, T>>, onChoose: (T) -> Unit) {
+fun <T> ChoiceRow(label: String, value: String, choices: List<Pair<String, T>>, details: List<String?> = emptyList(), onChoose: (T) -> Unit) {
     val colors = kitaeColors
     var open by remember { mutableStateOf(false) }
-    Box {
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .clickable(role = Role.DropdownList) { open = true }
-                .heightIn(min = 52.dp)
-                .padding(start = 18.dp, end = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(label, Modifier.weight(1f), color = colors.ink, fontSize = 16.sp)
-            Text(value, color = colors.inkSoft, style = KitaeType.chip)
-            KamaeIcon(R.drawable.ic_chevron_down, null, tint = colors.inkSoft)
-        }
-        DropdownMenu(expanded = open, onDismissRequest = { open = false }, modifier = Modifier.heightIn(max = 360.dp)) {
-            for ((text, choice) in choices) {
-                DropdownMenuItem(text = { Text(text) }, onClick = {
-                    open = false
-                    onChoose(choice)
-                })
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clickable(role = Role.DropdownList) { open = true }
+            .heightIn(min = 52.dp)
+            .padding(start = 18.dp, end = 12.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(label, Modifier.weight(1f), color = colors.ink, fontSize = 16.sp)
+        // The value keeps to its side of the row, and the menu opens from it, at the row's end.
+        Box(Modifier.widthIn(max = 180.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    value,
+                    Modifier.weight(1f, fill = false),
+                    color = colors.inkSoft,
+                    style = KitaeType.chip,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                KamaeIcon(R.drawable.ic_chevron_down, null, tint = colors.inkSoft)
+            }
+            DropdownMenu(expanded = open, onDismissRequest = { open = false }, modifier = Modifier.heightIn(max = 360.dp)) {
+                choices.forEachIndexed { index, (text, choice) ->
+                    DropdownMenuItem(
+                        text = {
+                            Column {
+                                Text(text)
+                                details.getOrNull(index)?.let { Text(it, color = colors.inkSoft, fontSize = 13.sp, lineHeight = 18.sp) }
+                            }
+                        },
+                        onClick = {
+                            open = false
+                            onChoose(choice)
+                        },
+                    )
+                }
             }
         }
     }

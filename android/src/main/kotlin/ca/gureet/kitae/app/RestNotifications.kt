@@ -12,6 +12,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import android.os.PowerManager
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
@@ -19,8 +20,15 @@ import ca.gureet.kitae.R
 import ca.gureet.kitae.model.RestTimer
 import ca.gureet.kitae.model.WeightFormatter
 import ca.gureet.kitae.workout.clockText
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 /**
  * The rest timer outside Kamae, doing the iPhone's Live Activity's job: while a rest goes, an
@@ -39,6 +47,11 @@ class RestNotifications(private val context: Context, private val store: RestSto
     /** Whether Kamae is on screen, where the workout taps the phone itself when a rest ends. */
     @Volatile
     var isVisible = false
+
+    // Android doesn't move a notification's bar by itself, so while a rest counts down, the
+    // notification is posted again each second, while the screen is on and Kamae is running.
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
+    private var ticker: Job? = null
 
     init {
         val system = context.getSystemService(NotificationManager::class.java)
@@ -89,9 +102,42 @@ class RestNotifications(private val context: Context, private val store: RestSto
         if (kept == null || rest == null || !rest.isActive || (rest.isRunning && rest.remaining(now) == 0L)) {
             manager.cancel(ID_REST)
             cancelEnd()
+            stopTicking()
             return
         }
-        if (rest.isRunning) scheduleEnd(rest.endsAt ?: now) else cancelEnd()
+        if (rest.isRunning) {
+            scheduleEnd(rest.endsAt ?: now)
+            startTicking()
+        } else {
+            cancelEnd()
+            stopTicking()
+        }
+        show(kept, now)
+    }
+
+    private fun startTicking() {
+        if (ticker?.isActive == true) return
+        ticker = scope.launch {
+            val power = context.getSystemService(PowerManager::class.java)
+            while (isActive) {
+                delay(TICK)
+                val now = System.currentTimeMillis()
+                val kept = store.current(now)
+                val rest = kept?.rest
+                if (kept == null || rest == null || !rest.isRunning || rest.remaining(now) == 0L) break
+                if (power?.isInteractive != false) show(kept, now)
+            }
+        }
+    }
+
+    private fun stopTicking() {
+        ticker?.cancel()
+        ticker = null
+    }
+
+    /** Posts the notification for the rest [kept], [now]: its bar, time and buttons. */
+    private fun show(kept: RestStore.Kept, now: Long) {
+        val rest = kept.rest
         if (!canNotify) return
         val paused = rest.isPaused
         val left = rest.remaining(now)
@@ -197,6 +243,7 @@ class RestNotifications(private val context: Context, private val store: RestSto
         const val ACTION_ADD = "ca.gureet.kitae.rest.ADD"
         const val ACTION_SKIP = "ca.gureet.kitae.rest.SKIP"
         const val ACTION_END = "ca.gureet.kitae.rest.END"
+        private const val TICK = 1_000L
     }
 }
 

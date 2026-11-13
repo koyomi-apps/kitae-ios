@@ -64,13 +64,16 @@ jobs:
           keystore="$RUNNER_TEMP/kamae.jks"
           trap 'rm -f "$keystore"' EXIT
           printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$keystore"
-          # Android 8, Kamae's oldest, reads the v2 and v3 schemes, so there's no JAR (v1)
-          # signature: the signed APK is the built one with a signing block added.
+          # The signed APK is the built one, byte for byte, with a signing block added, so F-Droid
+          # can copy the signature onto its own build: no JAR (v1) signature, which Android 8,
+          # Kamae's oldest, doesn't need, and the alignment Gradle gave the files kept as it is.
           "$tools/apksigner" sign --ks "$keystore" --ks-key-alias "$KEY_ALIAS" \
             --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD \
             --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true \
+            --alignment-preserved true \
             --out "kamae-$VERSION.apk" android/build/outputs/apk/release/android-release-unsigned.apk
           "$tools/apksigner" verify --print-certs "kamae-$VERSION.apk" | tee certificates.txt
+          echo "$tools" >> "$GITHUB_PATH"
 
       - name: Check its certificate
         id: certificate
@@ -87,6 +90,12 @@ jobs:
             exit 1
           fi
           echo "sha256=$digest" >> "$GITHUB_OUTPUT"
+
+      # What F-Droid does with its own build of the tag: copy this APK's signature onto it.
+      - name: Check F-Droid can copy the signature
+        run: |
+          pipx run --spec apksigcopier==1.1.1 apksigcopier compare "kamae-${{ steps.version.outputs.version }}.apk" \
+            --unsigned android/build/outputs/apk/release/android-release-unsigned.apk
 
       - name: Put it on a GitHub release
         env:

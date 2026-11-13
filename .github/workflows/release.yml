@@ -2,7 +2,9 @@ name: Release
 
 # On a tag like android-v1.0.0: builds Kamae's release APK as F-Droid builds it, signs it with
 # Kamae's key from the android-release environment (only android-v* tags can use it, and each run
-# waits for gureet's approval), and puts it on a GitHub release: a pre-release below 1.0.0.
+# waits for gureet's approval), and puts it on the tag's GitHub release, a pre-release below 1.0.0.
+# The tag can be pushed with git, or made on GitHub's website by publishing a release for it: then
+# the APK goes on that release.
 
 on:
   push:
@@ -91,5 +93,13 @@ jobs:
             echo "- Signing certificate SHA-256: \`$CERTIFICATE\`"
           } > notes.md
           cat notes.md >> "$GITHUB_STEP_SUMMARY"
-          gh release create "$GITHUB_REF_NAME" "$apk" $prerelease --verify-tag \
-            --title "Kamae $VERSION" --notes-file notes.md
+          if gh release view "$GITHUB_REF_NAME" --json body --jq .body > written.md 2>/dev/null; then
+            # Published on the website: keep what it says, and add the APK and its fingerprints.
+            if [ -s written.md ]; then printf '\n\n' >> written.md; fi
+            cat notes.md >> written.md
+            gh release edit "$GITHUB_REF_NAME" $prerelease --notes-file written.md
+            gh release upload "$GITHUB_REF_NAME" "$apk" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$apk" $prerelease --verify-tag \
+              --title "Kamae $VERSION" --notes-file notes.md
+          fi

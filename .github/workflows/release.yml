@@ -15,9 +15,9 @@ permissions:
   contents: write
 
 env:
-  # The SHA-256 of Kamae's signing certificate. Once it's set, an APK signed with any other key
-  # stops the release.
-  CERTIFICATE_SHA256: ""
+  # The SHA-256 of Kamae's signing certificate (CN=gureet, O=koyomi): an APK signed with any
+  # other key stops the release.
+  CERTIFICATE_SHA256: 324af2bee3ff57492548283e224ff31a3a2f59578ad489d3960af9b5b506d8d5
 
 jobs:
   release:
@@ -28,11 +28,15 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
-      # No Gradle cache: a release builds from nothing, as F-Droid does.
-      - uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: 17
+      # The distribution's own OpenJDK 17, as F-Droid's Debian build server uses, not Temurin:
+      # each JDK's zlib packs the APK's files a little differently, and F-Droid ships this APK
+      # only if its own build matches it byte for byte. No Gradle cache: a release builds from
+      # nothing, as F-Droid does.
+      - name: Install OpenJDK 17
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q openjdk-17-jdk-headless
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> "$GITHUB_ENV"
 
       - name: Check the tag matches the app's version
         id: version
@@ -60,16 +64,25 @@ jobs:
           keystore="$RUNNER_TEMP/kamae.jks"
           trap 'rm -f "$keystore"' EXIT
           printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$keystore"
+          # Android 8, Kamae's oldest, reads the v2 and v3 schemes, so there's no JAR (v1)
+          # signature: the signed APK is the built one with a signing block added.
           "$tools/apksigner" sign --ks "$keystore" --ks-key-alias "$KEY_ALIAS" \
             --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD \
+            --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true \
             --out "kamae-$VERSION.apk" android/build/outputs/apk/release/android-release-unsigned.apk
           "$tools/apksigner" verify --print-certs "kamae-$VERSION.apk" | tee certificates.txt
 
       - name: Check its certificate
         id: certificate
         run: |
-          digest="$(sed -n 's/^Signer #1 certificate SHA-256 digest: //p' certificates.txt)"
-          if [ -n "$CERTIFICATE_SHA256" ] && [ "$digest" != "$CERTIFICATE_SHA256" ]; then
+          # apksigner writes "Signer #1 certificate SHA-256 digest: …" or, for the v3 scheme,
+          # "V3.0 Signer: certificate SHA-256 digest: …".
+          digest="$(grep -m 1 -oE 'certificate SHA-256 digest: [0-9a-f]{64}' certificates.txt | awk '{print $4}')"
+          if [ -z "$digest" ]; then
+            echo "::error::apksigner didn't show the signing certificate."
+            exit 1
+          fi
+          if [ "$digest" != "$CERTIFICATE_SHA256" ]; then
             echo "::error::Signed with a key whose certificate is $digest, not Kamae's ($CERTIFICATE_SHA256)."
             exit 1
           fi
@@ -95,7 +108,7 @@ jobs:
           cat notes.md >> "$GITHUB_STEP_SUMMARY"
           if gh release view "$GITHUB_REF_NAME" --json body --jq .body > written.md 2>/dev/null; then
             # Published on the website: keep what it says, and add the APK and its fingerprints.
-            if [ -s written.md ]; then printf '\n\n' >> written.md; fi
+            if grep -q '[^[:space:]]' written.md; then printf '\n\n' >> written.md; else : > written.md; fi
             cat notes.md >> written.md
             gh release edit "$GITHUB_REF_NAME" $prerelease --notes-file written.md
             gh release upload "$GITHUB_REF_NAME" "$apk" --clobber

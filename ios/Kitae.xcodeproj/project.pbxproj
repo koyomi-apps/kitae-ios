@@ -352,7 +352,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Builds KitaeCore, the shared Kotlin module, for this build's configuration and SDK.\n# Gradle needs a JDK 17.\ncd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
+			shellScript = "# Builds KitaeCore, the shared Kotlin module, for this build's configuration and SDK.\n# Gradle needs a JDK 17 or newer: JAVA_HOME's, else one macOS knows of, else Android Studio's.\nif [ -z \"$JAVA_HOME\" ]; then\n  if /usr/libexec/java_home -v 17+ > /dev/null 2>&1; then\n    export JAVA_HOME=\"$(/usr/libexec/java_home -v 17+)\"\n  elif [ -d \"/Applications/Android Studio.app/Contents/jbr/Contents/Home\" ]; then\n    export JAVA_HOME=\"/Applications/Android Studio.app/Contents/jbr/Contents/Home\"\n  else\n    echo \"error: Building the shared Kotlin module needs a JDK 17 or newer. Install one, like Temurin 17, then build again.\"\n    exit 1\n  fi\nfi\ncd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */

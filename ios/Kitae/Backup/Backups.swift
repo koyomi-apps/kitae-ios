@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
+import KitaeCore
 import ZIPFoundation
 
 nonisolated enum BackupError: Error, LocalizedError, Equatable {
@@ -27,6 +27,19 @@ nonisolated enum BackupError: Error, LocalizedError, Equatable {
             "Finish or discard the workout in progress first."
         case .folderUnavailable:
             "Kitae can't reach the backup folder. Choose it again in Settings."
+        }
+    }
+}
+
+nonisolated extension BackupError {
+    /// The shared module's problem with a backup, as the iPhone tells it.
+    init(_ problem: BackupProblem) {
+        switch problem.name {
+        case "OlderVersion": self = .olderVersion
+        case "NewerVersion": self = .newerVersion
+        case "Damaged": self = .damaged
+        case "WorkoutInProgress": self = .workoutInProgress
+        default: self = .notKitae
         }
     }
 }
@@ -76,13 +89,8 @@ nonisolated enum Backups {
     /// The backup zip, made in `work`.
     static func makeArchive(_ database: KitaeDatabase, preferences: [String: PreferenceValue], in work: URL) throws -> URL {
         let databaseFile = work.appendingPathComponent(databaseEntry)
-        let snapshot = try DatabaseQueue(path: databaseFile.path)
         // A copy of the database as it is now, while workouts can still be saved, in one file.
-        try database.writer.backup(to: snapshot)
-        try snapshot.writeWithoutTransaction { db in
-            try db.execute(sql: "PRAGMA journal_mode = DELETE")
-        }
-        try snapshot.close()
+        try database.core.snapshot(file: databaseFile.path)
 
         let settingsFile = work.appendingPathComponent(settingsEntry)
         try PreferencesFile.encode(preferences).write(to: settingsFile)
@@ -191,32 +199,16 @@ nonisolated enum Backups {
     /// once it's restored), and not damaged.
     private static func check(_ file: URL) throws {
         do {
-            let queue = try DatabaseQueue(path: file.path)
-            defer { try? queue.close() }
-            try queue.writeWithoutTransaction { db in
-                try db.execute(sql: "PRAGMA journal_mode = DELETE")
-            }
-            try queue.read { db in
-                guard try db.tableExists("room_master_table") else { throw BackupError.notKitae }
-                let version = try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0
-                if version < Schema.oldestVersion { throw BackupError.olderVersion }
-                if version > Schema.version { throw BackupError.newerVersion }
-                let hash = try String.fetchOne(db, sql: "SELECT identity_hash FROM room_master_table WHERE id = 42")
-                guard hash == Schema.identityHashes[version] else { throw BackupError.notKitae }
-                guard try String.fetchOne(db, sql: "PRAGMA quick_check") == "ok" else { throw BackupError.damaged }
-            }
-        } catch let error as DatabaseError where error.resultCode == .SQLITE_NOTADB {
-            throw BackupError.notKitae
-        } catch let error as DatabaseError where error.resultCode == .SQLITE_CORRUPT {
-            throw BackupError.damaged
+            try IPhoneDatabase.Companion.shared.checkBackup(file: file.path)
+        } catch let error as NSError {
+            guard let exception = error.userInfo["KotlinException"] as? BackupException else { throw error }
+            throw BackupError(exception.problem)
         }
     }
 
-    /// Copies the backup's database over `database`'s, while Kitae keeps it open.
+    /// Puts the backup's database in place of `database`'s.
     static func replace(_ database: KitaeDatabase, with contents: BackupContents) throws {
-        let source = try DatabaseQueue(path: contents.database.path)
-        defer { try? source.close() }
-        try database.replaceContents(with: source)
+        try database.replaceContents(with: contents.database)
     }
 
     /// Copies a file picked in Files, which may still have to come down from iCloud.

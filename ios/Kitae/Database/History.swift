@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
+import KitaeCore
 
 /// A workout as History lists it.
 nonisolated struct WorkoutSummary: Identifiable, Hashable, Sendable {
@@ -174,127 +174,27 @@ nonisolated extension Sessions {
     /// that kept their sets as skipped, like Kitae for Android. The workout in progress is
     /// listed even before a set is done.
     static func history(_ db: Database, activeID: Int64?) throws -> [WorkoutSummary] {
-        try Row.fetchAll(db, sql: """
-            SELECT `sessions`.*, `routines`.`name` AS `routineName`,
-            (SELECT COUNT(*)
-            FROM `sets`
-            WHERE `sets`.`sessionId` = `sessions`.`id`) AS `setCount`,
-            (SELECT COUNT(*)
-            FROM `sets`
-            WHERE `sets`.`sessionId` = `sessions`.`id`
-            AND `sets`.`isCompleted` = 1) AS `doneCount`
-            FROM `sessions`
-            LEFT JOIN `routines` ON `routines`.`id` = `sessions`.`routineId`
-            ORDER BY `sessions`.`date` DESC, `sessions`.`id` DESC
-            """)
-            .map(WorkoutSummary.init(row:))
-            .filter { $0.doneCount > 0 || ($0.isFinished && $0.setCount > 0) || $0.id == activeID }
+        try db.core.workouts(activeId: activeID?.kotlin).map { WorkoutSummary($0) }
     }
 
     /// Finished workouts with a set done, from `first` to `last`, newest first.
     static func finished(_ db: Database, from first: Int, to last: Int) throws -> [WorkoutSummary] {
-        try Row.fetchAll(db, sql: """
-            SELECT `sessions`.*, `routines`.`name` AS `routineName`,
-            (SELECT COUNT(*)
-            FROM `sets`
-            WHERE `sets`.`sessionId` = `sessions`.`id`) AS `setCount`,
-            (SELECT COUNT(*)
-            FROM `sets`
-            WHERE `sets`.`sessionId` = `sessions`.`id`
-            AND `sets`.`isCompleted` = 1) AS `doneCount`
-            FROM `sessions`
-            LEFT JOIN `routines` ON `routines`.`id` = `sessions`.`routineId`
-            WHERE `sessions`.`isFinished` = 1 AND `sessions`.`date` BETWEEN ? AND ?
-            ORDER BY `sessions`.`date` DESC, `sessions`.`id` DESC
-            """, arguments: [first, last])
-            .map(WorkoutSummary.init(row:))
-            .filter { $0.doneCount > 0 }
+        try db.core.finishedWorkouts(first: Int64(first), last: Int64(last)).map { WorkoutSummary($0) }
     }
 
     /// The done sets of the workouts from `first` to `last`, by workout, for their energy.
     static func doneSets(_ db: Database, from first: Int, to last: Int) throws -> [Int64: [DoneSet]] {
-        let rows = try Row.fetchAll(db, sql: """
-            SELECT `sets`.`sessionId`, `sets`.`reps`, `sets`.`weight`, `sets`.`type`,
-            `exercises`.`id` AS `exerciseId`, `exercises`.`libraryKey`, `exercises`.`target`, `exercises`.`isIsometric`,
-            `exercises`.`usesWeight`
-            FROM `sets`
-            JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
-            JOIN `exercises` ON `exercises`.`id` = `sets`.`exerciseId`
-            WHERE `sets`.`isCompleted` = 1
-            AND `sessions`.`date` BETWEEN ? AND ?
-            """, arguments: [first, last])
-        var sets: [Int64: [DoneSet]] = [:]
-        for row in rows {
-            sets[row["sessionId"], default: []].append(DoneSet(
-                exerciseID: row["exerciseId"],
-                libraryKey: row["libraryKey"],
-                target: row["target"],
-                isIsometric: row["isIsometric"],
-                reps: row["reps"],
-                weightKg: (row["usesWeight"] as Bool) ? row["weight"] as Double : 0,
-                type: SetType(stored: row["type"])
-            ))
-        }
-        return sets
+        let sets = try db.core.doneSets(first: Int64(first), last: Int64(last))
+        return Dictionary(uniqueKeysWithValues: sets.map { ($0.key.int64Value, $0.value.map { DoneSet($0) }) })
     }
 
     static func summary(_ db: Database, id: Int64) throws -> WorkoutSummary? {
-        try Row.fetchOne(db, sql: """
-            SELECT `sessions`.*, `routines`.`name` AS `routineName`,
-            (SELECT COUNT(*)
-            FROM `sets`
-            WHERE `sets`.`sessionId` = `sessions`.`id`) AS `setCount`,
-            (SELECT COUNT(*)
-            FROM `sets`
-            WHERE `sets`.`sessionId` = `sessions`.`id`
-            AND `sets`.`isCompleted` = 1) AS `doneCount`
-            FROM `sessions`
-            LEFT JOIN `routines` ON `routines`.`id` = `sessions`.`routineId`
-            WHERE `sessions`.`id` = ?
-            """, arguments: [id]).map(WorkoutSummary.init(row:))
+        try db.core.workoutSummary(id: id).map { WorkoutSummary($0) }
     }
 
     /// The last workout before this one of the same day that had a set done. For a workout
     /// without a day, the last one on the same weekday. Kitae for Android's `previousSessionId`.
     static func previousID(_ db: Database, before sessionID: Int64, dayID: Int64?, date: Int) throws -> Int64? {
-        try Int64.fetchOne(db, sql: """
-            SELECT `id`
-            FROM `sessions`
-            WHERE `id` != :sessionId
-            AND (
-                (:routineId IS NOT NULL
-                AND `routineId` = :routineId
-                AND (`date` < :date OR (`date` = :date AND `id` < :sessionId)))
-                OR
-                (:routineId IS NULL
-                AND `routineId` IS NULL
-                AND `date` < :date
-                AND (:date - `date`) % 7 = 0)
-            )
-            AND EXISTS
-            (SELECT 1
-            FROM `sets`
-            WHERE `sets`.`sessionId` = `sessions`.`id`
-            AND `sets`.`isCompleted` = 1)
-            ORDER BY `date` DESC, `id` DESC
-            LIMIT 1
-            """, arguments: ["sessionId": sessionID, "routineId": dayID, "date": date])
-    }
-}
-
-nonisolated extension WorkoutSummary {
-    init(row: Row) {
-        self.init(
-            id: row["id"],
-            date: row["date"],
-            planID: row["planId"],
-            dayID: row["routineId"],
-            dayName: row["routineName"],
-            isFinished: row["isFinished"],
-            startedAt: row["startedAt"],
-            finishedAt: row["finishedAt"],
-            setCount: row["setCount"],
-            doneCount: row["doneCount"]
-        )
+        try db.core.previousWorkoutId(workoutId: sessionID, dayId: dayID?.kotlin, date: Int64(date))?.int64Value
     }
 }

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
+import KitaeCore
 
 nonisolated enum KitaeDatabaseError: Error, LocalizedError {
     case missingSeed
@@ -25,18 +25,18 @@ nonisolated enum KitaeDatabaseError: Error, LocalizedError {
 }
 
 /// Where Kitae keeps plans, workouts and exercises: one SQLite file, laid out exactly like
-/// Kitae for Android's (see `Schema`), plus Kitae's own tables for the body (see `BodyTables`),
-/// notes on exercises (see `ExerciseNotes`) and its exercise library (see `ExerciseLibrary`),
-/// which Kitae for Android leaves alone.
-nonisolated final class KitaeDatabase: Sendable {
-    let writer: any DatabaseWriter
+/// Kitae for Android's, plus Kitae's own tables for the body, notes on exercises and its
+/// exercise library, which Kitae for Android leaves alone. The shared Kotlin module opens it
+/// with Room and prepares it as it opens (`KitaeDatabase.kt`): a new one gets the starter
+/// exercises and plan, one from version 8 or 9 is brought up to 10, and each gets Kitae's own
+/// tables and the library's exercises it hasn't been given.
+nonisolated final class KitaeDatabase: @unchecked Sendable {
+    /// The shared module's database, which can be used from any thread.
+    let core: IPhoneDatabase
 
-    /// Opens the database at `writer`, setting it up first if it's new.
-    init(_ writer: any DatabaseWriter) throws {
-        self.writer = writer
-        try writer.write { db in
-            try Self.prepare(db)
-        }
+    private init(_ core: IPhoneDatabase) throws {
+        self.core = core
+        try core.open()
     }
 
     /// The app's database. It has Kitae for Android's file name, so backups line up.
@@ -47,84 +47,48 @@ nonisolated final class KitaeDatabase: Sendable {
             appropriateFor: nil,
             create: true
         )
-        let path = folder.appendingPathComponent("kenko_database").path
-        var configuration = Configuration()
-        configuration.label = "Kitae"
-        return try KitaeDatabase(DatabasePool(path: path, configuration: configuration))
+        return try file(folder.appendingPathComponent("kenko_database"))
     }
 
-    /// A database that lives only in memory, for tests and debug screens.
-    static func inMemory() throws -> KitaeDatabase {
-        try KitaeDatabase(DatabaseQueue())
+    /// The database in the file at `url`, made if it isn't there.
+    static func file(_ url: URL) throws -> KitaeDatabase {
+        try KitaeDatabase(IPhoneDatabase(path: url.path, seed: Seed.bundledText()))
+    }
+
+    /// A new database in a temporary file of its own, for tests and debug screens.
+    static func temporary() throws -> KitaeDatabase {
+        let folder = FileManager.default.temporaryDirectory
+            .appendingPathComponent("Databases", isDirectory: true)
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        return try file(folder.appendingPathComponent("kenko_database"))
     }
 
     func read<T>(_ value: (Database) throws -> T) throws -> T {
-        try writer.read(value)
+        try value(Database(core: core))
     }
 
-    /// Runs `updates` in one transaction: all of it is saved, or none.
+    /// Runs `updates`. The shared module saves each change in it whole.
     @discardableResult
     func write<T>(_ updates: (Database) throws -> T) throws -> T {
-        try writer.write(updates)
+        try updates(Database(core: core))
     }
 
-    /// Makes this a new database again, while it stays open: Kitae's tables with the starter
-    /// exercises and plan, no plan followed, and nothing else.
+    /// Makes this a new database again: Kitae's tables with the starter exercises and plan, no
+    /// plan followed, and nothing else.
     func reset() throws {
-        let folder = FileManager.default.temporaryDirectory
-            .appendingPathComponent("reset-\(UUID().uuidString)", isDirectory: true)
-        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        defer { try? FileManager.default.removeItem(at: folder) }
-        let fresh = try DatabaseQueue(path: folder.appendingPathComponent("kenko_database").path)
-        defer { try? fresh.close() }
-        try fresh.write { db in try Self.prepare(db) }
-        try replaceContents(with: fresh)
+        try core.reset()
     }
 
-    /// Copies `source` over this database, while Kitae keeps it open. SQLite can only copy
-    /// into a database in write-ahead-log mode if the pages are the same size, so `source`'s
-    /// are made to match first.
-    func replaceContents(with source: DatabaseQueue) throws {
-        let pageSize = try read { db in try Int.fetchOne(db, sql: "PRAGMA page_size") } ?? 4096
-        try source.writeWithoutTransaction { db in
-            guard try Int.fetchOne(db, sql: "PRAGMA page_size") != pageSize else { return }
-            try db.execute(sql: "PRAGMA page_size = \(pageSize)")
-            try db.execute(sql: "VACUUM")
-        }
-        try source.backup(to: writer)
-        // A backup from an older version, or from Kitae for Android, is brought up to date, and
-        // gets Kitae's own tables and any of Kitae's exercises it hasn't been given.
-        try writer.write { db in try Self.prepare(db) }
+    /// Closes the database, for tests that open its file again.
+    func close() throws {
+        try core.close()
     }
 
-    /// Makes the tables in a new database and adds the starter exercises and plan. No plan is
-    /// followed until people pick one, as in Kitae for Android. An existing database has to be
-    /// version 8, which is brought up to 9, or 9. Either way, Kitae's own tables are made if
-    /// they aren't there, and Kitae's exercises it hasn't been given are added.
-    private static func prepare(_ db: Database) throws {
-        let version = try Int.fetchOne(db, sql: "PRAGMA user_version") ?? 0
-        let seed = try Seed.bundled()
-        if version == 0 {
-            let tables = try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'") ?? 0
-            guard tables == 0 else { throw KitaeDatabaseError.notKitae }
-            try Schema.create(db)
-            try seed.insert(db)
-        } else {
-            guard let expected = Schema.identityHashes[version] else {
-                throw KitaeDatabaseError.unsupportedVersion(version)
-            }
-            let hash = try String.fetchOne(db, sql: "SELECT identity_hash FROM room_master_table WHERE id = 42")
-            guard hash == expected else { throw KitaeDatabaseError.notKitae }
-            if version == 8 {
-                try Schema.migrate8(db, keys: seed.starterKeys)
-            }
-            if version <= 9 {
-                try Schema.migrate9(db, weightless: seed.weightlessKeys)
-            }
-        }
-        try BodyTables.create(db)
-        try ExerciseNotes.create(db)
-        try ExerciseLibrary.create(db, seed: seed)
-        try ExerciseLibrary.sync(db, library: seed.exercises)
+    /// Puts the checked database file at `file` in place of this one. A backup from an older
+    /// version, or from Kitae for Android, is brought up to date as it opens, and gets Kitae's
+    /// own tables and any of Kitae's exercises it hasn't been given.
+    func replaceContents(with file: URL) throws {
+        try core.install(source: file.path)
     }
 }

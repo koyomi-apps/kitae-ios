@@ -31,7 +31,7 @@ struct WelcomeTests {
 
     @Test func theFirstLaunchWelcomesThenAsksForAPlan() throws {
         try withDefaults { defaults in
-            let model = makeModel(try KitaeDatabase.inMemory(), defaults)
+            let model = makeModel(try KitaeDatabase.temporary(), defaults)
             model.welcomeIfNeeded()
             #expect(model.isWelcoming)
             #expect(model.isChoosingPlan == false)
@@ -47,7 +47,7 @@ struct WelcomeTests {
 
     @Test func theWelcomeShowsOnce() throws {
         try withDefaults { defaults in
-            let database = try KitaeDatabase.inMemory()
+            let database = try KitaeDatabase.temporary()
             makeModel(database, defaults).finishWelcome()
 
             let reopened = makeModel(database, defaults)

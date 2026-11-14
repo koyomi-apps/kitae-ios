@@ -79,7 +79,8 @@ jobs:
         if: failure()
         run: |
           header=shared/build/bin/iosSimulatorArm64/debugFramework/KitaeCore.framework/Headers/KitaeCore.h
-          grep -n -E 'swift_name\("(DoneSet|ExerciseEnergy|WorkoutEnergy|SetType|KotlinDouble|KotlinLong)|init(WithDouble|WithLongLong|WithExerciseId|WithPerKilogram)|activeSets|reachHeightCm|fromStored|kilocaloriesReps|ofKey|starters|energyFactor' "$header" | head -80
+          sed -n '/swift_name("IPhoneDatabase")/,/^@end/p' "$header" | grep -o 'swift_name("[^"]*")\|- ([^)]*)[a-zA-Z]*' | head -150
+          grep -n -E 'swift_name\("(KotlinInt|KotlinLong|KotlinDouble|KotlinBoolean|NameProblemException|BackupException)"\)' -A4 "$header" | head -40
 
       # The app as the tests left it, opened on a few screens with example data.
       - name: Take screenshots
@@ -91,7 +92,7 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b > /dev/null
           xcrun simctl install "$UDID" "$RUNNER_TEMP/derived/Build/Products/Debug-iphonesimulator/Kitae.app"
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
-          for screen in you workoutdone; do
+          for screen in today history you workoutdone; do
             xcrun simctl launch --terminate-running-process "$UDID" ca.gureet.kitae -KitaeScreen "$screen" > /dev/null
             sleep 8
             xcrun simctl io "$UDID" screenshot "$shots/$screen.png" 2> /dev/null

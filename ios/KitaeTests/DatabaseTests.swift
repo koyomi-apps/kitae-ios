@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
 import Testing
 @testable import Kitae
 
@@ -48,7 +47,7 @@ struct SchemaTests {
 
     @Test func tablesAndIndicesAreRooms() throws {
         let room = try roomSchema()
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         let objects = try database.read { db in
             try Row.fetchAll(db, sql: "SELECT type, name, sql FROM sqlite_master WHERE name NOT LIKE 'sqlite_%'")
         }
@@ -60,8 +59,16 @@ struct SchemaTests {
             }
         }
         expected["room_master_table"] = "CREATE TABLE room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)"
-        // Kitae's own tables, which Room on Android leaves alone.
-        for statement in BodyTables.statements + ExerciseNotes.statements + ExerciseLibrary.statements {
+        // Kitae's own tables, which Room on Android leaves alone, as the iPhone made them before
+        // the shared module did.
+        let ownTables = [
+            "CREATE TABLE IF NOT EXISTS `body_measurements` (`date` INTEGER NOT NULL, `weight` REAL, `bodyFat` REAL, `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL)",
+            "CREATE UNIQUE INDEX IF NOT EXISTS `index_body_measurements_date` ON `body_measurements` (`date`)",
+            "CREATE TABLE IF NOT EXISTS `body_profile` (`height` REAL, `birthDate` INTEGER, `sex` TEXT, `activityLevel` TEXT, `id` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+            "CREATE TABLE IF NOT EXISTS `exercise_notes` (`exerciseId` INTEGER NOT NULL, `note` TEXT NOT NULL, PRIMARY KEY(`exerciseId`))",
+            "CREATE TABLE IF NOT EXISTS `exercise_library` (`key` TEXT NOT NULL, PRIMARY KEY(`key`))",
+        ]
+        for statement in ownTables {
             let name = try #require(statement.firstMatch(of: #/`(\w+)`/#)?.1)
             expected[String(name)] = statement.replacingOccurrences(of: " IF NOT EXISTS", with: "")
         }
@@ -81,7 +88,7 @@ struct SchemaTests {
         #expect(room.identityHash == Schema.identityHash)
         #expect(room.setupQueries.last?.contains(Schema.identityHash) == true)
 
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         let (version, hash) = try database.read { db in
             (
                 try Int.fetchOne(db, sql: "PRAGMA user_version"),
@@ -93,7 +100,7 @@ struct SchemaTests {
     }
 
     @Test func everySetTypeHasARating() throws {
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         let rows = try database.read { db in
             try Row.fetchAll(db, sql: "SELECT type, modifier FROM set_type ORDER BY type")
         }
@@ -104,15 +111,15 @@ struct SchemaTests {
     }
 
     @Test func refusesADatabaseFromAnotherVersion() throws {
-        let queue = try DatabaseQueue()
-        try queue.write { db in try db.execute(sql: "PRAGMA user_version = 11") }
-        #expect(throws: KitaeDatabaseError.self) { try KitaeDatabase(queue) }
+        let file = try KitaeDatabase.newFile()
+        try KitaeDatabase.execute(["PRAGMA user_version = 11"], in: file)
+        #expect(throws: (any Error).self) { try KitaeDatabase.file(file) }
     }
 
     @Test func opensItsOwnDatabaseAgain() throws {
-        let queue = try DatabaseQueue()
-        _ = try KitaeDatabase(queue)
-        let again = try KitaeDatabase(queue)
+        let file = try KitaeDatabase.newFile()
+        try KitaeDatabase.file(file).close()
+        let again = try KitaeDatabase.file(file)
         let exercises = try again.read { db in try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM exercises") }
         #expect(try exercises == Seed.bundled().exercises.count)
     }
@@ -125,7 +132,7 @@ struct SeedTests {
     static let today = 20_736
 
     @Test func startsWithAndroidsExercises() throws {
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         let (count, firstID, lastID, withSteps) = try database.read { db in
             (
                 try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM exercises") ?? 0,
@@ -143,7 +150,7 @@ struct SeedTests {
     }
 
     @Test func noPlanIsFollowedAtFirst() throws {
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         let (current, history, plans) = try database.read { db in
             (
                 try Plans.currentID(db),

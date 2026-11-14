@@ -2,10 +2,9 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
 
 /// What a new database starts with: Kitae for Android's exercises, with the same ids, and its
-/// starter plan, and the exercises of Kitae's library (see `ExerciseLibrary`). `Seed.json` is
+/// starter plan, and the exercises of Kitae's library (`ExerciseLibrary.kt`). `Seed.json` is
 /// made from Kitae for Android's starter database by `scripts/make_seed.py`; the library's
 /// later exercises, which have no id, are written in it by hand.
 nonisolated struct Seed: Decodable, Sendable {
@@ -26,16 +25,6 @@ nonisolated struct Seed: Decodable, Sendable {
         var restSeconds: Int?
         var instructions: String?
 
-        /// Adds it to the `exercises` table, with its id if it has one.
-        func insert(_ db: Database) throws {
-            try db.execute(
-                sql: """
-                INSERT INTO `exercises` (`id`, `name`, `target`, `reference`, `isIsometric`, `restSeconds`, `instructions`, `libraryKey`, `usesWeight`)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                """,
-                arguments: [id, name, target, reference, isIsometric, restSeconds, instructions, key, usesWeight]
-            )
-        }
     }
 
     nonisolated struct Plan: Decodable, Sendable {
@@ -79,6 +68,14 @@ nonisolated struct Seed: Decodable, Sendable {
         Set(exercises.filter { !$0.usesWeight }.map(\.key))
     }
 
+    /// The text of `Seed.json`, which the shared module reads as each database opens.
+    static func bundledText() throws -> String {
+        guard let url = Bundle.main.url(forResource: "Seed", withExtension: "json") else {
+            throw KitaeDatabaseError.missingSeed
+        }
+        return try String(contentsOf: url, encoding: .utf8)
+    }
+
     static func bundled() throws -> Seed {
         guard let url = Bundle.main.url(forResource: "Seed", withExtension: "json") else {
             throw KitaeDatabaseError.missingSeed
@@ -86,51 +83,4 @@ nonisolated struct Seed: Decodable, Sendable {
         return try JSONDecoder().decode(Seed.self, from: Data(contentsOf: url))
     }
 
-    /// Adds the starter exercises and plans. Returns the id of the first plan. The library's
-    /// other exercises come with `ExerciseLibrary.sync`.
-    @discardableResult
-    func insert(_ db: Database) throws -> Int64? {
-        for exercise in exercises where exercise.id != nil {
-            try exercise.insert(db)
-        }
-        // Kitae for Android's starter plan gives every set 20 kg, leg raises and pull-ups too.
-        let weightless = Set(exercises.filter { !$0.usesWeight }.compactMap(\.id))
-        var firstPlanID: Int64?
-        for plan in plans {
-            try db.execute(
-                sql: """
-                INSERT INTO `plans` (`name`, `description`, `difficulty`, `focus`, `equipment`, `time`)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                arguments: [plan.name, plan.description, plan.difficulty, plan.focus, plan.equipment, plan.time]
-            )
-            let planID = db.lastInsertedRowID
-            firstPlanID = firstPlanID ?? planID
-            for (dayPosition, day) in plan.days.enumerated() {
-                try db.execute(
-                    sql: "INSERT INTO `routines` (`planId`, `name`, `position`) VALUES (?, ?, ?)",
-                    arguments: [planID, day.name, dayPosition]
-                )
-                let routineID = db.lastInsertedRowID
-                for (exercisePosition, item) in day.exercises.enumerated() {
-                    try db.execute(
-                        sql: "INSERT INTO `routine_exercises` (`routineId`, `exerciseId`, `position`) VALUES (?, ?, ?)",
-                        arguments: [routineID, item.exercise, exercisePosition]
-                    )
-                    let slotID = db.lastInsertedRowID
-                    for (setPosition, set) in item.sets.enumerated() {
-                        try db.execute(
-                            sql: """
-                            INSERT INTO `routine_sets` (`routineExerciseId`, `reps`, `weight`, `type`, `position`, `restSeconds`)
-                            VALUES (?, ?, ?, ?, ?, ?)
-                            """,
-                            arguments: [slotID, set.reps, weightless.contains(item.exercise) ? 0 : set.weight, set.type,
-                                        setPosition, set.restSeconds]
-                        )
-                    }
-                }
-            }
-        }
-        return firstPlanID
-    }
 }

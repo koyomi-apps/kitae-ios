@@ -27,6 +27,10 @@ kotlin {
                 binaryOption("bundleId", "ca.gureet.kitae.KitaeCore")
             }
         }
+        // The iPhone's calls into the database wait for their answer (`IPhoneDatabase`).
+        sourceSets.iosMain.dependencies {
+            implementation(libs.kotlinx.coroutines.core)
+        }
     }
 
     compilerOptions {

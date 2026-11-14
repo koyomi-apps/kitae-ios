@@ -1,0 +1,127 @@
+name: Release
+
+# On a tag like android-v1.0.0: builds Kamae's release APK as F-Droid builds it, signs it with
+# Kamae's key from the android-release environment (only android-v* tags can use it, and each run
+# waits for gureet's approval), and puts it on the tag's GitHub release, a pre-release below 1.0.0.
+# The tag can be pushed with git, or made on GitHub's website by publishing a release for it: then
+# the APK goes on that release.
+
+on:
+  push:
+    tags:
+      - "android-v*"
+
+permissions:
+  contents: write
+
+env:
+  # The SHA-256 of Kamae's signing certificate (CN=gureet, O=koyomi): an APK signed with any
+  # other key stops the release.
+  CERTIFICATE_SHA256: 324af2bee3ff57492548283e224ff31a3a2f59578ad489d3960af9b5b506d8d5
+
+jobs:
+  release:
+    name: Build, sign and release the Android app
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment: android-release
+    steps:
+      - uses: actions/checkout@v7
+
+      # The distribution's own OpenJDK 17, as F-Droid's Debian build server uses, not Temurin:
+      # each JDK's zlib packs the APK's files a little differently, and F-Droid ships this APK
+      # only if its own build matches it byte for byte. No Gradle cache: a release builds from
+      # nothing, as F-Droid does.
+      - name: Install OpenJDK 17
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q openjdk-17-jdk-headless
+          echo "JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64" >> "$GITHUB_ENV"
+
+      - name: Check the tag matches the app's version
+        id: version
+        run: |
+          tag="${GITHUB_REF_NAME#android-v}"
+          app="$(sed -n 's/^ *versionName = "\(.*\)"$/\1/p' android/build.gradle.kts)"
+          if [ "$tag" != "$app" ]; then
+            echo "::error::The tag is for $tag, but android/build.gradle.kts has $app."
+            exit 1
+          fi
+          echo "version=$app" >> "$GITHUB_OUTPUT"
+
+      - name: Build the release APK
+        run: ./gradlew --no-daemon :android:assembleRelease
+
+      - name: Sign it
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          tools="$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -n 1)"
+          keystore="$RUNNER_TEMP/kamae.jks"
+          trap 'rm -f "$keystore"' EXIT
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > "$keystore"
+          # The signed APK is the built one, byte for byte, with a signing block added, so F-Droid
+          # can copy the signature onto its own build: no JAR (v1) signature, which Android 8,
+          # Kamae's oldest, doesn't need, and the alignment Gradle gave the files kept as it is.
+          "$tools/apksigner" sign --ks "$keystore" --ks-key-alias "$KEY_ALIAS" \
+            --ks-pass env:KEYSTORE_PASSWORD --key-pass env:KEY_PASSWORD \
+            --v1-signing-enabled false --v2-signing-enabled true --v3-signing-enabled true \
+            --alignment-preserved true \
+            --out "kamae-$VERSION.apk" android/build/outputs/apk/release/android-release-unsigned.apk
+          "$tools/apksigner" verify --print-certs "kamae-$VERSION.apk" | tee certificates.txt
+          echo "$tools" >> "$GITHUB_PATH"
+
+      - name: Check its certificate
+        id: certificate
+        run: |
+          # apksigner writes "Signer #1 certificate SHA-256 digest: …" or, for the v3 scheme,
+          # "V3.0 Signer: certificate SHA-256 digest: …".
+          digest="$(grep -m 1 -oE 'certificate SHA-256 digest: [0-9a-f]{64}' certificates.txt | awk '{print $4}')"
+          if [ -z "$digest" ]; then
+            echo "::error::apksigner didn't show the signing certificate."
+            exit 1
+          fi
+          if [ "$digest" != "$CERTIFICATE_SHA256" ]; then
+            echo "::error::Signed with a key whose certificate is $digest, not Kamae's ($CERTIFICATE_SHA256)."
+            exit 1
+          fi
+          echo "sha256=$digest" >> "$GITHUB_OUTPUT"
+
+      # What F-Droid does with its own build of the tag: copy this APK's signature onto it.
+      - name: Check F-Droid can copy the signature
+        run: |
+          pipx run --spec apksigcopier==1.1.1 apksigcopier compare "kamae-${{ steps.version.outputs.version }}.apk" \
+            --unsigned android/build/outputs/apk/release/android-release-unsigned.apk
+
+      - name: Put it on a GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERSION: ${{ steps.version.outputs.version }}
+          CERTIFICATE: ${{ steps.certificate.outputs.sha256 }}
+        run: |
+          apk="kamae-$VERSION.apk"
+          prerelease=""
+          case "$VERSION" in 0.*|*-*) prerelease="--prerelease" ;; esac
+          {
+            if [ -n "$prerelease" ]; then
+              echo "A test build before Kamae 1.0.0. It installs as its own app, beside Kitae for Android 2.0.0, without touching it. To bring your plans and workouts across, back up in Kitae and restore the backup on Kamae's welcome."
+              echo
+            fi
+            echo "- APK SHA-256: \`$(sha256sum "$apk" | cut -d ' ' -f 1)\`"
+            echo "- Signing certificate SHA-256: \`$CERTIFICATE\`"
+          } > notes.md
+          cat notes.md >> "$GITHUB_STEP_SUMMARY"
+          if gh release view "$GITHUB_REF_NAME" --json body --jq .body > written.md 2>/dev/null; then
+            # Published on the website: keep what it says, and add the APK and its fingerprints.
+            if grep -q '[^[:space:]]' written.md; then printf '\n\n' >> written.md; else : > written.md; fi
+            cat notes.md >> written.md
+            gh release edit "$GITHUB_REF_NAME" $prerelease --notes-file written.md
+            gh release upload "$GITHUB_REF_NAME" "$apk" --clobber
+          else
+            gh release create "$GITHUB_REF_NAME" "$apk" $prerelease --verify-tag \
+              --title "Kamae $VERSION" --notes-file notes.md
+          fi

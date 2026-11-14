@@ -2,6 +2,7 @@
 
 package ca.gureet.kitae.app
 
+import ca.gureet.kitae.database.DoneSet
 import ca.gureet.kitae.database.Exercise
 import ca.gureet.kitae.database.ExerciseDraft
 import ca.gureet.kitae.database.ExerciseProgress
@@ -9,10 +10,17 @@ import ca.gureet.kitae.database.ExerciseRecords
 import ca.gureet.kitae.database.ExerciseSession
 import ca.gureet.kitae.database.HistoryMonth
 import ca.gureet.kitae.database.MuscleGroup
+import ca.gureet.kitae.database.NewBest
 import ca.gureet.kitae.database.PlanWithDays
 import ca.gureet.kitae.database.SetDraft
 import ca.gureet.kitae.database.WorkoutExercise
 import ca.gureet.kitae.database.WorkoutSummary
+import ca.gureet.kitae.model.BodyProfile
+import ca.gureet.kitae.motion.ExerciseMotions
+import ca.gureet.kitae.muscles.ExerciseMuscles
+
+/** Kitae's muscle maps and animations, read from the app's files once it has started. */
+class Library(val muscles: ExerciseMuscles, val motions: ExerciseMotions)
 
 /** A past workout as its page shows it (the iPhone's `WorkoutRecord`). */
 data class WorkoutRecord(
@@ -42,7 +50,8 @@ data class ExerciseDetails(
 
 /** Where the pages' data comes from: the database, or samples in the screen tests. */
 interface PageSource {
-    suspend fun historyMonths(): List<HistoryMonth>
+    /** Every workout, by month, and their done sets for the energy each used. */
+    suspend fun history(): HistoryPage
 
     suspend fun workoutRecord(id: Long): WorkoutRecord?
 
@@ -55,6 +64,25 @@ interface PageSource {
 
     /** You's totals and the last 16 weeks, with weeks starting on [firstWeekday] (1 for Sunday). */
     suspend fun youData(today: Long, firstWeekday: Int): YouData
+
+    /** A finished workout's summary, with the records it beat when [withBests]. */
+    suspend fun workoutDone(id: Long, withBests: Boolean): WorkoutDone?
+}
+
+/** History's workouts, by month, and their done sets for the energy each used. */
+data class HistoryPage(val months: List<HistoryMonth>, val sets: Map<Long, List<DoneSet>> = emptyMap())
+
+/** A finished workout's summary (the iPhone's `WorkoutDoneView`): its done sets and the records it beat. */
+data class WorkoutDone(val summary: WorkoutSummary, val sets: List<DoneSet>, val bests: List<NewBest> = emptyList())
+
+/** The weigh-ins and what people say about themselves (the iPhone's `BodyView`). */
+interface BodyActions {
+    /** Saves a weigh-in on [date]; one already on that day, or [replacingId], gives way to it. */
+    fun saveWeighIn(date: Long, weightKg: Double?, bodyFatPercent: Double?, replacingId: Long?)
+
+    fun deleteWeighIn(id: Long)
+
+    fun saveProfile(profile: BodyProfile)
 }
 
 /** Settings, and this phone's backups. Folders and files are Android's content URIs. */
@@ -75,6 +103,11 @@ interface SettingsActions {
     fun dismissBackupProblem()
 
     fun resetKamae()
+
+    /** The welcome is done: the list of plans opens if no plan is followed yet. */
+    fun finishWelcome()
+
+    fun setTextSize(size: TextSize?)
 }
 
 /**

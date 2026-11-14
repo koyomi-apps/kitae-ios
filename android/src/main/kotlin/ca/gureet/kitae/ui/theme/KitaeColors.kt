@@ -44,7 +44,12 @@ data class KitaeColors(
     val mauveSoft: Color,
     val onMauveSoft: Color,
     /** Muscles that help, on the map and beside an exercise's name. */
-    val muscleSecondary: Color,
+    /** The muscle map's body, the muscles not worked, and the helping ones. */
+    val muscleMapBase: Color,
+    val muscleMapIdle: Color,
+    val muscleMapSecondary: Color,
+    /** The animated figure's own colours. */
+    val figure: FigureColors,
     val error: Color,
     val isDark: Boolean,
 ) {
@@ -69,7 +74,20 @@ data class KitaeColors(
             onMauve = Color(0xFFFFFFFF),
             mauveSoft = Color(0xFFE5C4DC),
             onMauveSoft = Color(0xFF4A3447),
-            muscleSecondary = Color(0xFF9B984C),
+            muscleMapBase = Color(0xFFD8D4C6),
+            muscleMapIdle = Color(0xFFBAB6A6),
+            muscleMapSecondary = Color(0xFF9B984C),
+            figure = FigureColors(
+                body = Color(0xFFAAA696),
+                far = Color(0xFFCDC9BA),
+                gear = Color(0xFF34332B),
+                gearFace = Color(0xFF4B4940),
+                muscleFar = Color(0xFF9C9A66),
+                muscleSecondary = Color(0xFF85823C),
+                muscleSecondaryFar = Color(0xFFB4B17E),
+                prop = Color(0xFFDDD8C8),
+                shadow = Color(0xFF1C1C16).copy(alpha = 0.10f),
+            ),
             error = Color(0xFFBA1A1A),
             isDark = false,
         )
@@ -91,7 +109,20 @@ data class KitaeColors(
             onMauve = Color(0xFF3F293C),
             mauveSoft = Color(0xFFD8B8D0),
             onMauveSoft = Color(0xFF412C3E),
-            muscleSecondary = Color(0xFF9A975E),
+            muscleMapBase = Color(0xFF45443B),
+            muscleMapIdle = Color(0xFF6D6A5F),
+            muscleMapSecondary = Color(0xFF9A975E),
+            figure = FigureColors(
+                body = Color(0xFF6F6C5F),
+                far = Color(0xFF47463D),
+                gear = Color(0xFFD8D4C7),
+                gearFace = Color(0xFFB9B5A8),
+                muscleFar = Color(0xFF88864F),
+                muscleSecondary = Color(0xFF9A975E),
+                muscleSecondaryFar = Color(0xFF67653F),
+                prop = Color(0xFF34332B),
+                shadow = Color(0xFF000000).copy(alpha = 0.34f),
+            ),
             error = Color(0xFFFFB4AB),
             isDark = true,
         )
@@ -136,3 +167,16 @@ fun KitaeColors.materialScheme(): ColorScheme {
 }
 
 val LocalKitaeColors = staticCompositionLocalOf { KitaeColors.Light }
+
+/** The animated figure's colours, from the iPhone's Figure colour sets. */
+data class FigureColors(
+    val body: Color,
+    val far: Color,
+    val gear: Color,
+    val gearFace: Color,
+    val muscleFar: Color,
+    val muscleSecondary: Color,
+    val muscleSecondaryFar: Color,
+    val prop: Color,
+    val shadow: Color,
+)

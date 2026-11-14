@@ -2,10 +2,10 @@
 
 package ca.gureet.kitae.app
 
-import androidx.core.net.toUri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ca.gureet.kitae.backup.BackupContents
@@ -15,10 +15,10 @@ import ca.gureet.kitae.backup.Backups
 import ca.gureet.kitae.database.ActivityWeeks
 import ca.gureet.kitae.database.DatabaseFiles
 import ca.gureet.kitae.database.DayWithExercises
+import ca.gureet.kitae.database.DoneSet
 import ca.gureet.kitae.database.EpochDay
 import ca.gureet.kitae.database.ExerciseDraft
 import ca.gureet.kitae.database.FinishMode
-import ca.gureet.kitae.database.HistoryMonth
 import ca.gureet.kitae.database.PlanSummary
 import ca.gureet.kitae.database.PlanWithDays
 import ca.gureet.kitae.database.SetDraft
@@ -26,12 +26,17 @@ import ca.gureet.kitae.database.SetType
 import ca.gureet.kitae.database.TrainingTotals
 import ca.gureet.kitae.database.Workout
 import ca.gureet.kitae.database.WorkoutExercise
+import ca.gureet.kitae.database.WorkoutSummary
 import ca.gureet.kitae.database.historyMonths
 import ca.gureet.kitae.model.AppSettings
+import ca.gureet.kitae.model.BodyLog
+import ca.gureet.kitae.model.BodyProfile
 import ca.gureet.kitae.model.RestTimer
 import ca.gureet.kitae.model.WeightFormatter
 import ca.gureet.kitae.model.WeightUnit
 import ca.gureet.kitae.model.WorkoutProgress
+import ca.gureet.kitae.model.startOfWeek
+import ca.gureet.kitae.muscles.MuscleVolume
 import ca.gureet.kitae.workout.phoneDecimalSeparator
 import java.io.File
 import kotlin.time.Instant
@@ -41,6 +46,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -67,6 +73,19 @@ data class AppState(
     val backup: BackupState = BackupState(),
     /** Set once a backup is restored or Kamae is reset, for Kamae to start again. */
     val restarting: Boolean = false,
+    /** The muscle maps and animations, once they're read. */
+    val library: Library? = null,
+    /** People's notes on their exercises, by exercise. */
+    val notes: Map<Long, String> = emptyMap(),
+    /** The weigh-ins and the profile. */
+    val bodyLog: BodyLog = BodyLog(),
+    /** The workout just finished, while its summary shows. */
+    val finishedWorkoutId: Long? = null,
+    /** Today's finished workouts, newest first, and their done sets. */
+    val doneToday: List<WorkoutSummary> = emptyList(),
+    val doneTodaySets: Map<Long, List<DoneSet>> = emptyMap(),
+    /** Whether the welcome is showing. */
+    val isWelcoming: Boolean = false,
 ) {
     val days: List<DayWithExercises>
         get() = plan?.days.orEmpty()
@@ -99,8 +118,14 @@ data class BackupState(
 /** A checked backup, and the name of its file. */
 class PendingRestore(val name: String, val contents: BackupContents)
 
-/** You's totals and activity. */
-data class YouData(val totals: TrainingTotals, val weeks: ActivityWeeks)
+/** You's totals, activity, this week's workouts and their sets, and the muscles worked in the last 7 days. */
+data class YouData(
+    val totals: TrainingTotals,
+    val weeks: ActivityWeeks,
+    val muscles: MuscleVolume = MuscleVolume(),
+    val week: List<WorkoutSummary> = emptyList(),
+    val weekSets: Map<Long, List<DoneSet>> = emptyMap(),
+)
 
 /** The workout in progress, its exercises and sets as the screen shows them, and its rest. */
 data class WorkoutState(
@@ -128,7 +153,7 @@ class AppModel(
     private val container: AppContainer,
     private val clock: () -> Long = System::currentTimeMillis,
     private val timeZone: () -> TimeZone = TimeZone::currentSystemDefault,
-) : ViewModel(), AppActions, PageSource {
+) : ViewModel(), AppActions, PageSource, BodyActions {
     private val database get() = container.database
 
     var state by mutableStateOf(AppState())
@@ -141,8 +166,13 @@ class AppModel(
     init {
         viewModelScope.launch {
             reload()
-            if (state.plan == null) state = state.copy(isChoosingPlan = true)
+            when {
+                state.plan != null -> Unit
+                !container.settings.onboardingDone.first() -> state = state.copy(isWelcoming = true)
+                else -> state = state.copy(isChoosingPlan = true)
+            }
         }
+        viewModelScope.launch { database.body.observeLog().collect { state = state.copy(bodyLog = it) } }
         viewModelScope.launch {
             container.settings.backups.collect { place ->
                 val name = place.folderUri?.let { uri ->
@@ -151,6 +181,8 @@ class AppModel(
                 state = state.copy(backup = state.backup.copy(place = place, folderName = name))
             }
         }
+        viewModelScope.launch { state = state.copy(library = library()) }
+        viewModelScope.launch { database.notes.observeAll().collect { state = state.copy(notes = it) } }
         // The notification's buttons, and the end of a rest while Kamae is closed.
         viewModelScope.launch {
             container.restNotifications.changed.collect {
@@ -162,6 +194,9 @@ class AppModel(
         }
     }
 
+    /** The muscle maps and animations, read off the main thread the first time. */
+    private suspend fun library(): Library = withContext(Dispatchers.Default) { container.library }
+
     private fun today(now: Long = clock()) = EpochDay.of(Instant.fromEpochMilliseconds(now), timeZone())
 
     /** Reads the plans and the workout in progress again. */
@@ -170,7 +205,9 @@ class AppModel(
         val workouts = database.workouts()
         val currentId = plans.currentId()
         val plan = currentId?.let { plans.plan(it) }
-        val active = workouts.active(today())
+        val today = today()
+        val history = database.history()
+        val active = workouts.active(today)
         val workout = active?.let { found ->
             val kept = state.workout?.takeIf { it.id == found.workout.id }?.rest ?: container.rest.load(found.workout.id, clock())
             WorkoutState(found.workout, found.dayName, workouts.exercises(found.workout.id, found.workout.dayId), kept)
@@ -184,6 +221,8 @@ class AppModel(
             workout = workout,
             isWorkoutPresented = state.isWorkoutPresented && workout != null,
             revision = state.revision + 1,
+            doneToday = history.finished(today, today),
+            doneTodaySets = history.doneSets(today, today),
         )
         scheduleRestEnd()
         syncRest()
@@ -240,9 +279,12 @@ class AppModel(
     /** Ends the workout; Today moves on to the plan's next day. [then] starts another day after it. */
     fun finishWorkout(mode: FinishMode, addNewSets: Boolean, then: DayWithExercises? = null) = launch {
         val workout = state.workout ?: return@launch
+        // Its summary, with a set done, unless Settings say not to or another day starts after it.
+        val summary = then == null && settings.value.showsWorkoutSummary && workout.progress.doneCount > 0
         database.workouts().finish(workout.id, mode, addNewSets, clock())
         close(workout.id)
         reload()
+        if (summary) state = state.copy(finishedWorkoutId = workout.id)
         if (settings.value.backUpAfterWorkouts && state.backup.place.folderUri != null) backUp()
         if (then != null) state.days.firstOrNull { it.day.id == then.day.id }?.let { begin(it) }
     }
@@ -252,6 +294,33 @@ class AppModel(
     override fun finishAndStart(mode: FinishMode, addNewSets: Boolean, day: DayWithExercises) = finishWorkout(mode, addNewSets, day)
 
     override fun minimize() = presentWorkout(false)
+
+    override fun saveNote(exerciseId: Long, note: String) = launch { database.notes.save(exerciseId, note) }
+
+    override fun closeSummary() {
+        state = state.copy(finishedWorkoutId = null)
+    }
+
+    // Body
+
+    override fun saveWeighIn(date: Long, weightKg: Double?, bodyFatPercent: Double?, replacingId: Long?) = launch {
+        database.body.save(date, weightKg, bodyFatPercent, replacingId)
+    }
+
+    override fun deleteWeighIn(id: Long) = launch {
+        database.body.delete(id)
+    }
+
+    override fun saveProfile(profile: BodyProfile) = launch {
+        database.body.save(profile)
+    }
+
+    override fun finishWelcome() = launch {
+        container.settings.setOnboardingDone()
+        state = state.copy(isWelcoming = false, isChoosingPlan = state.plan == null)
+    }
+
+    override fun setTextSize(size: TextSize?) = launch { container.settings.setTextSize(size) }
 
     override fun discard() = discardWorkout()
 
@@ -351,9 +420,20 @@ class AppModel(
     }
     // The pages' data
 
-    override suspend fun historyMonths(): List<HistoryMonth> {
+    override suspend fun history(): HistoryPage {
         val activeId = state.workout?.id
-        return historyMonths(database.history().workouts(activeId), activeId)
+        val history = database.history()
+        val workouts = history.workouts(activeId)
+        val dates = workouts.map { it.workout.date }
+        val sets = if (dates.isEmpty()) emptyMap() else history.doneSets(dates.min(), dates.max())
+        return HistoryPage(historyMonths(workouts, activeId), sets)
+    }
+
+    override suspend fun workoutDone(id: Long, withBests: Boolean): WorkoutDone? {
+        val history = database.history()
+        val summary = history.summary(id) ?: return null
+        val date = summary.workout.date
+        return WorkoutDone(summary, history.doneSets(date, date)[id].orEmpty(), if (withBests) database.exercises().newBests(id) else emptyList())
     }
 
     override suspend fun workoutRecord(id: Long): WorkoutRecord? {
@@ -480,7 +560,15 @@ class AppModel(
 
     override suspend fun youData(today: Long, firstWeekday: Int): YouData {
         val stats = database.stats()
-        return YouData(stats.totals(), stats.activity(today, firstWeekday))
+        val history = database.history()
+        val weekStart = startOfWeek(today, firstWeekday)
+        return YouData(
+            stats.totals(),
+            stats.activity(today, firstWeekday),
+            MuscleVolume(stats.exerciseSets(today - 6, today), library().muscles),
+            history.finished(weekStart, today),
+            history.doneSets(weekStart, today),
+        )
     }
 
     // Settings

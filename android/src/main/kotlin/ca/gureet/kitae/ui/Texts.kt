@@ -11,6 +11,7 @@ import ca.gureet.kitae.R
 import ca.gureet.kitae.database.MuscleGroup
 import ca.gureet.kitae.database.WorkoutSummary
 import ca.gureet.kitae.model.WeightFormatter
+import ca.gureet.kitae.model.roundedKilocalories
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
@@ -84,13 +85,19 @@ fun durationLabel(minutes: Int): String =
 @ReadOnlyComposable
 fun workoutTitle(summary: WorkoutSummary): String = summary.dayName ?: Dates.weekday(summary.workout.date)
 
-/** "48 min · 15/15 sets", or just the sets when the workout's length isn't known. */
+/**
+ * "48 min · 15/15 sets · ≈ 230 kcal": the sets, after the workout's length when it's known, and
+ * the energy it used once there's a weight to work it out from.
+ */
 @Composable
 @ReadOnlyComposable
-fun workoutDetails(summary: WorkoutSummary): String {
-    val sets = pluralStringResource(R.plurals.sets_fraction, summary.setCount, summary.doneCount, summary.setCount)
-    val minutes = summary.minutes ?: return sets
-    return durationLabel(minutes) + stringResource(R.string.details_separator) + sets
+fun workoutDetails(summary: WorkoutSummary, kilocalories: Double? = null): String {
+    val parts = listOfNotNull(
+        summary.minutes?.let { durationLabel(it) },
+        pluralStringResource(R.plurals.sets_fraction, summary.setCount, summary.doneCount, summary.setCount),
+        kilocalories?.let { stringResource(R.string.kcal_about, roundedKilocalories(it)) },
+    )
+    return parts.joinToString(stringResource(R.string.details_separator))
 }
 
 /** A set as Kamae lists it: "10 × 22.5 kg", "12 reps" without weight, or "45s" for a hold. */

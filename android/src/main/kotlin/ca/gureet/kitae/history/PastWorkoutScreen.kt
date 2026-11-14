@@ -42,7 +42,10 @@ import ca.gureet.kitae.database.Exercise
 import ca.gureet.kitae.database.SetType
 import ca.gureet.kitae.database.WorkoutExercise
 import ca.gureet.kitae.database.setLabels
+import ca.gureet.kitae.model.BodyLog
 import ca.gureet.kitae.model.WeightFormatter
+import ca.gureet.kitae.model.activeKilocalories
+import ca.gureet.kitae.model.doneSets
 import ca.gureet.kitae.ui.Dates
 import ca.gureet.kitae.ui.components.Caption
 import ca.gureet.kitae.ui.components.ConfirmDialog
@@ -73,6 +76,7 @@ fun PastWorkoutScreen(
     onBack: () -> Unit,
     onDelete: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    bodyLog: BodyLog = BodyLog(),
 ) {
     val colors = kitaeColors
     var menuOpen by remember { mutableStateOf(false) }
@@ -119,7 +123,7 @@ fun PastWorkoutScreen(
                 contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 24.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp),
             ) {
-                item(key = "header") { Header(record, today) }
+                item(key = "header") { Header(record, today, bodyLog) }
                 if (record.exercises.isEmpty()) {
                     item(key = "empty") {
                         Text(stringResource(R.string.no_sets_saved), Modifier.padding(horizontal = 8.dp), color = colors.inkSoft, fontSize = 15.sp)
@@ -149,9 +153,10 @@ fun PastWorkoutScreen(
 }
 
 @Composable
-private fun Header(record: WorkoutRecord, today: Long) {
+private fun Header(record: WorkoutRecord, today: Long, bodyLog: BodyLog) {
     val colors = kitaeColors
     val summary = record.summary
+    val kilocalories = bodyLog.activeKilocalories(summary, record.exercises.flatMap { it.doneSets })
     Column(Modifier.padding(horizontal = 8.dp).padding(bottom = 4.dp)) {
         DisplayText(
             workoutTitle(summary),
@@ -162,7 +167,7 @@ private fun Header(record: WorkoutRecord, today: Long) {
             maxLines = 2,
         )
         Caption(Dates.long(summary.workout.date, today), Modifier.padding(top = 2.dp))
-        Caption(if (summary.isSkipped) stringResource(R.string.skipped) else workoutDetails(summary))
+        Caption(if (summary.isSkipped) stringResource(R.string.skipped) else workoutDetails(summary, kilocalories))
     }
 }
 

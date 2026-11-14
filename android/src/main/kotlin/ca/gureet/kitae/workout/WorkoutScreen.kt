@@ -59,16 +59,22 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import ca.gureet.kitae.R
+import ca.gureet.kitae.app.Library
 import ca.gureet.kitae.app.Route
 import ca.gureet.kitae.app.WorkoutState
 import ca.gureet.kitae.database.EpochDay
+import ca.gureet.kitae.database.Exercise
 import ca.gureet.kitae.database.FinishMode
 import ca.gureet.kitae.database.SetDraft
 import ca.gureet.kitae.database.SetType
 import ca.gureet.kitae.database.WorkoutExercise
 import ca.gureet.kitae.database.setLabels
+import ca.gureet.kitae.exercises.ExerciseNoteSheet
+import ca.gureet.kitae.exercises.NoteRow
 import ca.gureet.kitae.model.AppSettings
 import ca.gureet.kitae.model.WeightFormatter
+import ca.gureet.kitae.muscles.MuscleLine
+import ca.gureet.kitae.muscles.MuscleWork
 import ca.gureet.kitae.ui.components.Hairline
 import ca.gureet.kitae.ui.components.KamaeIcon
 import ca.gureet.kitae.ui.components.MauveButton
@@ -91,6 +97,9 @@ interface WorkoutActions {
     fun resumeRest()
     fun addRest(seconds: Int)
     fun skipRest()
+
+    /** Saves an exercise's note; an empty one deletes it. */
+    fun saveNote(exerciseId: Long, note: String)
 }
 
 /** The phone's decimal separator, which Settings › Decimals › Auto follows. */
@@ -127,8 +136,11 @@ fun WorkoutScreen(
     restsFinished: Int = 0,
     frozenNow: Long? = null,
     onOpen: (Route) -> Unit = {},
+    library: Library? = null,
+    notes: Map<Long, String> = emptyMap(),
 ) {
     val colors = kitaeColors
+    var noteFor by remember { mutableStateOf<Exercise?>(null) }
     val now = rememberNow(frozenNow)
     val focusManager = LocalFocusManager.current
     val haptics = LocalHapticFeedback.current
@@ -179,6 +191,12 @@ fun WorkoutScreen(
                         onOpen = { onOpen(Route.ExercisePage(exercise.exercise.id)) },
                         actions,
                         Modifier.widthIn(max = 600.dp),
+                        work = library?.muscles?.work(exercise.exercise),
+                        note = notes[exercise.exercise.id],
+                        onNote = {
+                            focusManager.clearFocus()
+                            noteFor = exercise.exercise
+                        },
                     )
                 }
             }
@@ -208,6 +226,9 @@ fun WorkoutScreen(
             },
             onDismiss = { optionsFor = null },
         )
+    }
+    noteFor?.let { exercise ->
+        ExerciseNoteSheet(exercise.name, notes[exercise.id], onSave = { actions.saveNote(exercise.id, it) }, onDismiss = { noteFor = null })
     }
     question?.let { asked ->
         FinishQuestionDialog(asked, dayName, workout.progress.addedDoneCount, onQuestion = { question = it }, onFinish = actions::finish)
@@ -306,27 +327,33 @@ private fun ExerciseSection(
     onOpen: () -> Unit,
     actions: WorkoutActions,
     modifier: Modifier = Modifier,
+    work: MuscleWork? = null,
+    note: String? = null,
+    onNote: () -> Unit = {},
 ) {
     val colors = kitaeColors
     Column(modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Row(verticalAlignment = Alignment.Top) {
-            Row(
-                Modifier
-                    .weight(1f)
-                    .padding(top = 2.dp)
-                    .clip(RoundedCornerShape(12.dp))
-                    .clickable(onClickLabel = stringResource(R.string.shows_exercise), role = Role.Button, onClick = onOpen)
-                    .padding(start = 4.dp, top = 2.dp, end = 8.dp, bottom = 2.dp),
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    exercise.exercise.name,
-                    Modifier.weight(1f, fill = false).semantics { heading() },
-                    color = colors.olive,
-                    style = KitaeType.sectionTitle,
-                )
-                KamaeIcon(R.drawable.ic_chevron_forward, null, tint = colors.inkFaint, size = 16.dp)
+            // The name, its muscles under it, then its note, which opens to change it.
+            Column(Modifier.weight(1f).padding(top = 2.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Row(
+                    Modifier
+                        .clip(RoundedCornerShape(12.dp))
+                        .clickable(onClickLabel = stringResource(R.string.shows_exercise), role = Role.Button, onClick = onOpen)
+                        .padding(start = 4.dp, top = 2.dp, end = 8.dp, bottom = 2.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        exercise.exercise.name,
+                        Modifier.weight(1f, fill = false).semantics { heading() },
+                        color = colors.olive,
+                        style = KitaeType.sectionTitle,
+                    )
+                    KamaeIcon(R.drawable.ic_chevron_forward, null, tint = colors.inkFaint, size = 16.dp)
+                }
+                if (work != null) MuscleLine(work, Modifier.padding(start = 4.dp, end = 8.dp))
+                if (note != null) NoteRow(note, onClick = onNote, compact = true)
             }
             val addLabel = stringResource(R.string.add_set_to, exercise.exercise.name)
             IconButton(onClick = { actions.addSet(exercise.exercise.id) }, modifier = Modifier.size(48.dp)) {

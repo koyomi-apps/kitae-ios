@@ -366,6 +366,45 @@
     <string name="rest_over">Rest over</string>
     <string name="time_for_next_set">Time for your next set</string>
 
+    <!-- Muscles -->
+    <string name="m_quads">Quads</string>
+    <string name="m_hamstrings">Hamstrings</string>
+    <string name="m_glutes">Glutes</string>
+    <string name="m_calves">Calves</string>
+    <string name="m_chest">Chest</string>
+    <string name="m_abs">Abs</string>
+    <string name="m_obliques">Obliques</string>
+    <string name="m_lats">Lats</string>
+    <string name="m_traps">Traps</string>
+    <string name="m_lower_back">Lower back</string>
+    <string name="m_front_delts">Front delts</string>
+    <string name="m_side_delts">Side delts</string>
+    <string name="m_rear_delts">Rear delts</string>
+    <string name="m_biceps">Biceps</string>
+    <string name="m_triceps">Triceps</string>
+    <string name="m_forearms">Forearms</string>
+    <string name="m_upper_back">Upper back</string>
+    <string name="m_adductors">Adductors</string>
+    <string name="m_abductors">Abductors</string>
+    <string name="caption_primary">.primary</string>
+    <string name="caption_secondary">.secondary</string>
+    <string name="works_most">Works most: %s</string>
+    <string name="helped_by">Helped by: %s</string>
+    <string name="muscles">Muscles</string>
+    <string name="last_7_days">Last 7 days</string>
+    <string name="this_workout">This workout</string>
+    <string name="caption_most_sets">.most sets</string>
+    <string name="caption_fewer_sets">.fewer sets</string>
+    <string name="no_sets_yet">No sets yet.</string>
+    <string name="sets_count_note">%s. A set counts once for the muscles an exercise works most, and half for the ones that help.</string>
+    <plurals name="set_total">
+        <item quantity="one">%d set</item>
+        <item quantity="other">%d sets</item>
+    </plurals>
+    <string name="muscles_spoken">Muscles worked, %1$s, in sets. Most: %2$s</string>
+    <string name="muscles_spoken_fewer">Fewer: %s</string>
+    <string name="muscles_spoken_empty">Muscles: %s</string>
+
     <string-array name="day_name_suggestions">
         <item>Push</item>
         <item>Pull</item>
@@ -380,4 +419,128 @@
         <item>Core</item>
         <item>Cardio</item>
     </string-array>
+    <string name="add_note">Add a note</string>
+    <string name="note_spoken">Note: %s</string>
+    <string name="write_note">Write a note, for something to remember like a seat height</string>
+    <string name="change_note">Change the note</string>
+    <string name="note_placeholder">Seat height, grip, anything to remember</string>
+    <string name="note_footer">It shows on the exercise\'s page and under its name during workouts.</string>
+    <string name="no_sets_this_week">No sets in the last 7 days. Tick some off and the muscles they work fill in.</string>
+
+    <!-- The summary after a workout -->
+    <string name="caption_workout_done">.workout done</string>
+    <string name="tile_time">Time</string>
+    <string name="tile_sets">Sets</string>
+    <string name="tile_energy">Energy</string>
+    <string name="unit_minutes">min</string>
+    <string name="unit_kcal">kcal</string>
+    <string name="hours_and_minutes">%1$d h %2$d</string>
+    <string name="energy_spoken">Energy, about %d kilocalories</string>
+    <string name="add_your_weight">Add your weight</string>
+    <string name="add_your_height">Add your height</string>
+    <string name="open_body">Open Body, to count the energy your workouts use</string>
+    <string name="energy_note_height">Energy is an estimate, from your sets, weight and height. Your tempo and range of motion change it too, and Kamae can\'t see those.</string>
+    <string name="energy_note_no_height">Energy is an estimate, from your sets and weight. Your height makes it closer.</string>
+    <string name="new_bests">New bests</string>
+    <plurals name="records">
+        <item quantity="one">%d record</item>
+        <item quantity="other">%d records</item>
+    </plurals>
+    <string name="best_was">%1$s, was %2$s</string>
+    <string name="kcal_about">≈ %d kcal</string>
+    <string name="kcal_about_short">≈ %d</string>
+    <string name="kcal_spoken">About %d kilocalories</string>
+
+    <!-- You -->
+    <string name="this_week">This week</string>
+    <string name="no_workouts_yet">No workouts yet</string>
+    <plurals name="workouts_count">
+        <item quantity="one">%d workout</item>
+        <item quantity="other">%d workouts</item>
+    </plurals>
+    <string name="kcal_burned">kcal burned</string>
+    <string name="kcal_burned_spoken">About %d kilocalories burned</string>
+    <string name="add_weight_for_kcal">Add your weight to count kcal</string>
+    <string name="body">Body</string>
+    <string name="track_your_weight">Track your weight</string>
+    <string name="body_card_empty">Height, weight, body fat and more</string>
+    <string name="body_fat_part">%s body fat</string>
+    <string name="open_weigh_ins">Open your weigh-ins and details</string>
+
+    <!-- Body -->
+    <string name="caption_latest">.latest · %s</string>
+    <string name="caption_no_weigh_ins">.no weigh-ins yet</string>
+    <string name="body_empty_text">Add your weight, and body fat if you know it, to see how they go and the energy your workouts use.</string>
+    <string name="lean_part">%s lean</string>
+    <string name="fat_part">%s fat</string>
+    <string name="chart_weight">Weight</string>
+    <string name="chart_body_fat">Body fat</string>
+    <string name="chart_lean">Lean mass</string>
+    <string name="chart_choice">Chart</string>
+    <string name="body_chart_spoken">Your %1$s went from %2$s on %3$s to %4$s on %5$s</string>
+    <string name="caption_weigh_ins">.weigh-ins</string>
+    <string name="add_a_weigh_in">Add a weigh-in</string>
+    <string name="add_weigh_in">Add weigh-in</string>
+    <string name="weigh_in">Weigh-in</string>
+    <string name="change_weigh_in">Change this weigh-in</string>
+    <string name="caption_about_you">.about you</string>
+    <string name="height">Height</string>
+    <string name="date_of_birth">Date of birth</string>
+    <string name="sex">Sex</string>
+    <string name="sex_female">Female</string>
+    <string name="sex_male">Male</string>
+    <string name="activity_level">Activity level</string>
+    <string name="activity_sedentary">Sedentary</string>
+    <string name="activity_lightly_active">Lightly active</string>
+    <string name="activity_moderately_active">Moderately active</string>
+    <string name="activity_very_active">Very active</string>
+    <string name="activity_extra_active">Extra active</string>
+    <string name="activity_sedentary_detail">Mostly sitting, like at a desk</string>
+    <string name="activity_lightly_active_detail">Some walking or standing</string>
+    <string name="activity_moderately_active_detail">On your feet most of the day</string>
+    <string name="activity_very_active_detail">Physical work most of the day</string>
+    <string name="activity_extra_active_detail">Hard physical work all day</string>
+    <string name="not_set">Not set</string>
+    <string name="about_you_footer">All optional, and kept on this phone and in Kamae\'s backups. Kamae estimates the energy your workouts use from the sets you do and your weight, and your height makes it closer. Sex, age and body fat mainly change the energy you use at rest, which isn\'t part of it, so they\'re left out. Either way, it\'s an estimate.</string>
+    <string name="birth_date_age">%1$s · %2$d</string>
+    <string name="day">Day</string>
+    <string name="weight">Weight</string>
+    <string name="body_fat">Body fat</string>
+    <string name="replaces_weigh_in">Replaces the weigh-in on %s.</string>
+    <string name="weigh_in_footer">Body fat is optional. Weighing in at the same time of day, like first thing in the morning, makes the line steadier.</string>
+    <string name="weight_range">Type a weight from %1$s to %2$s.</string>
+    <string name="body_fat_range" formatted="false">Type body fat from 2 to 70%.</string>
+    <string name="delete_weigh_in">Delete weigh-in</string>
+    <string name="feet">Feet</string>
+    <string name="inches">Inches</string>
+    <string name="height_range_cm">Type a height from 50 to 250 cm.</string>
+    <string name="height_range_feet">Type a height from 1 ft 8 in to 8 ft 2 in.</string>
+    <string name="clear_height">Clear height</string>
+    <string name="clear_birth_date">Clear date of birth</string>
+
+    <!-- Today, History and an exercise\'s page -->
+    <string name="caption_done_today">.done today</string>
+    <string name="show_its_sets">Show its sets</string>
+    <string name="body_weight_ratio">%s × body weight</string>
+
+    <!-- Settings and the welcome -->
+    <string name="workout_summary">Summary after each workout</string>
+    <string name="new_bests_in_summary">New bests in the summary</string>
+    <string name="same_text_size">Same text size as phone</string>
+    <string name="text_size">Text size</string>
+    <string name="text_size_extra_small">Extra small</string>
+    <string name="text_size_small">Small</string>
+    <string name="text_size_medium">Medium</string>
+    <string name="text_size_standard">Default</string>
+    <string name="text_size_large">Large</string>
+    <string name="text_size_extra_large">Extra large</string>
+    <string name="text_size_largest">Largest</string>
+    <string name="caption_welcome_to">.welcome to</string>
+    <string name="welcome_spoken">Welcome to Kamae</string>
+    <string name="welcome_text">Set Kamae up the way you like it. You can change all of this later in You › Settings.</string>
+    <string name="caption_example">.example</string>
+    <string name="example_bench_press">Bench press</string>
+    <string name="example_squat">Squat</string>
+    <string name="welcome_backups_footer">Coming from another phone, or from Kitae on iPhone? Restore a backup to bring your plans and workouts with you.</string>
+    <string name="get_started">Get started</string>
 </resources>

@@ -2,6 +2,8 @@
 
 package ca.gureet.kitae.today
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,6 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -31,11 +34,16 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -43,6 +51,9 @@ import androidx.compose.ui.unit.sp
 import ca.gureet.kitae.R
 import ca.gureet.kitae.app.AppState
 import ca.gureet.kitae.database.DayWithExercises
+import ca.gureet.kitae.database.WorkoutSummary
+import ca.gureet.kitae.model.activeKilocalories
+import ca.gureet.kitae.model.roundedKilocalories
 import ca.gureet.kitae.ui.components.Caption
 import ca.gureet.kitae.ui.components.DayChip
 import ca.gureet.kitae.ui.components.DisplayText
@@ -53,6 +64,8 @@ import ca.gureet.kitae.ui.components.KitaeCard
 import ca.gureet.kitae.ui.components.MauveButton
 import ca.gureet.kitae.ui.theme.KitaeType
 import ca.gureet.kitae.ui.theme.kitaeColors
+import ca.gureet.kitae.ui.workoutDetails
+import ca.gureet.kitae.ui.workoutTitle
 import kotlin.random.Random
 
 /**
@@ -69,6 +82,7 @@ fun TodayScreen(
     onChoosePlan: () -> Unit,
     modifier: Modifier = Modifier,
     onEditPlan: (dayId: Long?) -> Unit = {},
+    onOpenWorkout: (Long) -> Unit = {},
     contentPadding: PaddingValues = PaddingValues(),
     line: Int = rememberSaveable { Random.nextInt(6) },
 ) {
@@ -95,7 +109,7 @@ fun TodayScreen(
                     onAction = { onEditPlan(null) },
                 )
             }
-            else -> Day(state, state.selectedDay ?: plan.days.first(), onPickDay, onStart, { onEditPlan(it) }, line)
+            else -> Day(state, state.selectedDay ?: plan.days.first(), onPickDay, onStart, { onEditPlan(it) }, line, onOpenWorkout)
         }
     }
 }
@@ -164,6 +178,7 @@ private fun Day(
     onStart: (DayWithExercises) -> Unit,
     onEdit: (Long) -> Unit,
     line: Int,
+    onOpenWorkout: (Long) -> Unit = {},
 ) {
     val colors = kitaeColors
     val workout = state.workout
@@ -224,6 +239,18 @@ private fun Day(
             style = KitaeType.sectionCaption,
             textAlign = TextAlign.Center,
         )
+        if (state.doneToday.isNotEmpty()) {
+            Caption(stringResource(R.string.caption_done_today), Modifier.padding(start = 24.dp, top = 30.dp, bottom = 8.dp), style = KitaeType.smallCaption)
+            Column(Modifier.padding(horizontal = 16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                for (done in state.doneToday) {
+                    DoneTodayCard(
+                        done,
+                        state.bodyLog.activeKilocalories(done, state.doneTodaySets[done.workout.id].orEmpty()),
+                        onOpen = { onOpenWorkout(done.workout.id) },
+                    )
+                }
+            }
+        }
         if (day.exercises.isNotEmpty()) {
             Caption(stringResource(R.string.caption_exercises), Modifier.padding(start = 24.dp, top = 22.dp, bottom = 8.dp), style = KitaeType.smallCaption)
             KitaeCard(Modifier.padding(horizontal = 16.dp)) {
@@ -240,5 +267,36 @@ private fun Day(
                 }
             }
         }
+    }
+}
+
+/** A workout finished today: its day, how long it took and its sets, and the energy it used. */
+@Composable
+private fun DoneTodayCard(summary: WorkoutSummary, kilocalories: Double?, onOpen: () -> Unit) {
+    val colors = kitaeColors
+    Row(
+        Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(24.dp))
+            .background(colors.card)
+            .clickable(onClickLabel = stringResource(R.string.show_its_sets), role = Role.Button, onClick = onOpen)
+            .heightIn(min = 68.dp)
+            .padding(start = 18.dp, end = 14.dp, top = 10.dp, bottom = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(Modifier.weight(1f)) {
+            Text(workoutTitle(summary), color = colors.ink, fontSize = 16.sp, lineHeight = 22.sp, fontWeight = FontWeight.SemiBold)
+            Text(workoutDetails(summary), color = colors.inkSoft, fontSize = 13.sp, lineHeight = 18.sp)
+        }
+        if (kilocalories != null) {
+            val rounded = roundedKilocalories(kilocalories)
+            val spoken = stringResource(R.string.kcal_spoken, rounded)
+            Column(Modifier.clearAndSetSemantics { contentDescription = spoken }, horizontalAlignment = Alignment.End) {
+                Text(stringResource(R.string.kcal_about_short, rounded), color = colors.olive, style = KitaeType.tileNumber.copy(fontSize = 20.sp, lineHeight = 24.sp))
+                Text(stringResource(R.string.unit_kcal), color = colors.inkSoft, style = KitaeType.fieldCaption.copy(fontSize = 11.sp))
+            }
+        }
+        KamaeIcon(R.drawable.ic_chevron_forward, null, tint = colors.inkFaint, size = 20.dp)
     }
 }

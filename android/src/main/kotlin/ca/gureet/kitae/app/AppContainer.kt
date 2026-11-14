@@ -13,6 +13,7 @@ import ca.gureet.kitae.database.KitaeDatabaseConstructor
 import ca.gureet.kitae.database.Seed
 import ca.gureet.kitae.database.buildKitaeDatabase
 import ca.gureet.kitae.model.RestTimer
+import ca.gureet.kitae.motion.ExerciseMotions
 import ca.gureet.kitae.muscles.ExerciseMuscles
 
 /** Kamae for Android. Its parts live as long as the app does. */
@@ -35,6 +36,11 @@ class AppContainer(context: Context) {
     val seed: Seed by lazy { Seed.decode(text("Seed.json")) }
 
     val muscles: ExerciseMuscles by lazy { ExerciseMuscles.decode(text("ExerciseMuscles.json")) }
+
+    val motions: ExerciseMotions by lazy { ExerciseMotions.decode(text("ExerciseMotions.json")) }
+
+    /** The muscle maps and the animations together, for the screens. */
+    val library: Library by lazy { Library(muscles, motions) }
 
     val database: KitaeDatabase by lazy {
         Room.databaseBuilder(context, DATABASE_NAME) { KitaeDatabaseConstructor.initialize() }.buildKitaeDatabase(seed)

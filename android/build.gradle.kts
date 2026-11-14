@@ -10,18 +10,27 @@ android {
     compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        applicationId = "ca.gureet.kitae"
+        // A new app, with its own key: it installs beside Kitae for Android 2.0.0
+        // (ca.gureet.kitae), whose people move over by restoring a backup.
+        applicationId = "ca.gureet.kamae"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 300000
-        versionName = "3.0.0"
+        // Major × 10000 + minor × 100 + patch: 0.9.x are test builds, and 1.0.0 is 10000.
+        versionCode = 901
+        versionName = "0.9.1"
     }
 
     buildTypes {
         debug {
-            // Debug builds install beside Kitae for Android 2.0.0 without touching its data.
+            // Debug builds install beside a released Kamae without touching its data.
             applicationIdSuffix = ".debug"
         }
+    }
+
+    // F-Droid builds leave out the dependency list Google's tools sign into an APK.
+    dependenciesInfo {
+        includeInApk = false
+        includeInBundle = false
     }
 
     compileOptions {

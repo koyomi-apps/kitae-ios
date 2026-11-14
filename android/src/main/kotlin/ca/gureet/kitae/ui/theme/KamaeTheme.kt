@@ -8,7 +8,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Shapes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
+import ca.gureet.kitae.app.TextSize
 import ca.gureet.kitae.model.AppTheme
 
 /** Cards have corners of 24, tiles 22, set fields 18; sheets and dialogs 28 as Material has them. */
@@ -20,16 +23,21 @@ private val KamaeShapes = Shapes(
     extraLarge = RoundedCornerShape(28.dp),
 )
 
-/** Kamae's colours, type and shapes, light or dark as Settings › Theme says. */
+/**
+ * Kamae's colours, type and shapes, light or dark as Settings › Theme says, and its text the size
+ * Settings › Text size gives it, in place of the phone's ([textSize] null follows the phone).
+ */
 @Composable
-fun KamaeTheme(theme: AppTheme = AppTheme.System, content: @Composable () -> Unit) {
+fun KamaeTheme(theme: AppTheme = AppTheme.System, textSize: TextSize? = null, content: @Composable () -> Unit) {
     val dark = when (theme) {
         AppTheme.System -> isSystemInDarkTheme()
         AppTheme.Light -> false
         AppTheme.Dark -> true
     }
     val colors = if (dark) KitaeColors.Dark else KitaeColors.Light
-    CompositionLocalProvider(LocalKitaeColors provides colors) {
+    val density = LocalDensity.current
+    val scaled = textSize?.let { Density(density.density, it.scale) } ?: density
+    CompositionLocalProvider(LocalKitaeColors provides colors, LocalDensity provides scaled) {
         MaterialTheme(colorScheme = colors.materialScheme(), typography = KamaeTypography, shapes = KamaeShapes, content = content)
     }
 }

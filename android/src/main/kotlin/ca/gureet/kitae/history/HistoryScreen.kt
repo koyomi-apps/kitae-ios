@@ -71,6 +71,7 @@ fun HistoryScreen(
     onOpen: (WorkoutSummary) -> Unit,
     onDelete: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    kilocalories: (WorkoutSummary) -> Double? = { null },
 ) {
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
     var deleting by remember { mutableStateOf<WorkoutSummary?>(null) }
@@ -102,6 +103,7 @@ fun HistoryScreen(
                             month.workouts.size,
                             onOpen = { onOpen(summary) },
                             onDelete = { deleting = summary },
+                            kilocalories = kilocalories(summary),
                         )
                     }
                 }
@@ -158,6 +160,7 @@ private fun WorkoutRow(
     count: Int,
     onOpen: () -> Unit,
     onDelete: () -> Unit,
+    kilocalories: Double?,
 ) {
     val colors = kitaeColors
     val shape = cardRowShape(index, count)
@@ -214,7 +217,7 @@ private fun WorkoutRow(
                             maxLines = 1,
                         )
                         summary.isSkipped -> Text(stringResource(R.string.skipped), color = colors.inkSoft, style = KitaeType.sectionCaption.copy(lineHeight = 18.sp))
-                        else -> Text(workoutDetails(summary), color = colors.inkSoft, fontSize = 12.sp, lineHeight = 18.sp, maxLines = 1)
+                        else -> Text(workoutDetails(summary, kilocalories), color = colors.inkSoft, fontSize = 12.sp, lineHeight = 18.sp, maxLines = 1)
                     }
                 }
                 KamaeIcon(R.drawable.ic_chevron_forward, null, tint = colors.inkFaint, size = 20.dp)

@@ -8,13 +8,17 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performTextReplacement
 import ca.gureet.kitae.app.AppState
 import ca.gureet.kitae.app.KamaeRoot
 import ca.gureet.kitae.app.Navigator
 import ca.gureet.kitae.app.Route
 import ca.gureet.kitae.app.Tab
+import ca.gureet.kitae.app.TextSize
 import ca.gureet.kitae.model.AppSettings
 import ca.gureet.kitae.model.AppTheme
+import ca.gureet.kitae.model.BodyLog
 import ca.gureet.kitae.ui.theme.KamaeTheme
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.captureScreenRoboImage
@@ -35,6 +39,11 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(sdk = [34], qualifiers = "w412dp-h915dp-xhdpi")
 class ScreensTest {
+    private companion object {
+        /** Partway through the move, as the figure is between its keyframes. */
+        const val FIGURE_AT = 0.3
+    }
+
     @get:Rule
     val compose = createComposeRule()
 
@@ -42,7 +51,9 @@ class ScreensTest {
 
     private fun show(state: AppState, theme: AppTheme = AppTheme.Light, navigator: Navigator = Navigator()) {
         compose.setContent {
-            KamaeTheme(theme) { KamaeRoot(state, AppSettings(), actions, SamplePages, frozenNow = Samples.NOW, navigator = navigator) }
+            KamaeTheme(theme) {
+                KamaeRoot(state, AppSettings(), actions, SamplePages, frozenNow = Samples.NOW, navigator = navigator, figureAt = FIGURE_AT)
+            }
         }
         compose.waitForIdle()
     }
@@ -172,6 +183,35 @@ class ScreensTest {
     }
 
     @Test
+    fun howToDoIt() {
+        show(Samples.today, navigator = on(Tab.Exercises, Route.ExercisePage(101)))
+        compose.onNodeWithText("See it done").performScrollTo()
+        compose.waitForIdle()
+        capture("exercise-how-to")
+    }
+
+    @Test
+    fun howToDoItDark() {
+        show(Samples.today, AppTheme.Dark, on(Tab.Exercises, Route.ExercisePage(101)))
+        compose.onNodeWithText("See it done").performScrollTo()
+        compose.waitForIdle()
+        capture("exercise-how-to-dark")
+    }
+
+    @Test
+    fun writingANote() {
+        show(Samples.today.copy(notes = emptyMap()), navigator = on(Tab.Exercises, Route.ExercisePage(101)))
+        compose.onNodeWithContentDescription("Add a note").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithContentDescription("Seat height, grip, anything to remember").performTextReplacement("Pins on 5")
+        compose.waitForIdle()
+        capture("note")
+        compose.onNodeWithText("Save").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("saveNote 101 Pins on 5"), actions.calls)
+    }
+
+    @Test
     fun exerciseEditor() {
         show(Samples.today, navigator = on(Tab.Exercises, Route.ExercisePage(101)))
         compose.onNodeWithText("Edit").performClick()
@@ -214,6 +254,97 @@ class ScreensTest {
     fun youDark() {
         show(Samples.today, AppTheme.Dark, on(Tab.You))
         capture("you-dark")
+    }
+
+    @Test
+    fun todayAfterAWorkout() {
+        show(Samples.today.copy(doneToday = listOf(Samples.history[1]), doneTodaySets = mapOf(6L to Samples.pullSets())))
+        compose.onNodeWithText(".done today").performScrollTo()
+        compose.waitForIdle()
+        capture("today-done")
+        compose.onNodeWithText("44 min · 15/15 sets").performClick()
+        compose.waitForIdle()
+        capture("today-done-opened")
+    }
+
+    @Test
+    fun summary() {
+        show(Samples.today.copy(finishedWorkoutId = 6))
+        compose.waitForIdle()
+        capture("summary")
+        compose.onNodeWithText("Done").performClick()
+        compose.waitForIdle()
+        assertEquals(listOf("closeSummary"), actions.calls)
+    }
+
+    @Test
+    fun summaryDark() {
+        show(Samples.today.copy(finishedWorkoutId = 6), AppTheme.Dark)
+        compose.waitForIdle()
+        capture("summary-dark")
+    }
+
+    @Test
+    fun summaryWithoutAWeight() {
+        show(Samples.today.copy(finishedWorkoutId = 6, bodyLog = BodyLog()))
+        compose.waitForIdle()
+        capture("summary-no-weight")
+    }
+
+    @Test
+    fun body() {
+        show(Samples.today, navigator = on(Tab.You, Route.Body))
+        capture("body")
+        compose.onNodeWithContentDescription("Add weigh-in").performClick()
+        compose.waitForIdle()
+        compose.onNodeWithContentDescription("Weight").performTextReplacement("78,1")
+        compose.waitForIdle()
+        capture("weigh-in")
+        compose.onNodeWithText("Save").performClick()
+        compose.waitForIdle()
+        assertTrue(actions.calls.single().startsWith("saveWeighIn"))
+    }
+
+    @Test
+    fun bodyEmpty() {
+        show(Samples.today.copy(bodyLog = BodyLog()), AppTheme.Dark, on(Tab.You, Route.Body))
+        capture("body-empty-dark")
+    }
+
+    @Test
+    fun youWithoutAWeight() {
+        show(Samples.today.copy(bodyLog = BodyLog()), navigator = on(Tab.You))
+        capture("you-no-weight")
+    }
+
+    @Test
+    fun welcome() {
+        show(Samples.today.copy(plan = null, isWelcoming = true))
+        capture("welcome")
+        compose.onNodeWithText("Get started").performClick()
+        assertEquals(listOf("finishWelcome"), actions.calls)
+    }
+
+    @Test
+    fun settingsAppearance() {
+        show(Samples.backedUp, AppTheme.Dark, on(Tab.You, Route.Settings))
+        compose.onNodeWithText("Same text size as phone").performScrollTo()
+        compose.waitForIdle()
+        capture("settings-appearance-dark")
+        compose.onNodeWithText("Same text size as phone").performClick()
+        assertTrue(actions.calls.single().startsWith("setTextSize "))
+    }
+
+    @Test
+    @Config(qualifiers = "w412dp-h915dp-xhdpi")
+    fun largestText() {
+        compose.setContent {
+            KamaeTheme(AppTheme.Light, TextSize.Largest) {
+                KamaeRoot(Samples.inProgress, AppSettings(), actions, SamplePages, frozenNow = Samples.NOW, figureAt = FIGURE_AT)
+            }
+        }
+        compose.waitForIdle()
+        capture("workout-largest-text")
     }
 
     @Test

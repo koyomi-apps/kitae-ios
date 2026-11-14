@@ -39,6 +39,11 @@ nonisolated final class KitaeDatabase: @unchecked Sendable {
         try core.open()
     }
 
+    /// Closes the file when nothing uses the database any more, as tests make many.
+    deinit {
+        try? core.close()
+    }
+
     /// The app's database. It has Kitae for Android's file name, so backups line up.
     static func app() throws -> KitaeDatabase {
         let folder = try FileManager.default.url(

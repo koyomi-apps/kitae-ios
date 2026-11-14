@@ -70,6 +70,36 @@ jobs:
           # The whole log is long, so only errors, failed tests and the results.
           grep -E ' error: |^error: |^e: |✘|Test run with|\*\* [A-Z ]+ \*\*|FAILURE:|What went wrong' "$log" | head -300 || true
           if [ "$status" != 0 ]; then
+            echo "--- tests that started and didn't end ---"
+            python3 - "$log" <<'PY'
+          import re, sys
+          started, ended = [], set()
+          for line in open(sys.argv[1], errors="replace"):
+              if m := re.search(r"◇ Test (.+?) started", line):
+                  started.append(m.group(1))
+              if m := re.search(r"[✔✘] Test (.+?) (passed|failed)", line):
+                  ended.add(m.group(1))
+          print("\n".join(name for name in started if name not in ended))
+          PY
+            echo "--- crashes and exits while testing ---"
+            awk '/Test run started|Testing started/ { testing = 1 } testing' "$log" \
+              | grep -i -E 'crash|fatal error|uncaught|exception|signal|unexpected|restarting|terminated|EXC_' | head -60 || true
+            for report in ~/Library/Logs/DiagnosticReports/Kitae*.ips; do
+              [ -e "$report" ] || continue
+              echo "--- $report ---"
+              python3 - "$report" <<'PY'
+          import json, sys
+          text = open(sys.argv[1]).read()
+          body = json.loads(text[text.index("\n") + 1:])
+          print(json.dumps(body.get("exception"), indent=1), body.get("termination", {}).get("indicator"))
+          print("\n".join(body.get("asi", {}).get("CoreFoundation", []) + body.get("asi", {}).get("libsystem_c.dylib", [])))
+          for thread in body.get("threads", []):
+              if thread.get("triggered"):
+                  for frame in thread.get("frames", [])[:40]:
+                      image = body["usedImages"][frame["imageIndex"]].get("name", "?")
+                      print(image, frame.get("symbol", "?"))
+          PY
+            done
             echo "--- the end of the log ---"
             tail -60 "$log" | head -48
           fi

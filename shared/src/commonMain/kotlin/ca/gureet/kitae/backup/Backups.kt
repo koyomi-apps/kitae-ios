@@ -203,7 +203,7 @@ object Backups {
      * Takes in the log Kitae for Android may have left beside its database, and checks the database
      * is Kitae's, at a version this app opens, and not damaged.
      */
-    private fun check(file: String) {
+    internal fun check(file: String) {
         try {
             BundledSQLiteDriver().open(file).use { connection ->
                 connection.execSQL("PRAGMA journal_mode = DELETE")

@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
+import KitaeCore
 
 /// The totals on the You tab.
 nonisolated struct TrainingTotals: Equatable, Sendable {
@@ -65,31 +65,12 @@ nonisolated func weekday(ofEpochDay day: Int) -> Int {
 /// `totalSetCount`, `SessionDao`'s `daysTrained` and `ExerciseDao`'s `number`).
 nonisolated enum Stats {
     static func totals(_ db: Database) throws -> TrainingTotals {
-        TrainingTotals(
-            lifts: try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM `sets` WHERE `isCompleted` = 1") ?? 0,
-            days: try Int.fetchOne(db, sql: """
-                SELECT COUNT(DISTINCT `date`)
-                FROM `sessions`
-                WHERE EXISTS
-                (SELECT 1 FROM `sets`
-                WHERE `sets`.`sessionId` = `sessions`.`id`
-                AND `sets`.`isCompleted` = 1)
-                """) ?? 0,
-            exercises: try Int.fetchOne(db, sql: "SELECT COUNT(*) FROM `exercises`") ?? 0
-        )
+        TrainingTotals(try db.core.totals())
     }
 
     /// The days from `first` to `last` with a set done.
     static func trainedDays(_ db: Database, from first: Int, to last: Int) throws -> Set<Int> {
-        Set(try Int.fetchAll(db, sql: """
-            SELECT DISTINCT `date`
-            FROM `sessions`
-            WHERE `date` BETWEEN ? AND ?
-            AND EXISTS
-            (SELECT 1 FROM `sets`
-            WHERE `sets`.`sessionId` = `sessions`.`id`
-            AND `sets`.`isCompleted` = 1)
-            """, arguments: [first, last]))
+        Set(int64s(try db.core.trainedDays(first: Int64(first), last: Int64(last))).map { Int($0) })
     }
 
     /// The last 16 weeks, with the days trained in them.
@@ -110,16 +91,6 @@ nonisolated extension Stats {
     /// Each exercise done from `first` to `last`, with its done sets, warm-ups left out. Sets
     /// done in the workout in progress count straight away.
     static func exerciseSets(_ db: Database, from first: Int, to last: Int) throws -> [ExerciseSetCount] {
-        try Row.fetchAll(db, sql: """
-            SELECT `exercises`.*, COUNT(*) AS `doneSets`
-            FROM `sets`
-            JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
-            JOIN `exercises` ON `exercises`.`id` = `sets`.`exerciseId`
-            WHERE `sets`.`isCompleted` = 1
-            AND `sets`.`type` != ?
-            AND `sessions`.`date` BETWEEN ? AND ?
-            GROUP BY `exercises`.`id`
-            """, arguments: [SetType.warmup.rawValue, first, last])
-            .map { ExerciseSetCount(exercise: Exercise(row: $0), sets: $0["doneSets"]) }
+        try db.core.exerciseSets(first: Int64(first), last: Int64(last)).map { ExerciseSetCount($0) }
     }
 }

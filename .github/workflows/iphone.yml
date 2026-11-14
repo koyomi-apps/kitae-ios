@@ -70,6 +70,36 @@ jobs:
           # The whole log is long, so only errors, failed tests and the results.
           grep -E ' error: |^error: |^e: |✘|Test run with|\*\* [A-Z ]+ \*\*|FAILURE:|What went wrong' "$log" | head -300 || true
           if [ "$status" != 0 ]; then
+            echo "--- tests that started and didn't end ---"
+            python3 - "$log" <<'PY'
+          import re, sys
+          started, ended = [], set()
+          for line in open(sys.argv[1], errors="replace"):
+              if m := re.search(r"◇ Test (.+?) started", line):
+                  started.append(m.group(1))
+              if m := re.search(r"[✔✘] Test (.+?) (passed|failed)", line):
+                  ended.add(m.group(1))
+          print("\n".join(name for name in started if name not in ended))
+          PY
+            echo "--- crashes and exits while testing ---"
+            awk '/Test run started|Testing started/ { testing = 1 } testing' "$log" \
+              | grep -i -E 'crash|fatal error|uncaught|exception|signal|unexpected|restarting|terminated|EXC_' | head -60 || true
+            for report in ~/Library/Logs/DiagnosticReports/Kitae*.ips; do
+              [ -e "$report" ] || continue
+              echo "--- $report ---"
+              python3 - "$report" <<'PY'
+          import json, sys
+          text = open(sys.argv[1]).read()
+          body = json.loads(text[text.index("\n") + 1:])
+          print(json.dumps(body.get("exception"), indent=1), body.get("termination", {}).get("indicator"))
+          print("\n".join(body.get("asi", {}).get("CoreFoundation", []) + body.get("asi", {}).get("libsystem_c.dylib", [])))
+          for thread in body.get("threads", []):
+              if thread.get("triggered"):
+                  for frame in thread.get("frames", [])[:40]:
+                      image = body["usedImages"][frame["imageIndex"]].get("name", "?")
+                      print(image, frame.get("symbol", "?"))
+          PY
+            done
             echo "--- the end of the log ---"
             tail -60 "$log" | head -48
           fi
@@ -79,7 +109,8 @@ jobs:
         if: failure()
         run: |
           header=shared/build/bin/iosSimulatorArm64/debugFramework/KitaeCore.framework/Headers/KitaeCore.h
-          grep -n -E 'swift_name\("(DoneSet|ExerciseEnergy|WorkoutEnergy|SetType|KotlinDouble|KotlinLong)|init(WithDouble|WithLongLong|WithExerciseId|WithPerKilogram)|activeSets|reachHeightCm|fromStored|kilocaloriesReps|ofKey|starters|energyFactor' "$header" | head -80
+          sed -n '/swift_name("IPhoneDatabase")/,/^@end/p' "$header" | grep -o 'swift_name("[^"]*")\|- ([^)]*)[a-zA-Z]*' | head -150
+          grep -n -E 'swift_name\("(KotlinInt|KotlinLong|KotlinDouble|KotlinBoolean|NameProblemException|BackupException)"\)' -A4 "$header" | head -40
 
       # The app as the tests left it, opened on a few screens with example data.
       - name: Take screenshots
@@ -91,7 +122,7 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b > /dev/null
           xcrun simctl install "$UDID" "$RUNNER_TEMP/derived/Build/Products/Debug-iphonesimulator/Kitae.app"
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
-          for screen in you workoutdone; do
+          for screen in today history you workoutdone; do
             xcrun simctl launch --terminate-running-process "$UDID" ca.gureet.kitae -KitaeScreen "$screen" > /dev/null
             sleep 8
             xcrun simctl io "$UDID" screenshot "$shots/$screen.png" 2> /dev/null

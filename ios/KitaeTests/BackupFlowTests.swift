@@ -50,7 +50,7 @@ final class BackupFlowTests {
     @Test func aBackupRestoredOnFirstLaunchBringsEverythingAlong() async throws {
         let backup = try await backupFromAnotherPhone()
         // A new install, on the welcome.
-        let model = try model(try KitaeDatabase.inMemory(), backupsTo: "own")
+        let model = try model(try KitaeDatabase.temporary(), backupsTo: "own")
         let flow = BackupFlow()
 
         flow.chooseBackup(model)
@@ -82,7 +82,7 @@ final class BackupFlowTests {
     }
 
     @Test func aPickedFolderIsUsed() throws {
-        let model = try model(try KitaeDatabase.inMemory(), backupsTo: "own")
+        let model = try model(try KitaeDatabase.temporary(), backupsTo: "own")
         let chosen = folder.appendingPathComponent("Training", isDirectory: true)
         try FileManager.default.createDirectory(at: chosen, withIntermediateDirectories: true)
         let flow = BackupFlow()

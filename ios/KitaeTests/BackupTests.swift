@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
 import Testing
 @testable import Kitae
 
@@ -178,12 +177,8 @@ final class BackupTests {
     private func backup(atVersion version: Int) throws -> URL {
         let work = try subfolder("version-\(version)")
         let file = work.appendingPathComponent("kenko_database")
-        let queue = try DatabaseQueue(path: file.path)
-        _ = try KitaeDatabase(queue)
-        try queue.writeWithoutTransaction { db in
-            try db.execute(sql: "PRAGMA user_version = \(version)")
-        }
-        try queue.close()
+        try KitaeDatabase.file(file).close()
+        try KitaeDatabase.execute(["PRAGMA journal_mode = DELETE", "PRAGMA user_version = \(version)"], in: file)
         let zip = work.appendingPathComponent("backup.zip")
         try Backups.archive([("kenko_database", file)], to: zip)
         return zip
@@ -221,7 +216,7 @@ final class BackupTests {
         try Backups.write(source, preferences: ["theme": .string("Dark")], to: out, named: "backup.zip")
 
         // A new database, with no plan chosen and nothing done.
-        let target = try KitaeDatabase.inMemory()
+        let target = try KitaeDatabase.temporary()
         let preferences = try Backups.restore(from: out.appendingPathComponent("backup.zip"), into: target)
         #expect(preferences == ["theme": .string("Dark")])
         #expect(try history(target) == history(source))
@@ -235,24 +230,22 @@ final class BackupTests {
         let out = try subfolder("out")
         try Backups.write(source, preferences: [:], to: out, named: "backup.zip")
 
-        // Like the app's: a file in write-ahead-log mode, kept open while it's replaced.
+        // Like the app's: a file, open while it's replaced.
         let file = try subfolder("app").appendingPathComponent("kenko_database")
-        let pool = try DatabasePool(path: file.path)
-        let app = try KitaeDatabase(pool)
+        let app = try KitaeDatabase.file(file)
         _ = try Backups.restore(from: out.appendingPathComponent("backup.zip"), into: app)
         #expect(try history(app) == history(source))
-        try pool.close()
+        try app.close()
 
         // And it opens again as Kitae's database.
-        let reopened = try KitaeDatabase(DatabasePool(path: file.path))
+        let reopened = try KitaeDatabase.file(file)
         #expect(try history(reopened) == history(source))
     }
 
     @Test func androidBackupsWithALogComeBackWhole() throws {
         // Kitae for Android's database while it's open, with its latest changes still in the log.
         let android = try subfolder("android")
-        let pool = try DatabasePool(path: android.appendingPathComponent("kenko_database").path)
-        let database = try KitaeDatabase(pool)
+        let database = try KitaeDatabase.file(android.appendingPathComponent("kenko_database"))
         try database.write { db in
             let planID = try #require(try Int64.fetchOne(db, sql: "SELECT id FROM plans ORDER BY id LIMIT 1"))
             try Plans.setCurrent(db, planID: planID, today: Self.today - 5)
@@ -266,9 +259,9 @@ final class BackupTests {
         #expect(files[1].contents.isEmpty == false)
         files.append(("settings.preferences_pb", PreferencesFileTests.androidFile))
         let zip = try zip(files)
-        try pool.close()
+        try database.close()
 
-        let target = try KitaeDatabase.inMemory()
+        let target = try KitaeDatabase.temporary()
         let preferences = try Backups.restore(from: zip, into: target)
         #expect(try history(target) == expected)
         #expect(preferences == PreferencesFileTests.androidSettings)
@@ -291,9 +284,7 @@ final class BackupTests {
 
         let otherWork = try subfolder("other")
         let otherFile = otherWork.appendingPathComponent("kenko_database")
-        let other = try DatabaseQueue(path: otherFile.path)
-        try other.write { db in try db.execute(sql: "CREATE TABLE notes (text TEXT)") }
-        try other.close()
+        try KitaeDatabase.execute(["CREATE TABLE notes (text TEXT)"], in: otherFile)
         let otherZip = try zip([("kenko_database", try Data(contentsOf: otherFile))])
         #expect(throws: BackupError.notKitae) { try Backups.restore(from: otherZip, into: target) }
 
@@ -302,7 +293,7 @@ final class BackupTests {
     }
 
     @Test func backupsFromOtherVersionsAreRefused() throws {
-        let target = try KitaeDatabase.inMemory()
+        let target = try KitaeDatabase.temporary()
         #expect(throws: BackupError.olderVersion) { try Backups.restore(from: try backup(atVersion: 7), into: target) }
         #expect(throws: BackupError.newerVersion) { try Backups.restore(from: try backup(atVersion: Schema.version + 1), into: target) }
         // The version this app has goes in. (Version 8's is in LibraryTests.)
@@ -320,7 +311,7 @@ final class BackupTests {
         #expect(try history(current).isEmpty)
 
         let copy = safety.appendingPathComponent(Backups.beforeRestoreName)
-        let elsewhere = try KitaeDatabase.inMemory()
+        let elsewhere = try KitaeDatabase.temporary()
         #expect(try Backups.restore(from: copy, into: elsewhere) == ["theme": .string("Dark")])
         #expect(try history(elsewhere) == before)
     }
@@ -397,7 +388,7 @@ final class BackupModelTests {
         // A new install, before a plan is chosen.
         let own = folder.appendingPathComponent("own")
         try FileManager.default.createDirectory(at: own, withIntermediateDirectories: true)
-        let model = model(try KitaeDatabase.inMemory(), backupsTo: own)
+        let model = model(try KitaeDatabase.temporary(), backupsTo: own)
         #expect(model.currentPlan == nil)
 
         try await model.restoreBackup(from: backup)

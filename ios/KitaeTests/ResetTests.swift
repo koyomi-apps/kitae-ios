@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
 import Testing
 @testable import Kitae
 
@@ -27,7 +26,7 @@ final class ResetTests {
 
     /// What a new install has: the starter plan and exercises, and no plan followed.
     private func expectNewInstall(_ database: KitaeDatabase) throws {
-        let new = try KitaeDatabase.inMemory()
+        let new = try KitaeDatabase.temporary()
         #expect(try database.read { db in try Plans.all(db) } == new.read { db in try Plans.all(db) })
         #expect(try database.read { db in try Exercises.all(db) } == new.read { db in try Exercises.all(db) })
         #expect(try database.read { db in try Plans.currentID(db) } == nil)
@@ -97,8 +96,7 @@ final class ResetTests {
 
     @Test func theAppsOpenDatabaseResetsInPlace() throws {
         let file = folder.appendingPathComponent("kenko_database")
-        let pool = try DatabasePool(path: file.path)
-        let database = try KitaeDatabase(pool)
+        let database = try KitaeDatabase.file(file)
         try database.write { db in
             let planID = try #require(try Int64.fetchOne(db, sql: "SELECT id FROM plans ORDER BY id LIMIT 1"))
             try Plans.setCurrent(db, planID: planID, today: 20_730)
@@ -109,9 +107,9 @@ final class ResetTests {
 
         try database.reset()
         try expectNewInstall(database)
-        try pool.close()
+        try database.close()
 
         // And it opens again as Kitae's database.
-        try expectNewInstall(try KitaeDatabase(DatabasePool(path: file.path)))
+        try expectNewInstall(try KitaeDatabase.file(file))
     }
 }

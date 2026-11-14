@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
 import Testing
 @testable import Kitae
 
@@ -188,8 +187,8 @@ struct ExerciseTests {
 
     @Test func aBackupFromAndroidGetsTheNotesTable() throws {
         // Room's tables only, as Kitae for Android makes them.
-        let android = try DatabaseQueue()
-        try android.write { db in try Schema.create(db) }
+        let android = try KitaeDatabase.newFile()
+        try KitaeDatabase.makeVersion10(at: android)
         try database.replaceContents(with: android)
         #expect(try database.read { db in try db.tableExists("exercise_notes") })
     }

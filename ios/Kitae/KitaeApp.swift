@@ -72,7 +72,7 @@ enum Launch {
             // Example data for screenshots, kept away from the real database.
             if DebugLaunch.usesExampleData {
                 let model = AppModel(
-                    database: try .inMemory(),
+                    database: try .temporary(),
                     restStore: .none,
                     settingsStore: .none,
                     backups: DebugLaunch.backups,

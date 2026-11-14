@@ -2,14 +2,13 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
 import Testing
 @testable import Kitae
 
 /// Weigh-ins, the profile, and the energy workouts use.
 struct BodyTests {
     @Test func theBodyTablesLeaveRoomsVersionAlone() throws {
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         let (version, hash, tables) = try database.read { db in
             (
                 try Int.fetchOne(db, sql: "PRAGMA user_version"),
@@ -23,7 +22,7 @@ struct BodyTests {
     }
 
     @Test func aDayHasOneWeighIn() throws {
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         try database.write { db in
             try BodyStore.save(db, date: 100, weightKg: 80, bodyFatPercent: nil)
             try BodyStore.save(db, date: 100, weightKg: 79.5, bodyFatPercent: 18)
@@ -49,7 +48,7 @@ struct BodyTests {
     }
 
     @Test func theProfileIsSavedAsAndroidWouldReadIt() throws {
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         let profile = BodyProfile(heightCm: 178, birthDate: 9630, sex: .female, activityLevel: .moderatelyActive)
         try database.write { db in try BodyStore.save(db, profile: profile) }
         #expect(try database.read(BodyStore.log).profile == profile)
@@ -60,11 +59,11 @@ struct BodyTests {
     }
 
     @Test func aBackupFromAndroidGetsTheBodyTables() throws {
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         try database.write { db in try BodyStore.save(db, date: 100, weightKg: 80, bodyFatPercent: nil) }
         // Room's tables only, as Kitae for Android makes them.
-        let android = try DatabaseQueue()
-        try android.write { db in try Schema.create(db) }
+        let android = try KitaeDatabase.newFile()
+        try KitaeDatabase.makeVersion10(at: android)
         try database.replaceContents(with: android)
         let log = try database.read(BodyStore.log)
         #expect(log.entries.isEmpty)

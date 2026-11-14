@@ -2,12 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
 import Testing
 @testable import Kitae
 
-/// Kitae's own exercises: their library keys, how databases from before them get them, and how
-/// the exercises a later version brings arrive.
+/// Kitae's own exercises: their library keys, and how databases from before them get them. How
+/// the exercises a later version brings arrive is checked in the shared module (`LibraryTest`).
 struct LibraryTests {
     private func keys(_ database: KitaeDatabase) throws -> [Int64: String] {
         try database.read { db in
@@ -20,14 +19,8 @@ struct LibraryTests {
         try database.read { db in try Int.fetchOne(db, sql: sql) ?? 0 }
     }
 
-    /// An exercise a later version could bring, made up so it's never one of Kitae's own.
-    private let examplePress = Seed.Exercise(
-        id: nil, key: "example-press", name: "Example Press", target: "Shoulders", isIsometric: false,
-        usesWeight: true, instructions: "Hold the handle at your shoulder.\nPress it up and forward."
-    )
-
     @Test func kitaesExercisesHaveTheirKeys() throws {
-        let database = try KitaeDatabase.inMemory()
+        let database = try KitaeDatabase.temporary()
         let seed = try Seed.bundled()
         let all = Set(seed.exercises.map(\.key))
         let starters = seed.starterKeys
@@ -56,15 +49,15 @@ struct LibraryTests {
     }
 
     @Test func aVersion8DatabaseIsBroughtUpToDate() throws {
-        let queue = try DatabaseQueue()
-        try KitaeDatabase.makeVersion8(queue)
-        try queue.write { db in
-            // Leg Press was deleted, Curls renamed, and someone made an exercise of their own.
-            try db.execute(sql: "DELETE FROM exercises WHERE id = 12")
-            try db.execute(sql: "UPDATE exercises SET name = 'Dumbbell Curls' WHERE id = 1")
-            try db.execute(sql: "INSERT INTO exercises (name, target, isIsometric) VALUES ('Example Press', 'Shoulders', 0)")
-        }
-        let database = try KitaeDatabase(queue)
+        let file = try KitaeDatabase.newFile()
+        try KitaeDatabase.makeVersion8(at: file)
+        // Leg Press was deleted, Curls renamed, and someone made an exercise of their own.
+        try KitaeDatabase.execute([
+            "DELETE FROM exercises WHERE id = 12",
+            "UPDATE exercises SET name = 'Dumbbell Curls' WHERE id = 1",
+            "INSERT INTO exercises (name, target, isIsometric) VALUES ('Example Press', 'Shoulders', 0)",
+        ], in: file)
+        let database = try KitaeDatabase.file(file)
         let seed = try Seed.bundled()
         let (version, hash, index) = try database.read { db in
             (
@@ -83,24 +76,24 @@ struct LibraryTests {
         // The exercise people made stays theirs.
         #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE name = 'Example Press' AND libraryKey IS NULL") == 1)
         // Opening it again changes nothing.
-        _ = try KitaeDatabase(queue)
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises") == seed.exercises.count)
+        try database.close()
+        #expect(try count(KitaeDatabase.file(file), "SELECT COUNT(*) FROM exercises") == seed.exercises.count)
     }
 
     @Test func aVersion9DatabaseLearnsWhichExercisesUseWeight() throws {
-        let queue = try DatabaseQueue()
-        try KitaeDatabase.makeVersion9(queue)
-        try queue.write { db in
-            // Leg raises done with the 20 kg of Kitae for Android's starter plan, and someone's
-            // own exercise.
-            try db.execute(sql: "INSERT INTO sessions (date, isFinished) VALUES (20000, 1)")
-            try db.execute(sql: """
-                INSERT INTO sets (reps, weight, type, `order`, sessionId, exerciseId, rir)
-                VALUES (12, 20, 'Standard', 0, ?, 20, 2)
-                """, arguments: [db.lastInsertedRowID])
-            try db.execute(sql: "INSERT INTO exercises (name, target, isIsometric) VALUES ('Weighted Dips', 'Triceps', 0)")
-        }
-        let database = try KitaeDatabase(queue)
+        let file = try KitaeDatabase.newFile()
+        try KitaeDatabase.makeVersion9(at: file)
+        // Leg raises done with the 20 kg of Kitae for Android's starter plan, and someone's own
+        // exercise.
+        try KitaeDatabase.execute([
+            "INSERT INTO sessions (date, isFinished) VALUES (20000, 1)",
+            """
+            INSERT INTO sets (reps, weight, type, `order`, sessionId, exerciseId, rir)
+            VALUES (12, 20, 'Standard', 0, last_insert_rowid(), 20, 2)
+            """,
+            "INSERT INTO exercises (name, target, isIsometric) VALUES ('Weighted Dips', 'Triceps', 0)",
+        ], in: file)
+        let database = try KitaeDatabase.file(file)
         let (version, hash) = try database.read { db in
             (
                 try Int.fetchOne(db, sql: "PRAGMA user_version"),
@@ -117,43 +110,16 @@ struct LibraryTests {
         #expect(done.values.flatMap { $0 }.map(\.weightKg) == [0])
     }
 
-    @Test func exercisesALaterVersionBringsArriveOnce() throws {
-        let database = try KitaeDatabase.inMemory()
-        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [examplePress]) } == 1)
-        let added = try #require(try database.read { db in
-            try Row.fetchOne(db, sql: "SELECT * FROM exercises WHERE libraryKey = 'example-press'").map(Exercise.init(row:))
-        })
-        #expect(try added.id == Int64(Seed.bundled().exercises.count + 1))
-        #expect(added.name == "Example Press" && added.steps.count == 2)
-        // Once deleted, it doesn't come back.
-        try database.write { db in try Exercises.delete(db, id: added.id) }
-        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [examplePress]) } == 0)
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises WHERE name = 'Example Press'") == 0)
-    }
-
-    @Test func anExerciseWithItsNameBecomesKitaes() throws {
-        let database = try KitaeDatabase.inMemory()
-        let id = try database.write { db in
-            try Exercises.create(db, ExerciseDraft(name: "example press", muscle: .shoulders))
-        }
-        #expect(try database.write { db in try ExerciseLibrary.sync(db, library: [examplePress]) } == 0)
-        let exercise = try #require(try database.read { db in try Exercises.exercise(db, id: id) })
-        #expect(exercise.libraryKey == "example-press" && exercise.name == "example press")
-        #expect(try count(database, "SELECT COUNT(*) FROM exercises") == Seed.bundled().exercises.count + 1)
-    }
-
     @Test func aVersion8BackupIsBroughtUpToDate() throws {
         let folder = FileManager.default.temporaryDirectory.appendingPathComponent("library-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: folder) }
         let file = folder.appendingPathComponent("kenko_database")
-        let old = try DatabaseQueue(path: file.path)
-        try KitaeDatabase.makeVersion8(old)
-        try old.close()
+        try KitaeDatabase.makeVersion8(at: file)
         let zip = folder.appendingPathComponent("backup.zip")
         try Backups.archive([("kenko_database", file)], to: zip)
 
-        let target = try KitaeDatabase.inMemory()
+        let target = try KitaeDatabase.temporary()
         _ = try Backups.restore(from: zip, into: target)
         #expect(try count(target, "PRAGMA user_version") == Schema.version)
         #expect(try keys(target).filter { $0.key <= 75 } == Seed.bundled().starterKeys)

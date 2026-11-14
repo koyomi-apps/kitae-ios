@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
 import Testing
 @testable import Kitae
 
@@ -266,7 +265,7 @@ struct AppModelTests {
     }
 
     @Test func aNewDatabaseAsksForAPlan() throws {
-        let fresh = AppModel.testing(try KitaeDatabase.inMemory())
+        let fresh = AppModel.testing(try KitaeDatabase.temporary())
         #expect(fresh.currentPlan == nil)
         #expect(fresh.selectedDay == nil)
         #expect(fresh.plans.map(\.name) == ["Push Pull Leg"])

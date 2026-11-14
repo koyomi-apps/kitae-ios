@@ -2,7 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import GRDB
+import KitaeCore
 
 /// The sets of one exercise done in one workout. Kitae for Android's `ExerciseSession`.
 nonisolated struct ExerciseSession: Identifiable, Hashable, Sendable {
@@ -183,145 +183,63 @@ nonisolated struct NewBest: Identifiable, Hashable, Sendable {
 /// Android does (its `ExerciseDao`).
 nonisolated enum Exercises {
     static func all(_ db: Database) throws -> [Exercise] {
-        try Row.fetchAll(db, sql: "SELECT * FROM `exercises` ORDER BY `name` COLLATE NOCASE ASC, `id` ASC")
-            .map(Exercise.init(row:))
+        try db.core.exercises().map { Exercise($0) }
     }
 
     static func exercise(_ db: Database, id: Int64) throws -> Exercise? {
-        try Row.fetchOne(db, sql: "SELECT * FROM `exercises` WHERE `id` = ?", arguments: [id])
-            .map(Exercise.init(row:))
-    }
-
-    /// The name, trimmed, if no other exercise has it. Case doesn't make a name different.
-    static func usableName(_ db: Database, _ name: String, excluding id: Int64? = nil) throws -> String {
-        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { throw NameProblem.empty }
-        let taken = try Bool.fetchOne(db, sql: """
-            SELECT EXISTS
-            (SELECT 1
-            FROM `exercises`
-            WHERE `name` = ? COLLATE NOCASE
-            AND `id` IS NOT ?)
-            """, arguments: [trimmed, id]) ?? false
-        guard !taken else { throw NameProblem.exerciseTaken }
-        return trimmed
+        try db.core.exercise(id: id).map { Exercise($0) }
     }
 
     /// Adds an exercise. Throws a `NameProblem` if the name can't be used.
     @discardableResult
     static func create(_ db: Database, _ draft: ExerciseDraft) throws -> Int64 {
-        let name = try usableName(db, draft.name)
-        try db.execute(sql: """
-            INSERT INTO `exercises` (`name`, `target`, `reference`, `isIsometric`, `usesWeight`, `restSeconds`, `instructions`)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """, arguments: [
-                name, draft.muscle.rawValue, savedReference(draft.reference), draft.isIsometric, draft.usesWeight,
-                draft.restSeconds, savedInstructions(draft.instructions),
-            ])
-        return db.lastInsertedRowID
+        try naming {
+            try db.core.createExercise(
+                name: draft.name, muscle: draft.muscle.rawValue, isIsometric: draft.isIsometric, usesWeight: draft.usesWeight,
+                restSeconds: draft.restSeconds.map { KotlinInt(int: Int32(clamping: $0)) }, instructions: draft.instructions,
+                reference: draft.reference
+            )
+        }
     }
 
     /// Saves an exercise's details. Throws a `NameProblem` if the name can't be used.
     static func update(_ db: Database, id: Int64, _ draft: ExerciseDraft) throws {
-        let name = try usableName(db, draft.name, excluding: id)
-        try db.execute(sql: """
-            UPDATE `exercises`
-            SET `name` = ?, `target` = ?, `reference` = ?, `isIsometric` = ?, `usesWeight` = ?, `restSeconds` = ?, `instructions` = ?
-            WHERE `id` = ?
-            """, arguments: [
-                name, draft.muscle.rawValue, savedReference(draft.reference), draft.isIsometric, draft.usesWeight,
-                draft.restSeconds, savedInstructions(draft.instructions), id,
-            ])
+        try naming {
+            try db.core.updateExercise(
+                id: id, name: draft.name, muscle: draft.muscle.rawValue, isIsometric: draft.isIsometric, usesWeight: draft.usesWeight,
+                restSeconds: draft.restSeconds.map { KotlinInt(int: Int32(clamping: $0)) }, instructions: draft.instructions,
+                reference: draft.reference
+            )
+        }
     }
 
     /// Deletes an exercise. Like on Android, it goes from every plan, and its sets go from
     /// past workouts. Its note goes too.
     static func delete(_ db: Database, id: Int64) throws {
-        try db.execute(sql: "DELETE FROM `exercises` WHERE `id` = ?", arguments: [id])
-        try ExerciseNotes.delete(db, exerciseID: id)
+        try db.core.deleteExercise(id: id)
     }
 
     /// The sets of an exercise done in each workout, newest first. Kitae for Android's
     /// `exerciseHistory`.
     static func history(_ db: Database, exerciseID: Int64) throws -> [ExerciseSession] {
-        let rows = try Row.fetchAll(db, sql: """
-            SELECT `sets`.`sessionId`, `sessions`.`date`, `routines`.`name` AS `routineName`,
-            `sets`.`reps`, `sets`.`weight`, `sets`.`type`, `sets`.`restSeconds`
-            FROM `sets`
-            INNER JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
-            LEFT JOIN `routines` ON `routines`.`id` = `sessions`.`routineId`
-            WHERE `sets`.`exerciseId` = ?
-            AND `sets`.`isCompleted` = 1
-            ORDER BY `sessions`.`date` DESC, `sessions`.`id` DESC, `sets`.`order` ASC, `sets`.`id` ASC
-            """, arguments: [exerciseID])
-        var sessions: [ExerciseSession] = []
-        for row in rows {
-            let sessionID: Int64 = row["sessionId"]
-            if sessions.last?.id != sessionID {
-                sessions.append(ExerciseSession(id: sessionID, date: row["date"], dayName: row["routineName"], sets: []))
-            }
-            sessions[sessions.count - 1].sets.append(SetDraft(row: row))
-        }
-        return sessions
+        try db.core.exerciseHistory(exerciseId: exerciseID).map { ExerciseSession($0) }
     }
 
     /// For each exercise, the sets done in the newest workout that had any.
     static func lastSessions(_ db: Database) throws -> [Int64: ExerciseSession] {
-        let rows = try Row.fetchCursor(db, sql: """
-            SELECT `sets`.`exerciseId`, `sets`.`sessionId`, `sessions`.`date`,
-            `sets`.`reps`, `sets`.`weight`, `sets`.`type`, `sets`.`restSeconds`
-            FROM `sets`
-            INNER JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
-            WHERE `sets`.`isCompleted` = 1
-            ORDER BY `sessions`.`date` DESC, `sessions`.`id` DESC, `sets`.`order` ASC, `sets`.`id` ASC
-            """)
-        var last: [Int64: ExerciseSession] = [:]
-        while let row = try rows.next() {
-            let exerciseID: Int64 = row["exerciseId"]
-            let sessionID: Int64 = row["sessionId"]
-            if let session = last[exerciseID] {
-                guard session.id == sessionID else { continue }
-                last[exerciseID]?.sets.append(SetDraft(row: row))
-            } else {
-                last[exerciseID] = ExerciseSession(id: sessionID, date: row["date"], sets: [SetDraft(row: row)])
-            }
-        }
-        return last
+        byInt64(try db.core.lastSessions()).mapValues { ExerciseSession($0) }
     }
 
     /// The records a finished workout's exercises beat, in the order they were done. See
     /// `NewBest`.
     static func newBests(_ db: Database, workoutID: Int64) throws -> [NewBest] {
-        let ids = try Int64.fetchAll(db, sql: """
-            SELECT `exerciseId`
-            FROM `sets`
-            WHERE `sessionId` = ? AND `isCompleted` = 1
-            GROUP BY `exerciseId`
-            ORDER BY MIN(`order`), MIN(`id`)
-            """, arguments: [workoutID])
-        return try ids.flatMap { id -> [NewBest] in
-            guard let exercise = try exercise(db, id: id) else { return [] }
-            return NewBest.find(exercise: exercise, history: try history(db, exerciseID: id), workout: workoutID)
-        }
+        try db.core.workoutBests(workoutId: workoutID).map { NewBest($0) }
     }
 
     /// The exercises done most recently, at most `limit` of them: the newest workout's in the
     /// order they were done, then the ones before it.
     static func recentIDs(_ db: Database, limit: Int) throws -> [Int64] {
-        let rows = try Int64.fetchCursor(db, sql: """
-            SELECT `sets`.`exerciseId`
-            FROM `sets`
-            INNER JOIN `sessions` ON `sessions`.`id` = `sets`.`sessionId`
-            WHERE `sets`.`isCompleted` = 1
-            ORDER BY `sessions`.`date` DESC, `sessions`.`id` DESC, `sets`.`order` ASC, `sets`.`id` ASC
-            """)
-        var ids: [Int64] = []
-        while ids.count < limit, let id = try rows.next() {
-            if !ids.contains(id) {
-                ids.append(id)
-            }
-        }
-        return ids
+        int64s(try db.core.recentExerciseIds(limit: Int32(clamping: limit)))
     }
 
     /// A reference as it's saved: trimmed, with https:// in front when it has no scheme, or

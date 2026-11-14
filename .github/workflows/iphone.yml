@@ -42,13 +42,18 @@ jobs:
           for runtime, devices in json.load(sys.stdin)["devices"].items():
               if ".SimRuntime.iOS-" not in runtime:
                   continue
-              version = [int(part) for part in runtime.split(".SimRuntime.iOS-")[1].split("-")]
+              # Like com.apple.CoreSimulator.SimRuntime.iOS-27-1, sometimes with more after it.
+              version = []
+              for part in runtime.split(".SimRuntime.iOS-")[1].split("-"):
+                  if not part.isdigit():
+                      break
+                  version.append(int(part))
               for device in devices:
                   name = device["name"]
                   if name.startswith("iPhone"):
                       choices.append((version, "Pro" in name and "Max" not in name, name, device["udid"]))
           version, _, name, udid = max(choices)
-          print(f"{name}, iOS {version}", file=sys.stderr)
+          print(f"{name}, iOS {version}, {udid}", file=sys.stderr)
           print(f"udid={udid}")
           ' >> "$GITHUB_OUTPUT"
 

@@ -1,0 +1,117 @@
+name: iPhone
+
+on:
+  pull_request:
+    paths:
+      - "ios/**"
+      - "shared/**"
+      - "gradle/**"
+      - "*.gradle.kts"
+      - "gradle.properties"
+      - ".github/workflows/iphone.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: iPhone app
+    runs-on: xcode-27
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+
+      # Xcode's build phase runs Gradle, which builds KitaeCore, the shared Kotlin module.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      # Built on its own first, so a Kotlin error shows here rather than deep in Xcode's log.
+      - name: Build the shared module for the simulator
+        run: ./gradlew :shared:linkDebugFrameworkIosSimulatorArm64
+
+      - name: Pick a simulator
+        id: simulator
+        run: |
+          xcodebuild -version
+          xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          choices = []
+          for runtime, devices in json.load(sys.stdin)["devices"].items():
+              if ".SimRuntime.iOS-" not in runtime:
+                  continue
+              # Like com.apple.CoreSimulator.SimRuntime.iOS-27-1, sometimes with more after it.
+              version = []
+              for part in runtime.split(".SimRuntime.iOS-")[1].split("-"):
+                  if not part.isdigit():
+                      break
+                  version.append(int(part))
+              for device in devices:
+                  name = device["name"]
+                  if name.startswith("iPhone"):
+                      choices.append((version, "Pro" in name and "Max" not in name, name, device["udid"]))
+          version, _, name, udid = max(choices)
+          print(f"{name}, iOS {version}, {udid}", file=sys.stderr)
+          print(f"udid={udid}")
+          ' >> "$GITHUB_OUTPUT"
+
+      - name: Test the app
+        working-directory: ios
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          log="$RUNNER_TEMP/xcodebuild.log"
+          status=0
+          xcodebuild test -project Kitae.xcodeproj -scheme Kitae -destination "id=$UDID" \
+            -derivedDataPath "$RUNNER_TEMP/derived" -only-testing:KitaeTests -parallel-testing-enabled NO \
+            -collect-test-diagnostics never > "$log" 2>&1 || status=$?
+          # The whole log is long, so only errors, failed tests and the results.
+          grep -E ' error: |^error: |^e: |✘|Test run with|\*\* [A-Z ]+ \*\*|FAILURE:|What went wrong' "$log" | head -300 || true
+          if [ "$status" != 0 ]; then
+            echo "--- the end of the log ---"
+            tail -60 "$log" | head -48
+          fi
+          exit "$status"
+
+      - name: Show the shared module's Swift names
+        if: failure()
+        run: |
+          header=shared/build/bin/iosSimulatorArm64/debugFramework/KitaeCore.framework/Headers/KitaeCore.h
+          grep -n -E 'swift_name\("(DoneSet|ExerciseEnergy|WorkoutEnergy|SetType|KotlinDouble|KotlinLong)|init(WithDouble|WithLongLong|WithExerciseId|WithPerKilogram)|activeSets|reachHeightCm|fromStored|kilocaloriesReps|ofKey|starters|energyFactor' "$header" | head -80
+
+      # The app as the tests left it, opened on a few screens with example data.
+      - name: Take screenshots
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          shots="$RUNNER_TEMP/screenshots"
+          mkdir -p "$shots"
+          xcrun simctl bootstatus "$UDID" -b > /dev/null
+          xcrun simctl install "$UDID" "$RUNNER_TEMP/derived/Build/Products/Debug-iphonesimulator/Kitae.app"
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
+          for screen in you workoutdone; do
+            xcrun simctl launch --terminate-running-process "$UDID" ca.gureet.kitae -KitaeScreen "$screen" > /dev/null
+            sleep 8
+            xcrun simctl io "$UDID" screenshot "$shots/$screen.png" 2> /dev/null
+          done
+
+      - name: Keep the screenshots
+        uses: actions/upload-artifact@v7
+        with:
+          name: iphone-screenshots
+          path: ${{ runner.temp }}/screenshots
+          if-no-files-found: ignore
+          retention-days: 14
+
+      # Claude's cloud workspace can read this job's log but not its artifacts, so the pictures
+      # also go in the log, smaller and in base64, a file name in front of each line.
+      - name: Print the screenshots
+        run: |
+          for file in "$RUNNER_TEMP"/screenshots/*.png; do
+            [ -e "$file" ] || continue
+            name="$(basename "$file")"
+            sips -Z 1000 "$file" --out "$RUNNER_TEMP/small.png" > /dev/null
+            base64 -i "$RUNNER_TEMP/small.png" | fold -w 3000 | sed "s|^|SCREENSHOT $name |"
+          done

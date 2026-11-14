@@ -18,8 +18,15 @@ kotlin {
     }
     jvm()
     if (buildsForIPhone) {
-        iosArm64()
-        iosSimulatorArm64()
+        // KitaeCore, the framework the iPhone app imports. Xcode builds it through Gradle in a
+        // build phase (`embedAndSignAppleFrameworkForXcode`) and links it into the app.
+        listOf(iosArm64(), iosSimulatorArm64()).forEach { target ->
+            target.binaries.framework {
+                baseName = "KitaeCore"
+                isStatic = true
+                binaryOption("bundleId", "ca.gureet.kitae.KitaeCore")
+            }
+        }
     }
 
     compilerOptions {

@@ -149,3 +149,13 @@ jobs:
             sips -Z 1000 "$file" --out "$RUNNER_TEMP/small.png" > /dev/null
             base64 -i "$RUNNER_TEMP/small.png" | fold -w 3000 | sed "s|^|SCREENSHOT $name |"
           done
+
+      - name: Show the figures' Swift names
+        if: failure()
+        run: |
+          header=shared/build/bin/iosSimulatorArm64/debugFramework/KitaeCore.framework/Headers/KitaeCore.h
+          for name in IPhoneMotion FigureBody FigureMath ArmPose ArmPoseSwing FigurePose Figure Figure.Leg FrontFigure \
+            MuscleWork MuscleVolume ExerciseMuscles FigureMuscles; do
+            echo "--- $name ---"
+            sed -n "/swift_name(\"$name\")/,/^@end/p" "$header" | grep -o 'swift_name("[^"]*")' | head -30
+          done

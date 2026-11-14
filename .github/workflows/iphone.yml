@@ -68,12 +68,9 @@ jobs:
             -derivedDataPath "$RUNNER_TEMP/derived" -only-testing:KitaeTests -parallel-testing-enabled NO \
             -collect-test-diagnostics never > "$log" 2>&1 || status=$?
           # The whole log is long, so only errors, failed tests and the results.
-          grep -E ' error: |^error: |^e: |✘|[Ff]ailed|EnergyParity|Test run with|Executed [0-9]+ test|\*\* [A-Z ]+ \*\*|FAILURE:|What went wrong' "$log" | head -300 || true
-          echo "Lines saying passed: $(grep -c 'passed' "$log")"
-          echo "--- the log's last lines ---"
-          tail -12 "$log"
+          grep -E ' error: |^error: |^e: |✘|Test run with|\*\* [A-Z ]+ \*\*|FAILURE:|What went wrong' "$log" | head -300 || true
           if [ "$status" != 0 ]; then
-            echo "--- more of the log's end ---"
+            echo "--- the end of the log ---"
             tail -60 "$log" | head -48
           fi
           exit "$status"

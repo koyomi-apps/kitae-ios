@@ -22,17 +22,16 @@ nonisolated struct WorkoutSummary: Identifiable, Hashable, Sendable {
 
     /// How long it took, when both ends are known. Kitae for Android's `durationMillis`.
     var durationMilliseconds: Int64? {
-        guard let startedAt, let finishedAt else { return nil }
-        return max(finishedAt - startedAt, 0)
+        core.durationMilliseconds?.int64Value
     }
 
     var minutes: Int? {
-        durationMilliseconds.map(workoutMinutes)
+        core.minutes?.intValue
     }
 
     /// Finished without doing a set.
     var isSkipped: Bool {
-        isFinished && doneCount == 0
+        core.isSkipped
     }
 
     /// The day's name, or the weekday for a workout whose day is gone, like Kitae for Android.
@@ -44,7 +43,7 @@ nonisolated struct WorkoutSummary: Identifiable, Hashable, Sendable {
 /// A workout's length in whole minutes, rounded, and at least one. Kitae for Android's
 /// `workoutLength`.
 nonisolated func workoutMinutes(_ milliseconds: Int64) -> Int {
-    max(Int((milliseconds + 30_000) / 60_000), 1)
+    Int(HistoryKt.workoutMinutes(milliseconds: milliseconds))
 }
 
 /// "48 min", or "1 h 49 min".
@@ -89,19 +88,10 @@ nonisolated struct HistoryMonth: Identifiable, Hashable, Sendable {
 /// Splits workouts into months, keeping their order. `activeID` is the workout in progress,
 /// which isn't counted yet.
 nonisolated func historyMonths(_ workouts: [WorkoutSummary], activeID: Int64?) -> [HistoryMonth] {
-    var months: [HistoryMonth] = []
-    for workout in workouts {
-        let (year, month) = HistoryDates.yearAndMonth(workout.date)
-        if months.last?.year != year || months.last?.month != month {
-            months.append(HistoryMonth(year: year, month: month, workouts: [], doneCount: 0, minutes: 0))
-        }
-        months[months.count - 1].workouts.append(workout)
-        if workout.doneCount > 0, workout.id != activeID {
-            months[months.count - 1].doneCount += 1
-            months[months.count - 1].minutes += workout.minutes ?? 0
-        }
+    HistoryKt.historyMonths(workouts: workouts.map(\.core), activeId: activeID?.kotlin).map {
+        HistoryMonth(year: Int($0.year), month: Int($0.month), workouts: $0.workouts.map { WorkoutSummary($0) },
+                     doneCount: Int($0.doneCount), minutes: Int($0.minutes))
     }
-    return months
 }
 
 /// Workout days as History shows them. Days are counted on the Gregorian calendar, as

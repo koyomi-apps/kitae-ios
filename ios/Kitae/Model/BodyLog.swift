@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 
 /// A day's weigh-in: weight, body fat, or both.
 nonisolated struct BodyEntry: Identifiable, Hashable, Sendable {
@@ -14,13 +15,11 @@ nonisolated struct BodyEntry: Identifiable, Hashable, Sendable {
 
     /// The weight that isn't fat, when both are known.
     var leanKg: Double? {
-        guard let weightKg, let bodyFatPercent else { return nil }
-        return weightKg * (1 - bodyFatPercent / 100)
+        core.leanKg?.doubleValue
     }
 
     var fatKg: Double? {
-        guard let weightKg, let bodyFatPercent else { return nil }
-        return weightKg * bodyFatPercent / 100
+        core.fatKg?.doubleValue
     }
 }
 
@@ -74,12 +73,7 @@ nonisolated struct BodyProfile: Hashable, Sendable {
 
     /// Whole years old on `day`.
     func age(on day: Int) -> Int? {
-        guard let birthDate, day >= birthDate else { return nil }
-        var calendar = Calendar(identifier: .gregorian)
-        calendar.timeZone = .gmt
-        let born = Date(timeIntervalSince1970: TimeInterval(birthDate) * 86_400)
-        let then = Date(timeIntervalSince1970: TimeInterval(day) * 86_400)
-        return calendar.dateComponents([.year], from: born, to: then).year
+        core.age(day: Int64(day))?.intValue
     }
 }
 
@@ -89,25 +83,23 @@ nonisolated struct BodyLog: Hashable, Sendable {
     /// Oldest first, one a day.
     var entries: [BodyEntry] = []
 
-    var isEmpty: Bool { entries.isEmpty && profile == BodyProfile() }
+    var isEmpty: Bool { core.isEmpty }
 
     /// The newest weigh-in with a weight.
-    var latestWeight: BodyEntry? { entries.last { $0.weightKg != nil } }
+    var latestWeight: BodyEntry? { core.latestWeight.map { BodyEntry($0) } }
 
     /// The newest weigh-in with body fat.
-    var latestBodyFat: BodyEntry? { entries.last { $0.bodyFatPercent != nil } }
+    var latestBodyFat: BodyEntry? { core.latestBodyFat.map { BodyEntry($0) } }
 
     /// The weight that stands for `day`: the last one weighed on or before it, else the first
     /// one after, so workouts from before the first weigh-in still have one.
     func weightKg(on day: Int) -> Double? {
-        let weighed = entries.filter { $0.weightKg != nil }
-        return (weighed.last { $0.date <= day } ?? weighed.first)?.weightKg
+        core.weightKg(day: Int64(day))?.doubleValue
     }
 
     /// The body fat that stands for `day`, found the same way.
     func bodyFatPercent(on day: Int) -> Double? {
-        let measured = entries.filter { $0.bodyFatPercent != nil }
-        return (measured.last { $0.date <= day } ?? measured.first)?.bodyFatPercent
+        core.bodyFatPercent(day: Int64(day))?.doubleValue
     }
 }
 
@@ -115,32 +107,33 @@ nonisolated struct BodyLog: Hashable, Sendable {
 nonisolated struct HeightFormatter: Sendable {
     var unit: WeightUnit = .kilograms
 
-    var usesFeet: Bool { unit == .pounds }
+    var usesFeet: Bool { core.usesFeet }
+
+    /// The shared module's, which formats it.
+    private var core: KitaeCore.HeightFormatter { KitaeCore.HeightFormatter(unit: unit.core) }
 
     /// "180 cm", or "5 ft 11 in".
     func string(centimetres cm: Double) -> String {
-        guard usesFeet else { return "\(Int(cm.rounded())) cm" }
-        let (feet, inches) = Self.feetAndInches(cm)
-        return "\(feet) ft \(inches) in"
+        core.string(centimetres: cm)
     }
 
     /// The nearest whole inch, as feet and inches.
     static func feetAndInches(_ cm: Double) -> (feet: Int, inches: Int) {
-        let total = Int((cm / 2.54).rounded())
-        return (total / 12, total % 12)
+        let both = KitaeCore.HeightFormatter.Companion.shared.feetAndInches(centimetres: cm)
+        return (Int(both.first?.intValue ?? 0), Int(both.second?.intValue ?? 0))
     }
 
     static func centimetres(feet: Int, inches: Double) -> Double {
-        (Double(feet) * 12 + inches) * 2.54
+        KitaeCore.HeightFormatter.Companion.shared.centimetres(feet: Int32(clamping: feet), inches: inches)
     }
 }
 
 /// "≈ 230 kcal", to the nearest 5.
 nonisolated func kilocaloriesLabel(_ kcal: Double) -> String {
-    "≈ \(roundedKilocalories(kcal)) kcal"
+    BodyLogKt.kilocaloriesLabel(kcal: kcal)
 }
 
 /// To the nearest 5, as the estimates are shown.
 nonisolated func roundedKilocalories(_ kcal: Double) -> Int {
-    Int((kcal / 5).rounded()) * 5
+    Int(BodyLogKt.roundedKilocalories(kcal: kcal))
 }

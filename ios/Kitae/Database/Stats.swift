@@ -16,7 +16,7 @@ nonisolated struct TrainingTotals: Equatable, Sendable {
 /// The last 16 weeks a day at a time, as the You tab's grid shows them: a column for each
 /// week, starting on the phone's first day of the week, with this week last.
 nonisolated struct ActivityWeeks: Equatable, Sendable {
-    static let count = 16
+    static let count = Int(KitaeCore.ActivityWeeks.Companion.shared.COUNT)
 
     let today: Int
     /// 1 for Sunday to 7 for Saturday, like `Calendar.firstWeekday`.
@@ -27,24 +27,28 @@ nonisolated struct ActivityWeeks: Equatable, Sendable {
     var trained: Set<Int>
 
     init(today: Int, firstWeekday: Int, trained: Set<Int> = []) {
-        let intoWeek = (weekday(ofEpochDay: today) - firstWeekday + 7) % 7
         self.today = today
         self.firstWeekday = firstWeekday
-        first = today - intoWeek - (Self.count - 1) * 7
+        first = Int(KitaeCore.ActivityWeeks(today: Int64(today), firstWeekday: Int32(firstWeekday), trained: []).first)
         self.trained = trained
     }
 
+    /// The shared module's, which works the weeks out. Without the days trained, for dates.
+    private func core(trained: Set<Int> = []) -> KitaeCore.ActivityWeeks {
+        KitaeCore.ActivityWeeks(today: Int64(today), firstWeekday: Int32(firstWeekday), trained: Set(trained.map { Int64($0).kotlin }))
+    }
+
     /// The end of this week.
-    var last: Int { first + Self.count * 7 - 1 }
+    var last: Int { Int(core().last) }
 
     /// The day in `week`, 0 being the oldest, and `row`, 0 being the first day of the week.
     func day(week: Int, row: Int) -> Int {
-        first + week * 7 + row
+        Int(core().day(week: Int32(week), row: Int32(row)))
     }
 
     /// Days with a set done, up to today.
     var trainedCount: Int {
-        trained.filter { $0 >= first && $0 <= today }.count
+        Int(core(trained: trained).trainedCount)
     }
 
     /// The rows' weekday letters, like M T W T F S S when weeks start on Monday.
@@ -58,7 +62,7 @@ nonisolated struct ActivityWeeks: Equatable, Sendable {
 /// The weekday of a day counted like `EpochDay`, from 1 for Sunday to 7 for Saturday as
 /// `Calendar` numbers them. 1 January 1970 was a Thursday.
 nonisolated func weekday(ofEpochDay day: Int) -> Int {
-    ((day % 7) + 7 + 4) % 7 + 1
+    Int(KitaeCore.EpochDay.shared.weekday(day: Int64(day)))
 }
 
 /// What the You tab counts, the way Kitae for Android's profile counts it (`SetsDao`'s

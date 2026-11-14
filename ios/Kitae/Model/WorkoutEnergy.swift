@@ -45,21 +45,16 @@ nonisolated extension BodyLog {
     /// A finished workout's active energy from its done sets, or nil when Kitae can't tell: no
     /// weight yet, or no set done.
     func activeKilocalories(_ workout: WorkoutSummary, sets: [DoneSet]) -> Double? {
-        guard workout.isFinished, !sets.isEmpty, let weight = weightKg(on: workout.date) else { return nil }
-        return WorkoutEnergy.active(sets: sets, durationMilliseconds: workout.durationMilliseconds, bodyKg: weight,
-                                    heightCm: profile.heightCm)
+        core.activeKilocalories(workout: workout.core, sets: sets.map(\.core))?.doubleValue
     }
 
     /// The workouts of a stretch of days, their minutes, and their active energy when a weight
     /// is known. `sets` are the done sets by workout.
     func totals(_ workouts: [WorkoutSummary], sets: [Int64: [DoneSet]]) -> WorkoutTotals {
-        let done = workouts.filter { $0.isFinished && $0.doneCount > 0 }
-        let energies = done.map { activeKilocalories($0, sets: sets[$0.id] ?? []) }
-        return WorkoutTotals(
-            workouts: done.count,
-            minutes: done.compactMap(\.minutes).reduce(0, +),
-            kilocalories: latestWeight == nil ? nil : energies.compactMap { $0 }.reduce(0, +)
-        )
+        let done = Dictionary(uniqueKeysWithValues: sets.map { ($0.key.kotlin, $0.value.map(\.core)) })
+        let totals = core.totals(workouts: workouts.map(\.core), sets: done)
+        return WorkoutTotals(workouts: Int(totals.workouts), minutes: Int(totals.minutes),
+                             kilocalories: totals.kilocalories?.doubleValue)
     }
 }
 
@@ -73,7 +68,7 @@ nonisolated struct WorkoutTotals: Equatable, Sendable {
 
 /// The first day of the week `today` is in, on the phone's first day of the week.
 nonisolated func startOfWeek(_ today: Int, firstWeekday: Int) -> Int {
-    today - (weekday(ofEpochDay: today) - firstWeekday + 7) % 7
+    Int(WorkoutEnergyKt.startOfWeek(today: Int64(today), firstWeekday: Int32(firstWeekday)))
 }
 
 nonisolated extension DoneSet {

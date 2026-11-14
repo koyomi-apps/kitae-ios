@@ -69,6 +69,23 @@ nonisolated extension Exercise {
     }
 }
 
+nonisolated extension Exercise {
+    /// The shared module's own.
+    var core: KitaeCore.Exercise {
+        KitaeCore.Exercise(
+            name: name,
+            target: target,
+            reference: reference,
+            isIsometric: isIsometric,
+            id: id,
+            restSeconds: restSeconds.map { KotlinInt(int: Int32(clamping: $0)) },
+            instructions: instructions,
+            libraryKey: libraryKey,
+            usesWeight: usesWeight
+        )
+    }
+}
+
 nonisolated extension SetDraft {
     init(_ set: KitaeCore.SetDraft) {
         self.init(reps: Int(set.reps), weightKg: set.weightKg, type: SetType(stored: set.type.stored),
@@ -162,6 +179,21 @@ nonisolated extension WorkoutSummary {
             doneCount: Int(summary.doneCount)
         )
     }
+
+    /// The shared module's own.
+    var core: KitaeCore.WorkoutSummary {
+        let workout = KitaeCore.Workout(
+            date: Int64(date),
+            planId: planID?.kotlin,
+            dayId: dayID?.kotlin,
+            isFinished: isFinished,
+            startedAt: startedAt?.kotlin,
+            finishedAt: finishedAt?.kotlin,
+            id: id
+        )
+        return KitaeCore.WorkoutSummary(workout: workout, dayName: dayName, setCount: Int32(clamping: setCount),
+                                        doneCount: Int32(clamping: doneCount))
+    }
 }
 
 nonisolated extension DoneSet {
@@ -174,6 +206,11 @@ nonisolated extension DoneSet {
 nonisolated extension ExerciseSession {
     init(_ session: KitaeCore.ExerciseSession) {
         self.init(id: session.id, date: Int(session.date), dayName: session.dayName, sets: session.sets.map { SetDraft($0) })
+    }
+
+    /// The shared module's own.
+    var core: KitaeCore.ExerciseSession {
+        KitaeCore.ExerciseSession(id: id, date: Int64(date), dayName: dayName, sets: sets.map(\.core))
     }
 }
 
@@ -211,10 +248,44 @@ nonisolated extension BodyLog {
                 sex: profile.sex.flatMap { Sex(rawValue: $0.stored) },
                 activityLevel: profile.activityLevel.flatMap { ActivityLevel(rawValue: $0.stored) }
             ),
-            entries: log.entries.map {
-                BodyEntry(id: $0.id, date: Int($0.date), weightKg: $0.weightKg?.doubleValue, bodyFatPercent: $0.bodyFatPercent?.doubleValue)
-            }
+            entries: log.entries.map { BodyEntry($0) }
         )
+    }
+
+    /// The shared module's own.
+    var core: KitaeCore.BodyLog {
+        KitaeCore.BodyLog(profile: profile.core, entries: entries.map(\.core))
+    }
+}
+
+nonisolated extension BodyEntry {
+    init(_ entry: KitaeCore.BodyEntry) {
+        self.init(id: entry.id, date: Int(entry.date), weightKg: entry.weightKg?.doubleValue,
+                  bodyFatPercent: entry.bodyFatPercent?.doubleValue)
+    }
+
+    /// The shared module's own.
+    var core: KitaeCore.BodyEntry {
+        KitaeCore.BodyEntry(id: id, date: Int64(date), weightKg: weightKg?.kotlin, bodyFatPercent: bodyFatPercent?.kotlin)
+    }
+}
+
+nonisolated extension BodyProfile {
+    /// The shared module's own.
+    var core: KitaeCore.BodyProfile {
+        KitaeCore.BodyProfile(
+            heightCm: heightCm?.kotlin,
+            birthDate: birthDate.map { Int64($0).kotlin },
+            sex: sex.flatMap { KitaeCore.Sex.Companion.shared.fromStored(stored: $0.rawValue) },
+            activityLevel: activityLevel.flatMap { KitaeCore.ActivityLevel.Companion.shared.fromStored(stored: $0.rawValue) }
+        )
+    }
+}
+
+nonisolated extension WeightUnit {
+    /// The shared module's own, by the name both apps store.
+    var core: KitaeCore.WeightUnit {
+        KitaeCore.WeightUnit.Companion.shared.fromStored(stored: androidName)!
     }
 }
 

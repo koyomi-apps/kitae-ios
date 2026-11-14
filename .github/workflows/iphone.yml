@@ -69,6 +69,9 @@ jobs:
             -collect-test-diagnostics never > "$log" 2>&1 || status=$?
           # The whole log is long, so only errors, failed tests and the results.
           grep -E ' error: |^error: |^e: |✘|Test run with|\*\* [A-Z ]+ \*\*|FAILURE:|What went wrong' "$log" | head -300 || true
+          echo "--- the slowest suites and tests ---"
+          grep -o '✔ Suite [A-Za-z]* passed after [0-9.]* seconds' "$log" | awk '{ print $6, $3 }' | sort -rn | head -6 || true
+          grep -o '✔ Test [^ ]* passed after [0-9.]* seconds' "$log" | awk '{ print $6, $3 }' | sort -rn | head -10 || true
           if [ "$status" != 0 ]; then
             echo "--- tests that started and didn't end ---"
             python3 - "$log" <<'PY'
@@ -145,4 +148,14 @@ jobs:
             name="$(basename "$file")"
             sips -Z 1000 "$file" --out "$RUNNER_TEMP/small.png" > /dev/null
             base64 -i "$RUNNER_TEMP/small.png" | fold -w 3000 | sed "s|^|SCREENSHOT $name |"
+          done
+
+      - name: Show the figures' Swift names
+        if: failure()
+        run: |
+          header=shared/build/bin/iosSimulatorArm64/debugFramework/KitaeCore.framework/Headers/KitaeCore.h
+          for name in IPhoneMotion FigureBody FigureMath ArmPose ArmPoseSwing FigurePose Figure Figure.Leg FrontFigure \
+            MuscleWork MuscleVolume ExerciseMuscles FigureMuscles; do
+            echo "--- $name ---"
+            sed -n "/swift_name(\"$name\")/,/^@end/p" "$header" | grep -o 'swift_name("[^"]*")' | head -30
           done

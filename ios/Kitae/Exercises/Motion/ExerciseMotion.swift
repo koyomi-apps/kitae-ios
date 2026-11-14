@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 
 /// Muscles an exercise works. The muscle map shows them all; the animated figure has shapes for
 /// all but the last three (see `FigureMuscles`).
@@ -216,7 +217,8 @@ nonisolated struct ExerciseMotion: Decodable, Sendable, Identifiable {
 /// The muscles the figure shades for an exercise, from its muscle map: the ones it works most in
 /// olive and the ones that help lighter. The figure has no shapes of its own for the upper back
 /// and the hip's abductors, so its traps and glutes show them; the adductors, inside the thighs,
-/// show only from the front. scripts/motions/motion.js does the same for the pictures.
+/// show only from the front. The shared module works them out (`ExerciseMotion.kt`), and
+/// scripts/motions/motion.js does the same for the pictures.
 nonisolated struct FigureMuscles: Equatable, Sendable {
     /// The lighter shade comes first, so where muscles meet the ones worked most are drawn on top.
     nonisolated enum Shade: Comparable, CaseIterable, Sendable {
@@ -227,17 +229,9 @@ nonisolated struct FigureMuscles: Equatable, Sendable {
     private(set) var secondary: Set<Muscle> = []
 
     init(_ work: MuscleWork?) {
-        primary = Set((work?.primary ?? []).compactMap(Self.shape))
-        secondary = Set((work?.secondary ?? []).compactMap(Self.shape)).subtracting(primary)
-    }
-
-    /// The muscle whose shape shows `muscle` on the figure, or nil when it can't be seen.
-    static func shape(_ muscle: Muscle) -> Muscle? {
-        switch muscle {
-        case .upperBack: .traps
-        case .abductors: .glutes
-        default: muscle
-        }
+        let core = KitaeCore.FigureMuscles(work: work?.core)
+        primary = Set(core.primary.map { Muscle($0) })
+        secondary = Set(core.secondary.map { Muscle($0) })
     }
 
     /// How the figure shades `muscle`, or nil when the exercise doesn't work it.

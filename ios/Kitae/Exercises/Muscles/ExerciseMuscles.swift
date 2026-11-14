@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 import SwiftUI
 
 /// The muscles an exercise works: the ones it works most, and the ones that help.
@@ -81,23 +82,25 @@ nonisolated struct MuscleMap: Decodable, Sendable {
     }
 }
 
-/// Each of Kitae's exercises' muscles, and what to show for people's own exercises.
+/// Each of Kitae's exercises' muscles, and what to show for people's own exercises, as the shared
+/// module works them out (`Muscles.kt`) from the same file the map is drawn from.
 nonisolated enum ExerciseMuscles {
-    static let map: MuscleMap? = {
-        guard let url = Bundle.main.url(forResource: "ExerciseMuscles", withExtension: "json"),
-              let data = try? Data(contentsOf: url) else { return nil }
-        return try? decode(data)
-    }()
+    private static let file: Data? = Bundle.main.url(forResource: "ExerciseMuscles", withExtension: "json")
+        .flatMap { try? Data(contentsOf: $0) }
+
+    static let map: MuscleMap? = file.flatMap { try? decode($0) }
 
     static func decode(_ data: Data) throws -> MuscleMap {
         try JSONDecoder().decode(MuscleMap.self, from: data)
     }
 
+    /// The shared module's own.
+    nonisolated(unsafe) static let core: KitaeCore.ExerciseMuscles? = file.flatMap {
+        try? KitaeCore.ExerciseMuscles.Companion.shared.decode(text: String(decoding: $0, as: UTF8.self))
+    }
+
     /// By library key.
-    static let byKey: [String: MuscleWork] = Dictionary(
-        (map?.exercises ?? []).map { ($0.key, MuscleWork(primary: $0.primary, secondary: $0.secondary)) },
-        uniquingKeysWith: { first, _ in first }
-    )
+    static let byKey: [String: MuscleWork] = (core?.byKey ?? [:]).mapValues { MuscleWork($0) }
 
     /// One of Kitae's exercises' own muscles, or for people's own exercises, their muscle group.
     static func work(for exercise: Exercise) -> MuscleWork? {
@@ -106,28 +109,6 @@ nonisolated enum ExerciseMuscles {
 
     /// The same, from an exercise's library key and its muscle group as it's stored, like "Chest".
     static func work(key: String?, target: String) -> MuscleWork? {
-        if let key, let work = byKey[key] { return work }
-        guard let group = MuscleGroup(rawValue: target) else { return nil }
-        return MuscleWork(primary: group.muscles, secondary: [])
-    }
-}
-
-nonisolated extension MuscleGroup {
-    /// The muscles the map shows for an exercise of this group.
-    var muscles: [Muscle] {
-        switch self {
-        case .biceps: [.biceps]
-        case .triceps: [.triceps]
-        case .shoulders: [.frontDelts, .sideDelts, .rearDelts]
-        case .quads: [.quads]
-        case .hamstrings: [.hamstrings]
-        case .calves: [.calves]
-        case .glutes: [.glutes]
-        case .core: [.abs, .obliques]
-        case .chest: [.chest]
-        case .traps: [.traps]
-        case .lats: [.lats]
-        case .upperBack: [.upperBack]
-        }
+        core?.work(key: key, target: target).map { MuscleWork($0) }
     }
 }

@@ -47,12 +47,15 @@ class BackupException(val problem: BackupProblem, cause: Throwable? = null) : Ex
  */
 interface BackupArchive {
     /** Writes a zip at [zip] holding each of [files], compressed, under its name. */
+    @Throws(Exception::class)
     fun write(zip: String, files: List<ArchiveFile>)
 
     /** The files in the zip at [zip], leaving out its folders, or throws when it isn't a zip. */
+    @Throws(Exception::class)
     fun files(zip: String): List<ArchiveEntry>
 
     /** Writes the file at [entry] in the zip at [zip] out to [destination], or throws when it can't. */
+    @Throws(Exception::class)
     fun extract(zip: String, entry: String, destination: String)
 }
 
@@ -203,7 +206,7 @@ object Backups {
      * Takes in the log Kitae for Android may have left beside its database, and checks the database
      * is Kitae's, at a version this app opens, and not damaged.
      */
-    internal fun check(file: String) {
+    private fun check(file: String) {
         try {
             BundledSQLiteDriver().open(file).use { connection ->
                 connection.execSQL("PRAGMA journal_mode = DELETE")

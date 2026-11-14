@@ -51,6 +51,7 @@ object PreferencesFile {
     }
 
     /** Reads a settings file, throwing [PreferencesFileException] when it's broken. */
+    @Throws(Exception::class)
     fun decode(data: ByteArray): Map<String, PreferenceValue> {
         val file = ProtoReader(data)
         val preferences = LinkedHashMap<String, PreferenceValue>()

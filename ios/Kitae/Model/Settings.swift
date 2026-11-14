@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 
 /// Light or dark whatever the phone uses, or the same as the phone.
 nonisolated enum AppTheme: String, CaseIterable, Identifiable, Sendable {
@@ -216,51 +217,37 @@ nonisolated extension AppSettings {
     /// Android keeps without using. The text size, and where Kitae and its backups go, are left
     /// out, as they're this phone's. `planChosen` tells Kitae for Android its first launch is over.
     func backupPreferences(planChosen: Bool) -> [String: PreferenceValue] {
-        var preferences: [String: PreferenceValue] = [
-            SettingKey.unit: .string(unit.androidName),
-            SettingKey.defaultRest: .int(Int32(clamping: defaultRestSeconds)),
-            SettingKey.theme: .string(theme.androidName),
-            SettingKey.decimals: .string(decimals.rawValue),
-            SettingKey.restAlerts: .bool(restAlerts),
-            SettingKey.workoutSummary: .bool(showsWorkoutSummary),
-            SettingKey.newBests: .bool(showsNewBests),
-        ]
-        if planChosen {
-            preferences[SettingKey.onboardingDone] = .bool(true)
-        }
-        if let androidPalette {
-            preferences[SettingKey.palette] = .string(androidPalette)
-        }
-        return preferences
+        core.backupPreferences(planChosen: planChosen).compactMapValues { PreferenceValue($0) }
+    }
+
+    /// These settings as the shared module's, which works out what backups hold
+    /// (`AppSettings.backupPreferences` and `applyingBackup` in `Settings.kt`).
+    private var core: KitaeCore.AppSettings {
+        IPhoneSettings.shared.settings(
+            unit: unit.androidName,
+            decimals: decimals.rawValue,
+            defaultRestSeconds: Int32(clamping: defaultRestSeconds),
+            restAlerts: restAlerts,
+            theme: theme.androidName,
+            backUpAfterWorkouts: backUpAfterWorkouts,
+            showsWorkoutSummary: showsWorkoutSummary,
+            showsNewBests: showsNewBests,
+            androidPalette: androidPalette
+        )
     }
 
     /// Takes the settings from a backup's settings file, from either app. Anything it doesn't
     /// have, or that can't be read, stays as it is.
     mutating func apply(backup preferences: [String: PreferenceValue]) {
-        if case .string(let name)? = preferences[SettingKey.unit], let unit = WeightUnit(androidName: name) {
-            self.unit = unit
-        }
-        if case .int(let seconds)? = preferences[SettingKey.defaultRest], seconds >= 0 {
-            defaultRestSeconds = Int(seconds)
-        }
-        if case .string(let name)? = preferences[SettingKey.theme], let theme = AppTheme(androidName: name) {
-            self.theme = theme
-        }
-        if case .string(let name)? = preferences[SettingKey.decimals], let decimals = DecimalStyle(rawValue: name) {
-            self.decimals = decimals
-        }
-        if case .bool(let isOn)? = preferences[SettingKey.restAlerts] {
-            restAlerts = isOn
-        }
-        if case .bool(let isOn)? = preferences[SettingKey.workoutSummary] {
-            showsWorkoutSummary = isOn
-        }
-        if case .bool(let isOn)? = preferences[SettingKey.newBests] {
-            showsNewBests = isOn
-        }
-        if case .string(let name)? = preferences[SettingKey.palette], Self.androidPalettes.contains(name) {
-            androidPalette = name
-        }
+        let backup = core.applyingBackup(preferences: preferences.mapValues(\.core))
+        unit = WeightUnit(androidName: backup.unit.stored) ?? unit
+        decimals = DecimalStyle(rawValue: backup.decimals.stored) ?? decimals
+        defaultRestSeconds = Int(backup.defaultRestSeconds)
+        restAlerts = backup.restAlerts
+        theme = AppTheme(androidName: backup.theme.stored) ?? theme
+        showsWorkoutSummary = backup.showsWorkoutSummary
+        showsNewBests = backup.showsNewBests
+        androidPalette = backup.androidPalette
     }
 }
 

@@ -65,13 +65,16 @@ jobs:
           log="$RUNNER_TEMP/xcodebuild.log"
           status=0
           xcodebuild test -project Kitae.xcodeproj -scheme Kitae -destination "id=$UDID" \
-            -derivedDataPath "$RUNNER_TEMP/derived" -only-testing:KitaeTests \
+            -derivedDataPath "$RUNNER_TEMP/derived" -only-testing:KitaeTests -parallel-testing-enabled NO \
             -collect-test-diagnostics never > "$log" 2>&1 || status=$?
           # The whole log is long, so only errors, failed tests and the results.
-          grep -E ' error: |^error: |^e: |✘|Test run with|Executed [0-9]+ test|\*\* [A-Z ]+ \*\*|FAILURE:|What went wrong' "$log" | head -300 || true
+          grep -E ' error: |^error: |^e: |✘|[Ff]ailed|EnergyParity|Test run with|Executed [0-9]+ test|\*\* [A-Z ]+ \*\*|FAILURE:|What went wrong' "$log" | head -300 || true
+          echo "Lines saying passed: $(grep -c 'passed' "$log")"
+          echo "--- the log's last lines ---"
+          tail -12 "$log"
           if [ "$status" != 0 ]; then
-            echo "--- the end of the log ---"
-            tail -60 "$log"
+            echo "--- more of the log's end ---"
+            tail -60 "$log" | head -48
           fi
           exit "$status"
 
@@ -89,6 +92,7 @@ jobs:
           shots="$RUNNER_TEMP/screenshots"
           mkdir -p "$shots"
           xcrun simctl bootstatus "$UDID" -b > /dev/null
+          xcrun simctl install "$UDID" "$RUNNER_TEMP/derived/Build/Products/Debug-iphonesimulator/Kitae.app"
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
           for screen in you workoutdone; do
             xcrun simctl launch --terminate-running-process "$UDID" ca.gureet.kitae -KitaeScreen "$screen" > /dev/null

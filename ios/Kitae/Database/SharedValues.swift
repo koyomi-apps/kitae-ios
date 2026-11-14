@@ -10,6 +10,25 @@ nonisolated struct Database {
     let core: IPhoneDatabase
 }
 
+nonisolated extension Database {
+    // For tests, which check what's stored with SQL, as they did with GRDB.
+
+    /// Runs `sql` as it is, with `arguments`, a JSON array of texts and nulls, bound as text.
+    func execute(sql: String, argumentsJSON arguments: String) throws {
+        try core.execute(sql: sql, arguments: arguments)
+    }
+
+    /// The rows `sql` gives: a JSON array whose first row is the columns' names.
+    func query(sql: String, argumentsJSON arguments: String) throws -> String {
+        try core.query(sql: sql, arguments: arguments)
+    }
+
+    /// The id of the row inserted last.
+    var lastInsertedRowID: Int64 {
+        (try? core.lastInsertRowId()) ?? -1
+    }
+}
+
 /// Runs a call into the shared module, turning its "that name can't be used" into `NameProblem`.
 nonisolated func naming<T>(_ call: () throws -> T) throws -> T {
     do {

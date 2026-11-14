@@ -2,7 +2,6 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
-import KitaeCore
 import Testing
 @testable import Kitae
 
@@ -73,7 +72,8 @@ extension KitaeDatabase {
         }
         statements += room.setupQueries
         for (type, modifier) in Schema.setTypeModifiers {
-            statements.append("INSERT INTO `set_type` (`type`, `modifier`) VALUES (\(literal(type.rawValue)), \(modifier))")
+            let name = literal(type.rawValue)
+            statements.append("INSERT INTO `set_type` (`type`, `modifier`) VALUES (\(name), \(modifier))")
         }
         for exercise in seed.exercises {
             guard let id = exercise.id else { continue }
@@ -86,12 +86,7 @@ extension KitaeDatabase {
             }
         }
         statements += ["COMMIT", "PRAGMA user_version = \(version)"]
-        try IPhoneDatabase.Companion.shared.executeIn(file: url.path, statements: statements)
-    }
-
-    /// Runs `statements` on the SQLite file at `url` as they are, made if it isn't there.
-    static func execute(_ statements: [String], in url: URL) throws {
-        try IPhoneDatabase.Companion.shared.executeIn(file: url.path, statements: statements)
+        try execute(statements, in: url)
     }
 }
 
@@ -224,11 +219,7 @@ extension SQLValue {
 
 extension Database {
     func execute(sql: String, arguments: [any SQLValue] = []) throws {
-        try core.execute(sql: sql, arguments: Self.json(arguments))
-    }
-
-    var lastInsertedRowID: Int64 {
-        (try? core.lastInsertRowId()) ?? -1
+        try execute(sql: sql, argumentsJSON: Self.json(arguments))
     }
 
     func tableExists(_ name: String) throws -> Bool {
@@ -236,7 +227,7 @@ extension Database {
     }
 
     fileprivate func rows(_ sql: String, _ arguments: [any SQLValue]) throws -> [Row] {
-        let text = try core.query(sql: sql, arguments: Self.json(arguments))
+        let text = try query(sql: sql, argumentsJSON: Self.json(arguments))
         let table = try #require(try JSONSerialization.jsonObject(with: Data(text.utf8)) as? [[Any]])
         let columns = table.first?.compactMap { $0 as? String } ?? []
         return table.dropFirst().map { row in Row(columns: columns, values: row.map { $0 as? String }) }

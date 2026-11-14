@@ -80,6 +80,12 @@ nonisolated final class KitaeDatabase: @unchecked Sendable {
         try core.reset()
     }
 
+    /// Runs `statements` on the SQLite file at `url` as they are, made if it isn't there: for
+    /// tests, which make databases as older versions of Kitae and Kitae for Android left them.
+    static func execute(_ statements: [String], in url: URL) throws {
+        try IPhoneDatabase.Companion.shared.executeIn(file: url.path, statements: statements)
+    }
+
     /// Closes the database, for tests that open its file again.
     func close() throws {
         try core.close()

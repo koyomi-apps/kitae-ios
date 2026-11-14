@@ -61,8 +61,6 @@ nonisolated enum Backups {
     static let settingsEntry = "settings.preferences_pb"
     /// What's in Kitae just before a backup is restored over it.
     static let beforeRestoreName = "kitae_backup_before_restore.zip"
-    /// Bigger files than this in a zip aren't Kitae's.
-    private static let largestEntry: UInt64 = 1 << 30
 
     /// "kitae_backup_10_10.zip" for 10 October: named like Kitae for Android's backups, by day
     /// and month, so there's one a day and a day's backup replaces the one from a year before.
@@ -88,16 +86,8 @@ nonisolated enum Backups {
 
     /// The backup zip, made in `work`.
     static func makeArchive(_ database: KitaeDatabase, preferences: [String: PreferenceValue], in work: URL) throws -> URL {
-        let databaseFile = work.appendingPathComponent(databaseEntry)
-        // A copy of the database as it is now, while workouts can still be saved, in one file.
-        try database.core.snapshot(file: databaseFile.path)
-
-        let settingsFile = work.appendingPathComponent(settingsEntry)
-        try PreferencesFile.encode(preferences).write(to: settingsFile)
-
-        let zip = work.appendingPathComponent("backup.zip")
-        try archive([(databaseEntry, databaseFile), (settingsEntry, settingsFile)], to: zip)
-        return zip
+        let zip = try database.core.makeArchive(preferences: preferences.mapValues(\.core), work: work.path, archive: ZipArchive())
+        return URL(fileURLWithPath: zip)
     }
 
     /// Zips `files` under their names.
@@ -155,51 +145,15 @@ nonisolated enum Backups {
         return contents.preferences
     }
 
-    /// Takes the zip apart in `work` and checks its database: Kitae's, version 8, and whole.
+    /// Takes the zip apart in `work` and checks its database: Kitae's, at a version this app
+    /// opens, and whole. The shared module does it (`Backups.kt`), with `ZipArchive`.
     static func open(_ zip: URL, in work: URL) throws -> BackupContents {
-        let archive: Archive
         do {
-            archive = try Archive(url: zip, accessMode: .read)
-        } catch {
-            throw BackupError.notKitae
-        }
-        let folder = work.appendingPathComponent("contents", isDirectory: true)
-        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-
-        // Only the files Kitae writes, by name, wherever they are in the zip. The database's
-        // shared-memory file is left behind: SQLite makes a new one from the log.
-        let wanted: Set = [databaseEntry, logEntry, settingsEntry]
-        var found: Set<String> = []
-        for entry in archive where entry.type == .file {
-            let name = (entry.path as NSString).lastPathComponent
-            guard wanted.contains(name), !found.contains(name) else { continue }
-            guard entry.uncompressedSize <= largestEntry else { throw BackupError.notKitae }
-            do {
-                _ = try archive.extract(entry, to: folder.appendingPathComponent(name))
-            } catch {
-                throw BackupError.damaged
-            }
-            found.insert(name)
-        }
-        guard found.contains(databaseEntry) else { throw BackupError.notKitae }
-
-        let databaseFile = folder.appendingPathComponent(databaseEntry)
-        try check(databaseFile)
-
-        var preferences: [String: PreferenceValue]?
-        if found.contains(settingsEntry) {
-            let settingsFile = folder.appendingPathComponent(settingsEntry)
-            preferences = try? PreferencesFile.decode(Data(contentsOf: settingsFile))
-        }
-        return BackupContents(database: databaseFile, preferences: preferences)
-    }
-
-    /// Takes in the log Kitae for Android may have left next to its database, and checks the
-    /// database is Kitae's, at a version this app can open (an older one is brought up to date
-    /// once it's restored), and not damaged.
-    private static func check(_ file: URL) throws {
-        do {
-            try IPhoneDatabase.Companion.shared.checkBackup(file: file.path)
+            let contents = try IPhoneDatabase.Companion.shared.openBackup(zip: zip.path, work: work.path, archive: ZipArchive())
+            return BackupContents(
+                database: URL(fileURLWithPath: contents.database),
+                preferences: contents.preferences?.compactMapValues { PreferenceValue($0) }
+            )
         } catch let error as NSError {
             guard let exception = error.userInfo["KotlinException"] as? BackupException else { throw error }
             throw BackupError(exception.problem)
@@ -233,5 +187,25 @@ nonisolated enum Backups {
             .appendingPathComponent("backup-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         return folder
+    }
+}
+
+/// Backups' zips, which the shared module makes and takes apart with the iPhone's zip library,
+/// ZIPFoundation. Its errors reach the shared module as exceptions.
+nonisolated final class ZipArchive: NSObject, BackupArchive {
+    func write(zip: String, files: [ArchiveFile]) throws {
+        try Backups.archive(files.map { (name: $0.name, url: URL(fileURLWithPath: $0.path)) }, to: URL(fileURLWithPath: zip))
+    }
+
+    func files(zip: String) throws -> [ArchiveEntry] {
+        try Archive(url: URL(fileURLWithPath: zip), accessMode: .read)
+            .filter { $0.type == .file }
+            .map { ArchiveEntry(path: $0.path, size: Int64(clamping: $0.uncompressedSize)) }
+    }
+
+    func extract(zip: String, entry: String, destination: String) throws {
+        let archive = try Archive(url: URL(fileURLWithPath: zip), accessMode: .read)
+        guard let item = archive[entry] else { throw BackupError.notKitae }
+        _ = try archive.extract(item, to: URL(fileURLWithPath: destination))
     }
 }

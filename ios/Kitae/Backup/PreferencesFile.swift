@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 
 /// One setting in Kitae for Android's settings file.
 nonisolated enum PreferenceValue: Equatable, Sendable {
@@ -24,223 +25,69 @@ nonisolated enum PreferencesFileError: Error, LocalizedError {
 }
 
 /// Kitae for Android's settings file, `settings.preferences_pb`, which its backups carry next
-/// to the database. It's a Jetpack DataStore `PreferenceMap` in protocol buffers: an entry for
-/// each setting, with its name and a value of one of eight kinds.
-///
-/// Kitae for Android doesn't recover from a settings file it can't read, so this writes
-/// exactly the format DataStore does, with keys in order like protobuf's deterministic output.
+/// to the database: a Jetpack DataStore `PreferenceMap` in protocol buffers, which the shared
+/// module reads and writes (`PreferencesFile.kt`) exactly as DataStore does.
 nonisolated enum PreferencesFile {
     static func encode(_ preferences: [String: PreferenceValue]) -> Data {
-        var file = ProtoWriter()
-        for key in preferences.keys.sorted() {
-            guard let value = preferences[key] else { continue }
-            var entry = ProtoWriter()
-            entry.string(key, field: 1)
-            entry.bytes(encode(value), field: 2)
-            file.bytes(entry.data, field: 1)
-        }
-        return file.data
+        Data(KitaeCore.PreferencesFile.shared.encode(preferences: preferences.mapValues(\.core)))
     }
 
     static func decode(_ data: Data) throws -> [String: PreferenceValue] {
-        var file = ProtoReader(data)
-        var preferences: [String: PreferenceValue] = [:]
-        while let (field, wire) = try file.nextTag() {
-            guard field == 1, wire == .lengthDelimited else {
-                try file.skip(wire)
-                continue
-            }
-            var entry = ProtoReader(try file.lengthDelimited())
-            var key = ""
-            var value: PreferenceValue?
-            while let (field, wire) = try entry.nextTag() {
-                switch (field, wire) {
-                case (1, .lengthDelimited): key = try entry.string()
-                case (2, .lengthDelimited): value = try decodeValue(try entry.lengthDelimited())
-                default: try entry.skip(wire)
-                }
-            }
-            if let value {
-                preferences[key] = value
-            }
+        let preferences: [String: any KitaeCore.PreferenceValue]
+        do {
+            preferences = try KitaeCore.PreferencesFile.shared.decode(data: KotlinByteArray.of(data))
+        } catch {
+            throw PreferencesFileError.malformed
         }
-        return preferences
+        return preferences.compactMapValues { PreferenceValue($0) }
     }
+}
 
-    private static func encode(_ value: PreferenceValue) -> Data {
-        var writer = ProtoWriter()
+nonisolated extension PreferenceValue {
+    /// The shared module's setting, as the iPhone's.
+    init?(_ value: any KitaeCore.PreferenceValue) {
         switch value {
-        case .bool(let isOn): writer.varint(isOn ? 1 : 0, field: 1)
-        case .float(let number): writer.fixed32(number.bitPattern, field: 2)
-        case .int(let number): writer.varint(UInt64(bitPattern: Int64(number)), field: 3)
-        case .long(let number): writer.varint(UInt64(bitPattern: number), field: 4)
-        case .string(let text): writer.string(text, field: 5)
-        case .stringSet(let texts):
-            var set = ProtoWriter()
-            for text in texts {
-                set.string(text, field: 1)
-            }
-            writer.bytes(set.data, field: 6)
-        case .double(let number): writer.fixed64(number.bitPattern, field: 7)
-        case .bytes(let bytes): writer.bytes(bytes, field: 8)
+        case let value as PreferenceValueBoolValue: self = .bool(value.value)
+        case let value as PreferenceValueFloatValue: self = .float(value.value)
+        case let value as PreferenceValueIntValue: self = .int(value.value)
+        case let value as PreferenceValueLongValue: self = .long(value.value)
+        case let value as PreferenceValueStringValue: self = .string(value.value)
+        case let value as PreferenceValueStringSetValue: self = .stringSet(value.value)
+        case let value as PreferenceValueDoubleValue: self = .double(value.value)
+        case let value as PreferenceValueBytesValue: self = .bytes(Data(value.value))
+        default: return nil
         }
-        return writer.data
     }
 
-    private static func decodeValue(_ data: Data) throws -> PreferenceValue? {
-        var reader = ProtoReader(data)
-        var value: PreferenceValue?
-        while let (field, wire) = try reader.nextTag() {
-            switch (field, wire) {
-            case (1, .varint): value = .bool(try reader.varint() != 0)
-            case (2, .fixed32): value = .float(Float(bitPattern: try reader.fixed32()))
-            case (3, .varint): value = .int(Int32(truncatingIfNeeded: try reader.varint()))
-            case (4, .varint): value = .long(Int64(bitPattern: try reader.varint()))
-            case (5, .lengthDelimited): value = .string(try reader.string())
-            case (6, .lengthDelimited):
-                var set = ProtoReader(try reader.lengthDelimited())
-                var texts: [String] = []
-                while let (field, wire) = try set.nextTag() {
-                    if field == 1, wire == .lengthDelimited {
-                        texts.append(try set.string())
-                    } else {
-                        try set.skip(wire)
-                    }
-                }
-                value = .stringSet(texts)
-            case (7, .fixed64): value = .double(Double(bitPattern: try reader.fixed64()))
-            case (8, .lengthDelimited): value = .bytes(try reader.lengthDelimited())
-            default: try reader.skip(wire)
-            }
+    /// The shared module's own.
+    var core: any KitaeCore.PreferenceValue {
+        switch self {
+        case .bool(let value): PreferenceValueBoolValue(value: value)
+        case .float(let value): PreferenceValueFloatValue(value: value)
+        case .int(let value): PreferenceValueIntValue(value: value)
+        case .long(let value): PreferenceValueLongValue(value: value)
+        case .string(let value): PreferenceValueStringValue(value: value)
+        case .stringSet(let value): PreferenceValueStringSetValue(value: value)
+        case .double(let value): PreferenceValueDoubleValue(value: value)
+        case .bytes(let value): PreferenceValueBytesValue(value: KotlinByteArray.of(value))
         }
-        return value
     }
 }
 
-/// How a protobuf field is laid out.
-private nonisolated enum WireType: UInt64 {
-    case varint = 0
-    case fixed64 = 1
-    case lengthDelimited = 2
-    case startGroup = 3
-    case endGroup = 4
-    case fixed32 = 5
-}
-
-private nonisolated struct ProtoWriter {
-    private(set) var data = Data()
-
-    mutating func varint(_ value: UInt64, field: Int) {
-        tag(field, .varint)
-        rawVarint(value)
-    }
-
-    mutating func fixed32(_ value: UInt32, field: Int) {
-        tag(field, .fixed32)
-        withUnsafeBytes(of: value.littleEndian) { data.append(contentsOf: $0) }
-    }
-
-    mutating func fixed64(_ value: UInt64, field: Int) {
-        tag(field, .fixed64)
-        withUnsafeBytes(of: value.littleEndian) { data.append(contentsOf: $0) }
-    }
-
-    mutating func bytes(_ value: Data, field: Int) {
-        tag(field, .lengthDelimited)
-        rawVarint(UInt64(value.count))
-        data.append(value)
-    }
-
-    mutating func string(_ value: String, field: Int) {
-        bytes(Data(value.utf8), field: field)
-    }
-
-    private mutating func tag(_ field: Int, _ wire: WireType) {
-        rawVarint(UInt64(field) << 3 | wire.rawValue)
-    }
-
-    private mutating func rawVarint(_ value: UInt64) {
-        var rest = value
-        while rest >= 0x80 {
-            data.append(UInt8(rest & 0x7F) | 0x80)
-            rest >>= 7
-        }
-        data.append(UInt8(rest))
+nonisolated extension Data {
+    /// The bytes of a Kotlin byte array.
+    init(_ bytes: KotlinByteArray) {
+        self.init((0..<bytes.size).map { UInt8(bitPattern: bytes.get(index: $0)) })
     }
 }
 
-private nonisolated struct ProtoReader {
-    private let bytes: [UInt8]
-    private var index = 0
-
-    init(_ data: Data) {
-        bytes = [UInt8](data)
-    }
-
-    /// The next field's number and layout, or nil at the end.
-    mutating func nextTag() throws -> (field: Int, wire: WireType)? {
-        guard index < bytes.count else { return nil }
-        let key = try varint()
-        guard let wire = WireType(rawValue: key & 7), key >> 3 > 0, key >> 3 <= UInt64(Int32.max) else {
-            throw PreferencesFileError.malformed
+nonisolated extension KotlinByteArray {
+    /// A Kotlin byte array of `data`'s bytes.
+    static func of(_ data: Data) -> KotlinByteArray {
+        let bytes = KotlinByteArray(size: Int32(data.count))
+        for (index, byte) in data.enumerated() {
+            bytes.set(index: Int32(index), value: Int8(bitPattern: byte))
         }
-        return (Int(key >> 3), wire)
-    }
-
-    mutating func varint() throws -> UInt64 {
-        var result: UInt64 = 0
-        var shift: UInt64 = 0
-        while shift < 64 {
-            guard index < bytes.count else { throw PreferencesFileError.malformed }
-            let byte = bytes[index]
-            index += 1
-            result |= UInt64(byte & 0x7F) << shift
-            if byte & 0x80 == 0 { return result }
-            shift += 7
-        }
-        throw PreferencesFileError.malformed
-    }
-
-    mutating func fixed32() throws -> UInt32 {
-        UInt32(truncatingIfNeeded: try littleEndian(4))
-    }
-
-    mutating func fixed64() throws -> UInt64 {
-        try littleEndian(8)
-    }
-
-    mutating func lengthDelimited() throws -> Data {
-        let length = try varint()
-        guard length <= UInt64(bytes.count - index) else { throw PreferencesFileError.malformed }
-        let end = index + Int(length)
-        defer { index = end }
-        return Data(bytes[index..<end])
-    }
-
-    mutating func string() throws -> String {
-        guard let text = String(data: try lengthDelimited(), encoding: .utf8) else {
-            throw PreferencesFileError.malformed
-        }
-        return text
-    }
-
-    mutating func skip(_ wire: WireType) throws {
-        switch wire {
-        case .varint: _ = try varint()
-        case .fixed64: _ = try littleEndian(8)
-        case .lengthDelimited: _ = try lengthDelimited()
-        case .fixed32: _ = try littleEndian(4)
-        case .startGroup, .endGroup: throw PreferencesFileError.malformed
-        }
-    }
-
-    private mutating func littleEndian(_ count: Int) throws -> UInt64 {
-        guard count <= bytes.count - index else { throw PreferencesFileError.malformed }
-        var value: UInt64 = 0
-        for offset in 0..<count {
-            value |= UInt64(bytes[index + offset]) << (8 * UInt64(offset))
-        }
-        index += count
-        return value
+        return bytes
     }
 }

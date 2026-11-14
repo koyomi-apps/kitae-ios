@@ -19,8 +19,7 @@ import KitaeCore
 nonisolated enum ExerciseNotes {
     /// Every exercise's note, by exercise.
     static func all(_ db: Database) throws -> [Int64: String] {
-        let notes = try db.core.notes()
-        return Dictionary(uniqueKeysWithValues: notes.map { ($0.key.int64Value, $0.value) })
+        byInt64(try db.core.notes())
     }
 
     /// Saves an exercise's note, trimmed. An empty one deletes it.

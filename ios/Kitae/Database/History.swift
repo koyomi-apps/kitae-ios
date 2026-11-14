@@ -184,8 +184,7 @@ nonisolated extension Sessions {
 
     /// The done sets of the workouts from `first` to `last`, by workout, for their energy.
     static func doneSets(_ db: Database, from first: Int, to last: Int) throws -> [Int64: [DoneSet]] {
-        let sets = try db.core.doneSets(first: Int64(first), last: Int64(last))
-        return Dictionary(uniqueKeysWithValues: sets.map { ($0.key.int64Value, $0.value.map { DoneSet($0) }) })
+        byInt64(try db.core.doneSets(first: Int64(first), last: Int64(last))).mapValues { $0.map { DoneSet($0) } }
     }
 
     static func summary(_ db: Database, id: Int64) throws -> WorkoutSummary? {

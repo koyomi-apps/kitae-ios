@@ -218,6 +218,21 @@ nonisolated extension BodyLog {
     }
 }
 
+/// The numbers in the shared module's lists, as Swift types them `KotlinLong`, though Kotlin
+/// hands over plain `NSNumber`s, which Swift's checks on reading them would stop at.
+nonisolated func int64s(_ list: [KotlinLong]) -> [Int64] {
+    (list as NSArray).map { ($0 as! NSNumber).int64Value }
+}
+
+/// A map from the shared module keyed by numbers, which come as plain `NSNumber`s (see `int64s`).
+nonisolated func byInt64<Value>(_ map: [KotlinLong: Value]) -> [Int64: Value] {
+    var result: [Int64: Value] = [:]
+    for (key, value) in map as NSDictionary {
+        result[(key as! NSNumber).int64Value] = (value as! Value)
+    }
+    return result
+}
+
 nonisolated extension Int64 {
     /// For the shared module's optional numbers.
     var kotlin: KotlinLong { KotlinLong(longLong: self) }

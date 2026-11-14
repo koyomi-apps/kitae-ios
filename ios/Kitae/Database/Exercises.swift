@@ -227,8 +227,7 @@ nonisolated enum Exercises {
 
     /// For each exercise, the sets done in the newest workout that had any.
     static func lastSessions(_ db: Database) throws -> [Int64: ExerciseSession] {
-        let sessions = try db.core.lastSessions()
-        return Dictionary(uniqueKeysWithValues: sessions.map { ($0.key.int64Value, ExerciseSession($0.value)) })
+        byInt64(try db.core.lastSessions()).mapValues { ExerciseSession($0) }
     }
 
     /// The records a finished workout's exercises beat, in the order they were done. See
@@ -240,7 +239,7 @@ nonisolated enum Exercises {
     /// The exercises done most recently, at most `limit` of them: the newest workout's in the
     /// order they were done, then the ones before it.
     static func recentIDs(_ db: Database, limit: Int) throws -> [Int64] {
-        try db.core.recentExerciseIds(limit: Int32(clamping: limit)).map(\.int64Value)
+        int64s(try db.core.recentExerciseIds(limit: Int32(clamping: limit)))
     }
 
     /// A reference as it's saved: trimmed, with https:// in front when it has no scheme, or

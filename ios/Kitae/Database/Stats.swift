@@ -70,7 +70,7 @@ nonisolated enum Stats {
 
     /// The days from `first` to `last` with a set done.
     static func trainedDays(_ db: Database, from first: Int, to last: Int) throws -> Set<Int> {
-        Set(try db.core.trainedDays(first: Int64(first), last: Int64(last)).map { Int($0.int64Value) })
+        Set(int64s(try db.core.trainedDays(first: Int64(first), last: Int64(last))).map { Int($0) })
     }
 
     /// The last 16 weeks, with the days trained in them.

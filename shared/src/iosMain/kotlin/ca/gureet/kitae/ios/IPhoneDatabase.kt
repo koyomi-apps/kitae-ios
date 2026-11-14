@@ -383,7 +383,7 @@ class IPhoneDatabase(private val path: String, seed: String) {
                 buildJsonArray {
                     add(buildJsonArray { for (column in 0 until count) add(statement.getColumnName(column)) })
                     while (statement.step()) {
-                        add(buildJsonArray { for (column in 0 until count) add(if (statement.isNull(column)) null else statement.getText(column)) })
+                        add(buildJsonArray { for (column in 0 until count) add(statement.text(column)) })
                     }
                 }.toString()
             }
@@ -414,6 +414,20 @@ private fun SQLiteStatement.bindAll(arguments: String) {
         if (text == null) bindNull(index + 1) else bindText(index + 1, text)
     }
 }
+
+/**
+ * A value as text: a real number in full, which SQLite's own text would cut to 15 digits, so it
+ * reads back as the same number.
+ */
+private fun SQLiteStatement.text(column: Int): String? = when (getColumnType(column)) {
+    SQLITE_NULL -> null
+    SQLITE_FLOAT -> getDouble(column).toString()
+    else -> getText(column)
+}
+
+// SQLite's types of value, as `getColumnType` gives them.
+private const val SQLITE_FLOAT = 2
+private const val SQLITE_NULL = 5
 
 /** Runs [block] to its end on the calling thread. */
 private fun <T> blocking(block: suspend () -> T): T = runBlocking { block() }

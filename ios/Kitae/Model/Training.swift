@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 
 /// A set's type. The raw values are how Kitae for Android stores them, so backups
 /// stay compatible: don't rename them.
@@ -26,33 +27,22 @@ nonisolated enum SetType: String, CaseIterable, Identifiable, Hashable, Sendable
 
     /// A type as it's stored. One this version doesn't know counts as standard.
     init(stored: String) {
-        self = SetType(rawValue: stored) ?? .standard
+        self.init(KitaeCore.SetType.Companion.shared.fromStored(stored: stored))
+    }
+
+    init(_ type: KitaeCore.SetType) {
+        self = SetType(rawValue: type.stored) ?? .standard
     }
 
     /// The letter in a set's label, like the W in W1. Standard sets only have a number.
-    var letter: String? {
-        switch self {
-        case .warmup: "W"
-        case .standard: nil
-        case .failure: "F"
-        case .drop: "D"
-        case .restPause: "R"
-        }
-    }
+    var letter: String? { core.letter }
 }
 
 /// Labels sets the way Kitae does: W1, 01, 02, F1, D1, R1. Each type is counted on its
-/// own, so standard sets are numbered 01, 02… however many warm-ups come first.
+/// own, so standard sets are numbered 01, 02… however many warm-ups come first. The shared
+/// module numbers them (`Sets.kt`).
 nonisolated func setLabels(for types: [SetType]) -> [String] {
-    var counts: [SetType: Int] = [:]
-    return types.map { type in
-        let number = (counts[type] ?? 0) + 1
-        counts[type] = number
-        if let letter = type.letter {
-            return "\(letter)\(number)"
-        }
-        return number < 10 ? "0\(number)" : "\(number)"
-    }
+    SetsKt.setLabels(types: types.map(\.core))
 }
 
 /// The muscle an exercise mainly works. Raw values are how Kitae for Android stores them.
@@ -101,36 +91,24 @@ nonisolated struct Exercise: Identifiable, Hashable, Sendable {
 
     var muscle: MuscleGroup? { MuscleGroup(rawValue: target) }
 
+    // These four are the shared module's (`Exercise` in `Tables.kt`).
+
     /// A set's weight as it counts for this exercise: none if it doesn't use weight.
     func weight(_ kilograms: Double) -> Double {
-        usesWeight ? kilograms : 0
+        core.weight(kilograms: kilograms)
     }
 
     /// Whether the weight logged is an assisted machine's help, as on assisted dips, so less of
     /// it is better: Kitae's exercises whose energy takes it off the body's weight.
-    var isAssisted: Bool {
-        libraryKey.flatMap { ExerciseEnergy.starters[$0] }?.isAssisted ?? false
-    }
+    var isAssisted: Bool { core.isAssisted }
 
     /// The instructions as steps, without numbers typed in front of them. Kitae for
     /// Android's exercise page reads them the same way.
-    var steps: [String] {
-        (instructions ?? "")
-            .split(whereSeparator: \.isNewline)
-            .map { line in
-                let trimmed = line.trimmingCharacters(in: .whitespaces)
-                guard let number = trimmed.firstRange(of: /^\d+[.)]\s*/) else { return trimmed }
-                return String(trimmed[number.upperBound...])
-            }
-            .filter { !$0.isEmpty }
-    }
+    var steps: [String] { core.steps }
 
     /// The link to the reference, if it's a web address.
     var referenceURL: URL? {
-        guard let reference, !reference.contains(where: \.isWhitespace), let url = URL(string: reference),
-              url.scheme == "https" || url.scheme == "http", let host = url.host(), host.contains(".")
-        else { return nil }
-        return url
+        core.referenceLink.flatMap { URL(string: $0) }
     }
 }
 
@@ -196,19 +174,16 @@ nonisolated struct TrainingDay: Identifiable, Hashable, Sendable {
     var id: Int64
     var name: String
     var exercises: [DayExercise]
-
-    var setCount: Int { exercises.reduce(0) { $0 + $1.sets.count } }
+    /// From the shared module, which reads the day.
+    var setCount: Int
 }
 
 nonisolated struct Plan: Identifiable, Hashable, Sendable {
     var id: Int64
     var name: String
     var days: [TrainingDay]
-
-    /// Different exercises across the plan's days.
-    var exerciseCount: Int {
-        Set(days.flatMap { $0.exercises.map(\.exercise.id) }).count
-    }
+    /// Different exercises across the plan's days, from the shared module, which reads the plan.
+    var exerciseCount: Int
 
     /// "5 days · 23 exercises".
     var sizeLabel: String {
@@ -232,25 +207,17 @@ nonisolated func planSizeLabel(days: Int, exercises: Int) -> String {
     "\(counted(days, "day", "days")) · \(counted(exercises, "exercise", "exercises"))"
 }
 
-/// New positions that put warm-ups in front of the other sets, keeping each group's order.
-/// Only the sets that move are returned. `items` must be in their current order.
-/// Kitae for Android's `warmupsFirstSlots`.
-nonisolated func warmupsFirstSlots<T>(_ items: [T], slot: (T) -> Int, isWarmup: (T) -> Bool) -> [(item: T, slot: Int)] {
-    let slots = items.map(slot)
-    let wanted = items.filter(isWarmup) + items.filter { !isWarmup($0) }
-    return wanted.enumerated().compactMap { index, item in
-        slot(item) == slots[index] ? nil : (item, slots[index])
-    }
-}
-
 /// `items` in a new order, the way a list moves rows: the ones at `source` go in front of the
-/// one at `destination`, which counts from before the move.
+/// one at `destination`, which counts from before the move. The shared module moves them
+/// (`moved` in `RestTimer.kt`).
 nonisolated func moved<T>(_ items: [T], from source: IndexSet, to destination: Int) -> [T] {
-    let moving = source.filter { items.indices.contains($0) }.map { items[$0] }
-    var rest = items.enumerated().filter { !source.contains($0.offset) }.map(\.element)
-    let index = destination - source.count(in: 0..<max(destination, 0))
-    rest.insert(contentsOf: moving, at: min(max(index, 0), rest.count))
-    return rest
+    let order = RestTimerKt.moved(
+        items: items.indices.map { KotlinInt(int: Int32($0)) },
+        source: Set(source.map { KotlinInt(int: Int32(clamping: $0)) }),
+        destination: Int32(clamping: destination)
+    )
+    // The positions come back as plain `NSNumber`s (see `int64s`).
+    return (order as NSArray).map { items[($0 as! NSNumber).intValue] }
 }
 
 /// "1 set", "15 sets". Kitae's text is English only for now.
@@ -260,7 +227,5 @@ nonisolated func counted(_ count: Int, _ singular: String, _ plural: String) -> 
 
 /// A rest length as Kitae shows it: 90 seconds is 1:30.
 nonisolated func restLabel(seconds: Int) -> String {
-    let minutes = seconds / 60
-    let rest = seconds % 60
-    return "\(minutes):\(rest < 10 ? "0" : "")\(rest)"
+    RestTimerKt.restLabel(seconds: Int32(clamping: seconds))
 }

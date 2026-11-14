@@ -2,9 +2,11 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 
 /// The rest between sets. It counts down to a moment rather than ticking, so it stays
-/// right while the app is in the background.
+/// right while the app is in the background. The shared module counts it (`RestTimer.kt`, in
+/// milliseconds); this keeps its times as the iPhone saves them.
 nonisolated struct RestTimer: Codable, Equatable, Sendable {
     /// When the rest ends, while it's counting down.
     private(set) var endsAt: Date?
@@ -13,65 +15,53 @@ nonisolated struct RestTimer: Codable, Equatable, Sendable {
     /// How long this rest is in total, for the progress bar.
     private(set) var total: TimeInterval = 0
 
-    var isRunning: Bool { endsAt != nil }
-    var isPaused: Bool { pausedRemaining != nil }
-    var isActive: Bool { isRunning || isPaused }
+    var isRunning: Bool { core.isRunning }
+    var isPaused: Bool { core.isPaused }
+    var isActive: Bool { core.isActive }
 
     func remaining(at now: Date) -> TimeInterval {
-        if let endsAt {
-            return max(endsAt.timeIntervalSince(now), 0)
-        }
-        return pausedRemaining ?? 0
+        TimeInterval(core.remaining(now: now.epochMilliseconds)) / 1000
     }
 
     mutating func start(seconds: Int, at now: Date) {
-        total = TimeInterval(max(seconds, 0))
-        endsAt = now.addingTimeInterval(total)
-        pausedRemaining = nil
+        self = RestTimer(core.started(seconds: Int32(clamping: seconds), now: now.epochMilliseconds))
     }
 
     mutating func pause(at now: Date) {
-        guard let endsAt else { return }
-        pausedRemaining = max(endsAt.timeIntervalSince(now), 0)
-        self.endsAt = nil
+        self = RestTimer(core.paused(now: now.epochMilliseconds))
     }
 
     mutating func resume(at now: Date) {
-        guard let pausedRemaining else { return }
-        endsAt = now.addingTimeInterval(pausedRemaining)
-        self.pausedRemaining = nil
+        self = RestTimer(core.resumed(now: now.epochMilliseconds))
     }
 
     /// Adds or removes time. Taking away more than is left ends the rest.
     mutating func add(_ seconds: TimeInterval, at now: Date) {
-        guard isActive else { return }
-        let left = max(remaining(at: now) + seconds, 0)
-        if left == 0 {
-            stop()
-            return
-        }
-        total = max(total + seconds, left)
-        if isRunning {
-            endsAt = now.addingTimeInterval(left)
-        } else {
-            pausedRemaining = left
-        }
+        self = RestTimer(core.adding(seconds: Int32(clamping: Int(seconds.rounded())), now: now.epochMilliseconds))
     }
 
     mutating func stop() {
-        endsAt = nil
-        pausedRemaining = nil
-        total = 0
+        self = RestTimer()
     }
 }
 
 nonisolated extension RestTimer {
     /// The countdown at its widest, as it starts: "0:00", "00:00" from ten minutes, or
     /// "0:00:00" from an hour. The time left keeps this much room, so it's never cut short.
-    var widestClock: String {
-        let seconds = Int(total.rounded(.up))
-        if seconds >= 3600 { return "0:00:00" }
-        if seconds >= 600 { return "00:00" }
-        return "0:00"
+    var widestClock: String { core.widestClock }
+
+    /// The shared module's own.
+    private var core: KitaeCore.RestTimer {
+        KitaeCore.RestTimer(
+            endsAt: endsAt?.epochMilliseconds.kotlin,
+            pausedRemaining: pausedRemaining.map { Int64(($0 * 1000).rounded()).kotlin },
+            total: Int64((total * 1000).rounded())
+        )
+    }
+
+    private init(_ timer: KitaeCore.RestTimer) {
+        endsAt = timer.endsAt.map { Date(epochMilliseconds: $0.int64Value) }
+        pausedRemaining = timer.pausedRemaining.map { TimeInterval($0.int64Value) / 1000 }
+        total = TimeInterval(timer.total) / 1000
     }
 }

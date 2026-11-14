@@ -409,7 +409,7 @@
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KitaeWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Kitae;
+				INFOPLIST_KEY_CFBundleDisplayName = Kamae;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -445,7 +445,7 @@
 				DEVELOPMENT_TEAM = YCYH5RG9N2;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = KitaeWidgets/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Kitae;
+				INFOPLIST_KEY_CFBundleDisplayName = Kamae;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -605,7 +605,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Kitae/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Kitae;
+				INFOPLIST_KEY_CFBundleDisplayName = Kamae;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;
@@ -658,7 +658,7 @@
 				);
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Kitae/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Kitae;
+				INFOPLIST_KEY_CFBundleDisplayName = Kamae;
 				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				INFOPLIST_KEY_LSSupportsOpeningDocumentsInPlace = YES;

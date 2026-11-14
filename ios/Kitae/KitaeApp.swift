@@ -42,7 +42,7 @@ struct KitaeApp: App {
                     }
             case .failed(let message):
                 ContentUnavailableView {
-                    Label("Kitae can't open its data", systemImage: "exclamationmark.triangle")
+                    Label("Kamae can't open its data", systemImage: "exclamationmark.triangle")
                 } description: {
                     Text(message)
                 }

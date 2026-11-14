@@ -125,7 +125,7 @@ jobs:
           xcrun simctl bootstatus "$UDID" -b > /dev/null
           xcrun simctl install "$UDID" "$RUNNER_TEMP/derived/Build/Products/Debug-iphonesimulator/Kitae.app"
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 || true
-          for screen in today history you workoutdone; do
+          for screen in today history you workoutdone welcome settings; do
             xcrun simctl launch --terminate-running-process "$UDID" ca.gureet.kitae -KitaeScreen "$screen" > /dev/null
             sleep 8
             xcrun simctl io "$UDID" screenshot "$shots/$screen.png" 2> /dev/null
@@ -150,12 +150,14 @@ jobs:
             base64 -i "$RUNNER_TEMP/small.png" | fold -w 3000 | sed "s|^|SCREENSHOT $name |"
           done
 
-      - name: Show the figures' Swift names
+      - name: Show more of the shared module's Swift names
         if: failure()
         run: |
           header=shared/build/bin/iosSimulatorArm64/debugFramework/KitaeCore.framework/Headers/KitaeCore.h
           for name in IPhoneMotion FigureBody FigureMath ArmPose ArmPoseSwing FigurePose Figure Figure.Leg FrontFigure \
-            MuscleWork MuscleVolume ExerciseMuscles FigureMuscles; do
+            MuscleWork MuscleVolume ExerciseMuscles FigureMuscles IPhoneDates IPhoneSettings WeightUnit DecimalStyle \
+            WeightFormatter RestTimer RestTimerKt SetsKt WorkoutProgress WorkoutProgress.NextSet AppTheme SettingKey \
+            AppSettings Backups Exercises; do
             echo "--- $name ---"
             sed -n "/swift_name(\"$name\")/,/^@end/p" "$header" | grep -o 'swift_name("[^"]*")' | head -30
           done

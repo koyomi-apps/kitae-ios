@@ -120,10 +120,11 @@ final class AppModel {
         do {
             let snapshot = try database.read { db in
                 let currentID = try Plans.currentID(db)
+                let lastDone = try Sessions.lastDoneDayID(db)
                 return (
                     plans: try Plans.all(db),
                     plan: try currentID.flatMap { try Plans.plan(db, id: $0) },
-                    lastDone: try Sessions.lastDoneDayID(db),
+                    upNext: try currentID.flatMap { try Plans.dayAfter(db, planID: $0, lastDayID: lastDone) },
                     hasDoneSets: try Sessions.hasDoneSets(db),
                     active: try Sessions.active(db, today: today),
                     body: try BodyStore.log(db),
@@ -133,7 +134,7 @@ final class AppModel {
             historyRevision += 1
             plans = snapshot.plans
             currentPlan = snapshot.plan
-            upNextDayID = Plans.dayAfter(snapshot.lastDone, in: snapshot.plan?.days ?? [])?.id
+            upNextDayID = snapshot.upNext
             hadDoneSets = snapshot.hasDoneSets
             bodyLog = snapshot.body
             exerciseNotes = snapshot.notes

@@ -128,7 +128,7 @@ final class BackupFlow {
         defer { activity = nil }
         do {
             try await model.restoreBackup(from: url)
-            notice = Notice(title: "Backup restored", message: "Kitae now has the plans, workouts and exercises from \(url.lastPathComponent).")
+            notice = Notice(title: "Backup restored", message: "Kamae now has the plans, workouts and exercises from \(url.lastPathComponent).")
         } catch {
             notice = Notice(title: "Couldn't restore the backup", message: error.localizedDescription)
         }
@@ -161,7 +161,7 @@ private struct BackupFlowPresentations: ViewModifier {
                     Task { await flow.restore(url, model: model) }
                 }
             } message: { url in
-                Text("Your plans, workouts, exercises, weigh-ins and settings will be replaced by the ones in \(url.lastPathComponent). What's in Kitae now is saved first, as \(Backups.beforeRestoreName) in On My iPhone › Kitae.")
+                Text("Your plans, workouts, exercises, weigh-ins and settings will be replaced by the ones in \(url.lastPathComponent). What's in Kamae now is saved first, as \(Backups.beforeRestoreName) in On My iPhone › Kamae.")
             }
             .alert(
                 flow.notice?.title ?? "",

@@ -7,6 +7,8 @@ import SwiftUI
 struct WorkoutRecord {
     var summary: WorkoutSummary
     var exercises: [WorkoutExercise]
+    /// Its done sets, for the energy it used.
+    var doneSets: [DoneSet]
     /// The workout before it of the same day.
     var previousID: Int64?
 }
@@ -72,7 +74,7 @@ struct WorkoutDetailView: View {
     /// The energy the workout used, from its done sets.
     private var kilocalories: Double? {
         guard let record else { return nil }
-        return model.activeKilocalories(record.summary, sets: record.exercises.flatMap(\.doneSets))
+        return model.activeKilocalories(record.summary, sets: record.doneSets)
     }
 
     private func header(_ summary: WorkoutSummary) -> some View {
@@ -174,6 +176,7 @@ struct WorkoutDetailView: View {
                 return WorkoutRecord(
                     summary: summary,
                     exercises: try Sessions.exercises(db, sessionID: id, dayID: nil),
+                    doneSets: try Sessions.doneSets(db, sessionID: id),
                     previousID: try Sessions.previousID(db, before: id, dayID: summary.dayID, date: summary.date)
                 )
             }

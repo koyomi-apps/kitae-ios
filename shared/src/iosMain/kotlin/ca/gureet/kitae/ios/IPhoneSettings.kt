@@ -13,6 +13,9 @@ import ca.gureet.kitae.model.WeightUnit
  * (`weight_unit` is "Kilograms" or "Pounds", and so on).
  */
 object IPhoneSettings {
+    /** The settings as they start, before anything is changed. */
+    val defaults = AppSettings()
+
     fun settings(
         unit: String,
         decimals: String,

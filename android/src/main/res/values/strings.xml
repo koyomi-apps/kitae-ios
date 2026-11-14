@@ -327,8 +327,8 @@
     <string name="choose_folder">Choose…</string>
     <string name="back_up_now">Back up now</string>
     <string name="restore_backup">Restore from a backup</string>
-    <string name="last_backup">Last backup: %s. Kitae on iPhone can restore these backups too.</string>
-    <string name="no_backups_yet">No backups yet. Kitae on iPhone can restore these backups too.</string>
+    <string name="last_backup">Last backup: %s. Kamae on iPhone can restore these backups too.</string>
+    <string name="no_backups_yet">No backups yet. Kamae on iPhone can restore these backups too.</string>
     <string name="last_backup_failed">The last backup didn\'t work. %s</string>
     <string name="couldnt_open_that">Couldn\'t open that</string>
     <string name="cant_restore_now">Can\'t restore a backup now</string>
@@ -541,6 +541,6 @@
     <string name="caption_example">.example</string>
     <string name="example_bench_press">Bench press</string>
     <string name="example_squat">Squat</string>
-    <string name="welcome_backups_footer">Coming from another phone, or from Kitae on iPhone? Restore a backup to bring your plans and workouts with you.</string>
+    <string name="welcome_backups_footer">Coming from another phone, or from Kamae on iPhone? Restore a backup to bring your plans and workouts with you.</string>
     <string name="get_started">Get started</string>
 </resources>

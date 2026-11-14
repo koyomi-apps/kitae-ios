@@ -13,11 +13,11 @@ nonisolated enum KitaeDatabaseError: Error, LocalizedError {
     var errorDescription: String? {
         switch self {
         case .missingSeed:
-            "Kitae's starter exercises are missing from the app."
+            "Kamae's starter exercises are missing from the app."
         case .unsupportedVersion(let version):
-            "This data is from a different version of Kitae (database version \(version)). Update Kitae and try again."
+            "This data is from a different version of Kamae (database version \(version)). Update Kamae and try again."
         case .notKitae:
-            "This isn't Kitae's data."
+            "This isn't Kamae's data."
         case .missingDay(let id):
             "Day \(id) isn't in any plan any more."
         }

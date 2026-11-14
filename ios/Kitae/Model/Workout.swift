@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 import Observation
 import os
 
@@ -37,6 +38,8 @@ final class Workout: Identifiable {
     let dayName: String
     let startedAt: Date
     private(set) var exercises: [WorkoutExercise]
+    /// The shared module's count of the same sets (`WorkoutProgress.kt`), read with them.
+    @ObservationIgnored private var progress: KitaeCore.WorkoutProgress
     private(set) var rest = RestTimer()
     /// Goes up each time a rest starts, and each time one runs out, so the Lock Screen can
     /// tell a new rest apart and the screen can tap the phone.
@@ -68,7 +71,9 @@ final class Workout: Identifiable {
         dayID = session.dayID
         dayName = session.dayName ?? "Workout"
         startedAt = session.startedAt.map(Date.init(epochMilliseconds:)) ?? EpochDay.date(session.date)
-        exercises = try database.read { db in try Sessions.exercises(db, sessionID: id, dayID: session.dayID) }
+        let progress = try database.read { db in try Sessions.progress(db, sessionID: id, dayID: session.dayID) }
+        self.progress = progress
+        exercises = progress.exercises.map { WorkoutExercise($0) }
         self.database = database
         self.restStore = restStore
         self.defaultRestSeconds = defaultRestSeconds
@@ -79,14 +84,11 @@ final class Workout: Identifiable {
         }
     }
 
-    var setCount: Int { exercises.reduce(0) { $0 + $1.sets.count } }
-    var doneCount: Int { exercises.reduce(0) { $0 + $1.sets.filter(\.isDone).count } }
-    var notDoneCount: Int { setCount - doneCount }
+    var setCount: Int { Int(progress.setCount) }
+    var doneCount: Int { Int(progress.doneCount) }
+    var notDoneCount: Int { Int(progress.notDoneCount) }
     /// Sets added during the workout and done, which Finish offers to add to the day.
-    var addedDoneCount: Int {
-        guard dayID != nil else { return 0 }
-        return exercises.reduce(0) { $0 + $1.sets.filter { $0.isAdded && $0.isDone }.count }
-    }
+    var addedDoneCount: Int { Int(progress.addedDoneCount) }
 
     func set(_ id: WorkoutSet.ID) -> WorkoutSet? {
         for exercise in exercises {
@@ -101,12 +103,7 @@ final class Workout: Identifiable {
 
     /// The first set that isn't done yet, in the order of the screen.
     var nextSet: (exercise: Exercise, set: WorkoutSet)? {
-        for exercise in exercises {
-            if let set = exercise.sets.first(where: { !$0.isDone }) {
-                return (exercise.exercise, set)
-            }
-        }
-        return nil
+        progress.nextSet.map { (Exercise($0.exercise), WorkoutSet($0.set)) }
     }
 
     /// Changes a set's reps, weight, type or rest.
@@ -120,13 +117,11 @@ final class Workout: Identifiable {
 
     /// Ticks a set off, or unticks it. Ticking starts the rest timer, unless it was the last set.
     func toggleDone(_ id: WorkoutSet.ID) {
-        guard let set = set(id), let exercise = exercise(containing: id) else { return }
-        let isLastSet = notDoneCount <= 1
-        let isDone = !set.isDone
-        save { db in try Sessions.setDone(db, setID: id, isDone: isDone) }
-        let seconds = set.restSeconds ?? exercise.exercise.restSeconds ?? defaultRestSeconds
-        if isDone, !isLastSet, seconds > 0 {
-            startRest(seconds: seconds)
+        guard let set = set(id) else { return }
+        let seconds = progress.restAfterTicking(setId: id, defaultRestSeconds: Int32(clamping: defaultRestSeconds))
+        save { db in try Sessions.setDone(db, setID: id, isDone: !set.isDone) }
+        if let seconds {
+            startRest(seconds: seconds.intValue)
         }
     }
 
@@ -134,17 +129,13 @@ final class Workout: Identifiable {
     /// standard set. With no set to copy, it's like the day's planned sets or the last time
     /// the exercise was done, or 12 reps of the default weight.
     func addSet(to exerciseID: WorkoutExercise.ID) {
-        guard let exercise = exercises.first(where: { $0.id == exerciseID }) else { return }
+        guard exercises.contains(where: { $0.id == exerciseID }) else { return }
         let sessionID = id
         let dayID = dayID
-        let defaultSet = SetDraft(reps: 12, weightKg: defaultWeightKg)
-        let last = exercise.sets.last.map {
-            SetDraft(reps: $0.reps, weightKg: $0.weightKg, type: $0.type, restSeconds: $0.restSeconds)
-        }
+        let defaultWeightKg = defaultWeightKg
         save { db in
-            var set = try last ?? Sessions.lastKnownSet(db, exerciseID: exerciseID, dayID: dayID) ?? defaultSet
-            if set.type == .warmup { set.type = .standard }
-            try Sessions.addSet(db, sessionID: sessionID, exerciseID: exerciseID, set: set)
+            try Sessions.addSetLikeLast(db, sessionID: sessionID, exerciseID: exerciseID, dayID: dayID,
+                                        defaultWeightKg: defaultWeightKg)
         }
     }
 
@@ -163,7 +154,8 @@ final class Workout: Identifiable {
         let dayID = dayID
         do {
             try database.write(change)
-            exercises = try database.read { db in try Sessions.exercises(db, sessionID: sessionID, dayID: dayID) }
+            progress = try database.read { db in try Sessions.progress(db, sessionID: sessionID, dayID: dayID) }
+            exercises = progress.exercises.map { WorkoutExercise($0) }
         } catch {
             Self.log.error("Couldn't save the workout: \(error.localizedDescription, privacy: .public)")
             assertionFailure("Couldn't save the workout: \(error)")

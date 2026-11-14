@@ -49,7 +49,7 @@ struct WelcomeView: View {
             } header: {
                 SectionCaption(".backups")
             } footer: {
-                Text("Coming from another iPhone, or from Kitae on Android? Restore a backup to bring your plans and workouts with you.")
+                Text("Coming from another iPhone, or from Kamae on Android? Restore a backup to bring your plans and workouts with you.")
                     .foregroundStyle(.inkSoft)
             }
         }
@@ -78,7 +78,7 @@ struct WelcomeView: View {
         VStack(alignment: .leading, spacing: 0) {
             Caption(".welcome to", size: 14)
                 .accessibilityHidden(true)
-            Text("Kitae")
+            Text("Kamae")
                 .font(.kitaeDisplay(112))
                 .foregroundStyle(.olive)
                 .lineLimit(1)
@@ -87,9 +87,9 @@ struct WelcomeView: View {
                 .padding(.top, -22)
                 .padding(.bottom, -12)
                 .padding(.leading, -4)
-                .accessibilityLabel("Welcome to Kitae")
+                .accessibilityLabel("Welcome to Kamae")
                 .accessibilityAddTraits(.isHeader)
-            Text("Set Kitae up the way you like it. You can change all of this later in You › Settings.")
+            Text("Set Kamae up the way you like it. You can change all of this later in You › Settings.")
                 .foregroundStyle(.inkSoft)
                 .padding(.top, 16)
         }

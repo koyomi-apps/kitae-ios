@@ -107,13 +107,15 @@ nonisolated extension PlanSummary {
 
 nonisolated extension Plan {
     init(_ plan: PlanWithDays) {
-        self.init(id: plan.plan.id, name: plan.plan.name, days: plan.days.map { TrainingDay($0) })
+        self.init(id: plan.plan.id, name: plan.plan.name, days: plan.days.map { TrainingDay($0) },
+                  exerciseCount: Int(plan.exerciseCount))
     }
 }
 
 nonisolated extension TrainingDay {
     init(_ day: DayWithExercises) {
-        self.init(id: day.day.id, name: day.day.name, exercises: day.exercises.map { DayExercise($0) })
+        self.init(id: day.day.id, name: day.day.name, exercises: day.exercises.map { DayExercise($0) },
+                  setCount: Int(day.setCount))
     }
 }
 
@@ -282,17 +284,15 @@ nonisolated extension BodyProfile {
     }
 }
 
-nonisolated extension WeightUnit {
-    /// The shared module's own, by the name both apps store.
-    var core: KitaeCore.WeightUnit {
-        KitaeCore.WeightUnit.Companion.shared.fromStored(stored: androidName)!
-    }
-}
-
 /// The numbers in the shared module's lists, as Swift types them `KotlinLong`, though Kotlin
 /// hands over plain `NSNumber`s, which Swift's checks on reading them would stop at.
 nonisolated func int64s(_ list: [KotlinLong]) -> [Int64] {
     (list as NSArray).map { ($0 as! NSNumber).int64Value }
+}
+
+/// The same for a list of real numbers.
+nonisolated func doubles(_ list: [KotlinDouble]) -> [Double] {
+    (list as NSArray).map { ($0 as! NSNumber).doubleValue }
 }
 
 /// A map from the shared module keyed by numbers, which come as plain `NSNumber`s (see `int64s`).

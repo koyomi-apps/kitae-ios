@@ -108,7 +108,7 @@ struct WorkoutDoneView: View {
     private func energyNote(hasHeight: Bool) -> some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(hasHeight
-                 ? "Energy is an estimate, from your sets, weight and height. Your tempo and range of motion change it too, and Kitae can't see those."
+                 ? "Energy is an estimate, from your sets, weight and height. Your tempo and range of motion change it too, and Kamae can't see those."
                  : "Energy is an estimate, from your sets and weight. Your height makes it closer.")
                 .font(.footnote)
                 .foregroundStyle(.inkSoft)

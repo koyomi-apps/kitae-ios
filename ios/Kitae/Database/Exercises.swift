@@ -15,34 +15,32 @@ nonisolated struct ExerciseSession: Identifiable, Hashable, Sendable {
 
     /// Warm-ups only count when nothing else was done, as on Android.
     var workSets: [SetDraft] {
-        let work = sets.filter { $0.type != .warmup }
-        return work.isEmpty ? sets : work
+        core.workSets.map { SetDraft($0) }
     }
 
-    var heaviest: SetDraft? { heaviestSet(workSets) }
+    var heaviest: SetDraft? { core.heaviest.map { SetDraft($0) } }
 
     /// On an assisted machine: the set with the least help.
-    var leastHelp: SetDraft? { leastHelpSet(workSets) }
+    var leastHelp: SetDraft? { core.leastHelp.map { SetDraft($0) } }
 
-    var mostReps: Int { workSets.map(\.reps).max() ?? 0 }
+    var mostReps: Int { Int(core.mostReps) }
 
     /// The set to show for it: the heaviest, the one with the least help on an assisted
     /// machine, or the one with the most reps when the exercise doesn't use weight.
     func best(usesWeight: Bool, assisted: Bool = false) -> SetDraft? {
-        guard usesWeight else { return workSets.max { $0.reps < $1.reps } }
-        return assisted ? leastHelp : heaviest
+        core.best(usesWeight: usesWeight, assisted: assisted).map { SetDraft($0) }
     }
 }
 
 /// The heaviest set, and of the heaviest, the one with the most reps.
 nonisolated func heaviestSet(_ sets: [SetDraft]) -> SetDraft? {
-    sets.max { ($0.weightKg, $0.reps) < ($1.weightKg, $1.reps) }
+    ExercisesKt.heaviestSet(sets: sets.map(\.core)).map { SetDraft($0) }
 }
 
 /// On an assisted machine, whose weight is the help it gives: the set with the least help,
 /// and of those, the one with the most reps.
 nonisolated func leastHelpSet(_ sets: [SetDraft]) -> SetDraft? {
-    sets.max { (-$0.weightKg, $0.reps) < (-$1.weightKg, $1.reps) }
+    ExercisesKt.leastHelpSet(sets: sets.map(\.core)).map { SetDraft($0) }
 }
 
 /// How an exercise went over its last workouts, for the chart on its page: the heaviest set
@@ -69,7 +67,7 @@ nonisolated struct ExerciseProgress: Hashable, Sendable {
     }
 
     /// How many workouts the chart shows, like Android's.
-    static let maxPoints = 12
+    static let maxPoints = Int(KitaeCore.ExerciseProgress.Companion.shared.MAX_POINTS)
 
     var measure: Measure
     /// Oldest first.
@@ -77,25 +75,20 @@ nonisolated struct ExerciseProgress: Hashable, Sendable {
 
     /// `history` is newest first, as `Exercises.history` reads it.
     init(history: [ExerciseSession], isIsometric: Bool, usesWeight: Bool = true, assisted: Bool = false) {
-        let recent = history.prefix(Self.maxPoints).reversed()
-        let byWeight = usesWeight && recent.contains { ($0.heaviest?.weightKg ?? 0) > 0 }
-        let measure: Measure = byWeight ? (assisted ? .help : .weight) : isIsometric ? .seconds : .reps
-        self.measure = measure
-        points = recent.map { session in
-            let value: Double
-            switch measure {
-            case .weight: value = session.heaviest?.weightKg ?? 0
-            case .help: value = session.leastHelp?.weightKg ?? 0
-            case .reps, .seconds: value = Double(session.mostReps)
-            }
-            return Point(id: session.id, date: session.date, value: value)
+        let progress = KitaeCore.ExerciseProgress(history: history.map(\.core), isIsometric: isIsometric,
+                                                  usesWeight: usesWeight, assisted: assisted)
+        measure = switch progress.measure.name {
+        case "Help": .help
+        case "Reps": .reps
+        case "Seconds": .seconds
+        default: .weight
         }
+        points = progress.points.map { Point(id: $0.id, date: Int($0.date), value: $0.value) }
+        change = progress.change
     }
 
     /// The last value less the first; less help shows as a drop.
-    var change: Double {
-        (points.last?.value ?? 0) - (points.first?.value ?? 0)
-    }
+    let change: Double
 }
 
 /// An exercise's best sets ever.
@@ -111,12 +104,11 @@ nonisolated struct ExerciseRecords: Hashable, Sendable {
     var bestDate: Int?
 
     init(history: [ExerciseSession], assisted: Bool = false) {
-        let sets = history.flatMap(\.workSets)
-        best = assisted ? leastHelpSet(sets) : heaviestSet(sets)
-        bestDate = best.flatMap { best in history.first { $0.workSets.contains(best) }?.date }
-        let load = { (set: SetDraft) in assisted ? -set.weightKg : set.weightKg }
-        mostReps = sets.max { ($0.reps, load($0)) < ($1.reps, load($1)) }
-        workoutCount = history.count
+        let records = KitaeCore.ExerciseRecords(history: history.map(\.core), assisted: assisted)
+        best = records.best.map { SetDraft($0) }
+        mostReps = records.mostReps.map { SetDraft($0) }
+        workoutCount = Int(records.workoutCount)
+        bestDate = records.bestDate.map { Int($0.int64Value) }
     }
 }
 
@@ -152,30 +144,8 @@ nonisolated struct NewBest: Identifiable, Hashable, Sendable {
     /// set with the same reps counts once. Without weight, only the reps or seconds count. None
     /// the first time an exercise is done, as there's nothing to beat, and none from warm-ups.
     static func find(exercise: Exercise, history: [ExerciseSession], workout id: Int64) -> [NewBest] {
-        guard let index = history.firstIndex(where: { $0.id == id }) else { return [] }
-        let sets = history[index].sets.filter { $0.type != .warmup }
-        let earlier = history[(index + 1)...].flatMap(\.workSets)
-        guard !sets.isEmpty, !earlier.isEmpty else { return [] }
-        let byReps = { (a: SetDraft, b: SetDraft) in a.reps < b.reps }
-        let reps: Record = exercise.isIsometric ? .longestHold : .mostReps
-        guard exercise.usesWeight, (sets + earlier).contains(where: { $0.weightKg > 0 }) else {
-            // A weight left from before the exercise stopped using weight doesn't count.
-            guard let now = sets.max(by: byReps), let before = earlier.max(by: byReps), now.reps > before.reps else { return [] }
-            return [NewBest(exercise: exercise, record: reps, set: now, previous: before)]
-        }
-        let assisted = exercise.isAssisted
-        // On an assisted machine, less help counts for more.
-        let load = { (set: SetDraft) in assisted ? -set.weightKg : set.weightKg }
-        let byLoad = { (a: SetDraft, b: SetDraft) in (load(a), a.reps) < (load(b), b.reps) }
-        let byRepsThenLoad = { (a: SetDraft, b: SetDraft) in (a.reps, load(a)) < (b.reps, load(b)) }
-        var bests: [NewBest] = []
-        if let now = sets.max(by: byLoad), let before = earlier.max(by: byLoad), byLoad(before, now) {
-            bests.append(NewBest(exercise: exercise, record: assisted ? .leastHelp : .heaviest, set: now, previous: before))
-        }
-        if let now = sets.max(by: byRepsThenLoad), let before = earlier.max(by: byRepsThenLoad), now.reps > before.reps {
-            bests.append(NewBest(exercise: exercise, record: reps, set: now, previous: before))
-        }
-        return bests
+        KitaeCore.NewBest.Companion.shared.find(exercise: exercise.core, history: history.map(\.core), workoutId: id)
+            .map { NewBest($0) }
     }
 }
 

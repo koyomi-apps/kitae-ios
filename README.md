@@ -30,6 +30,10 @@ To sideload it instead, each [release on GitHub](https://github.com/koyomi-apps/
 
 鍛え (*kitae*) comes from the Japanese *kitaeru*, "to forge, to train": what lifting does to you, one session at a time.
 
+## Building
+
+Open `ios/Kitae.xcodeproj` in Xcode 27. Kitae's data and rules are in a Kotlin module shared with the Android app, in `shared/`, which Xcode builds with Gradle in a build phase, so the Mac needs a JDK 17 as well, such as Temurin 17 (`brew install --cask temurin@17`).
+
 ## Credits
 
 Kitae for iPhone shares its design and backup format with Kitae for Android, which is a fork of [Kenko](https://codeberg.org/Iamlooker/Kenko) by LooKeR. It contains none of their code.

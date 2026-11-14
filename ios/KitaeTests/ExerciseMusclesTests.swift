@@ -68,7 +68,8 @@ struct ExerciseMusclesTests {
 
     @Test func peoplesOwnExercisesShowTheirGroup() {
         for group in MuscleGroup.allCases {
-            #expect(!group.muscles.isEmpty, "\(group)")
+            let work = ExerciseMuscles.work(key: nil, target: group.rawValue)
+            #expect(work?.primary.isEmpty == false && work?.secondary.isEmpty == true, "\(group)")
         }
         let own = Exercise(id: 9_999, name: "Cable Press", target: "Chest")
         #expect(ExerciseMuscles.work(for: own) == MuscleWork(primary: [.chest], secondary: []))

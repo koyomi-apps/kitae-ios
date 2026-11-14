@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 import Foundation
+import KitaeCore
 import SwiftUI
 
 // The geometry behind the exercise animations: a flat side view of a person, posed from a few
@@ -50,48 +51,24 @@ nonisolated struct Vec: Equatable, Sendable, Decodable {
     static func lerp(_ a: Vec, _ b: Vec, _ t: Double) -> Vec { a + (b - a) * t }
 }
 
-/// Lengths of a figure 190 tall, in standard body proportions.
+/// Lengths of a figure 190 tall, in standard body proportions, from the shared module (`Figure.kt`).
 nonisolated enum FigureBody {
-    static let thigh = 46.5
-    static let shin = 46.7
-    static let upperArm = 35.3
-    static let forearm = 27.7
-    static let ankleHeight = 7.4
-    /// The far arm and leg sit a little behind the near ones.
-    static let farOffset = Vec(-3.6, -1.6)
+    static let thigh = KitaeCore.FigureBody.shared.THIGH
+    static let shin = KitaeCore.FigureBody.shared.SHIN
+    static let forearm = KitaeCore.FigureBody.shared.FOREARM
+    static let ankleHeight = KitaeCore.FigureBody.shared.ANKLE_HEIGHT
 }
 
 nonisolated enum FigureMath {
-    static func lerp(_ a: Double, _ b: Double, _ t: Double) -> Double { a + (b - a) * t }
-
-    /// The middle joint (knee or elbow) of a two-part limb reaching from `root` to `target`.
-    /// `bend` picks the side the joint goes to.
-    static func joint(from root: Vec, to target: Vec, _ l1: Double, _ l2: Double, bend: Double) -> Vec {
-        let d = target - root
-        let dist = min(max(d.length, abs(l1 - l2) + 0.01), l1 + l2 - 0.01)
-        let cosA = (l1 * l1 + dist * dist - l2 * l2) / (2 * l1 * dist)
-        return root + d.unit.rotated(by: bend * acos(min(1, max(-1, cosA)))) * l1
-    }
-
-    /// Eases in and out over 0…1.
-    static func ease(_ x: Double) -> Double { 0.5 - 0.5 * cos(.pi * min(1, max(0, x))) }
-
-    /// 0 below 0, 1 above 1, and a smooth S between.
-    static func smoothstep(_ x: Double) -> Double {
-        let k = min(1, max(0, x))
-        return k * k * (3 - 2 * k)
+    static func lerp(_ a: Double, _ b: Double, _ t: Double) -> Double {
+        KitaeCore.FigureMath.shared.lerp(a: a, b: b, t: t)
     }
 
     /// How far from the start pose (0) toward the end pose (1) a loop is at `t` (0…1).
     /// `k` holds the ends of: the hold at the start, the move to the end, the hold at the end,
     /// and the move back.
     static func phase(_ t: Double, _ k: [Double]) -> Double {
-        guard k.count == 4 else { return 0 }
-        if t < k[0] { return 0 }
-        if t < k[1] { return ease((t - k[0]) / (k[1] - k[0])) }
-        if t < k[2] { return 1 }
-        if t < k[3] { return 1 - ease((t - k[2]) / (k[3] - k[2])) }
-        return 0
+        KitaeCore.FigureMath.shared.phase(t: t, k: k.map { KotlinDouble(double: $0) })
     }
 }
 
@@ -215,17 +192,9 @@ nonisolated enum ArmPose: Equatable, Sendable, Decodable {
         }
     }
 
+    /// Blended by the shared module, which keeps an end's arm when the two are placed differently.
     static func lerp(_ a: ArmPose, _ b: ArmPose, _ t: Double) -> ArmPose {
-        switch (a, b) {
-        case let (.swing(u1, b1, l1, f1), .swing(u2, b2, l2, f2)):
-            return .swing(upper: FigureMath.lerp(u1, u2, t), bend: FigureMath.lerp(b1, b2, t),
-                          upperLength: FigureMath.lerp(l1, l2, t), flex: FigureMath.lerp(f1, f2, t))
-        case let (.reach(h1, o1, s1, l1, e1, f1), .reach(h2, _, s2, l2, _, f2)):
-            return .reach(hand: .lerp(h1, h2, t), onTorso: o1, scale: FigureMath.lerp(s1, s2, t),
-                          upperLength: FigureMath.lerp(l1, l2, t), elbow: e1, flex: FigureMath.lerp(f1, f2, t))
-        default:
-            return t < 0.5 ? a : b
-        }
+        ArmPose(IPhoneMotion.shared.blendArms(a: a.core, b: b.core, t: t))
     }
 
     /// Two keyframes can only be blended when their arms are placed the same way.
@@ -319,31 +288,13 @@ nonisolated struct FigurePose: Equatable, Sendable, Decodable {
         farArm = try c.decodeIfPresent(ArmPose.self, forKey: .farArm)
     }
 
+    /// Blended by the shared module.
     static func lerp(_ a: FigurePose, _ b: FigurePose, _ t: Double) -> FigurePose {
-        func mix(_ x: Double?, _ y: Double?) -> Double? {
-            guard let x, let y else { return x ?? y }
-            return FigureMath.lerp(x, y, t)
-        }
-        func mix(_ x: Vec?, _ y: Vec?) -> Vec? {
-            guard let x, let y else { return x ?? y }
-            return .lerp(x, y, t)
-        }
-        func mix(_ x: ArmPose?, _ y: ArmPose?) -> ArmPose? {
-            guard let x, let y else { return x ?? y }
-            return .lerp(x, y, t)
-        }
-        return FigurePose(
-            hip: .lerp(a.hip, b.hip, t), lean: FigureMath.lerp(a.lean, b.lean, t),
-            curl: FigureMath.lerp(a.curl, b.curl, t), shrug: FigureMath.lerp(a.shrug, b.shrug, t),
-            head: mix(a.head, b.head), ankle: .lerp(a.ankle, b.ankle, t), foot: FigureMath.lerp(a.foot, b.foot, t),
-            thigh: mix(a.thigh, b.thigh), shin: mix(a.shin, b.shin),
-            farAnkle: mix(a.farAnkle, b.farAnkle), farFoot: mix(a.farFoot, b.farFoot),
-            farThigh: mix(a.farThigh, b.farThigh), farShin: mix(a.farShin, b.farShin), knee: a.knee,
-            kneeAt: mix(a.kneeAt, b.kneeAt), arm: .lerp(a.arm, b.arm, t), farArm: mix(a.farArm, b.farArm))
+        FigurePose(KitaeCore.FigurePose.Companion.shared.lerp(a: a.core, b: b.core, t: t))
     }
 }
 
-/// A pose worked out into joint positions.
+/// A pose worked out into joint positions, by the shared module (`Figure.kt`).
 nonisolated struct Figure {
     nonisolated struct Leg {
         var hip, knee, ankle: Vec
@@ -357,6 +308,7 @@ nonisolated struct Figure {
         var flex = 0.0
     }
 
+    /// As posed, with the hip moved to put the knee where `kneeAt` says.
     let pose: FigurePose
     let spine: Vec
     let front: Vec
@@ -368,77 +320,32 @@ nonisolated struct Figure {
     let farLeg: Leg
     let nearArm: Arm
     let farArm: Arm
+    /// The shared module's own.
+    private let core: KitaeCore.Figure
 
     init(_ pose: FigurePose) {
-        var p = pose
-        if let kneeAt = p.kneeAt, let thigh = p.thigh {
-            p.hip = kneeAt - Vec.direction(thigh) * FigureBody.thigh
-        }
-        let spine = Vec.direction(p.lean)
-        let front = Vec(-spine.y, spine.x)
-        let torso = { (along: Double, out: Double) in Figure.point(p, spine, front, along, out) }
-        let headDirection = Vec.direction(p.head ?? (p.lean + p.curl))
-        let headFront = Vec(-headDirection.y, headDirection.x)
-
-        self.pose = p
-        self.spine = spine
-        self.front = front
-        self.headDirection = headDirection
-        neckBase = torso(52, 1.5)
-        neckTop = neckBase + headDirection * 9
-        head = neckTop + headDirection * 9.5 + headFront * 1.5
-
-        func leg(_ ankle: Vec, _ foot: Double, _ thigh: Double?, _ shin: Double?, _ o: Vec) -> Leg {
-            let hip = p.hip + o
-            if let thigh, let shin {
-                let knee = hip + Vec.direction(thigh) * FigureBody.thigh
-                return Leg(hip: hip, knee: knee, ankle: knee + Vec.direction(shin) * FigureBody.shin, foot: foot)
-            }
-            let a = ankle + o
-            let knee = FigureMath.joint(from: hip, to: a, FigureBody.thigh, FigureBody.shin, bend: p.knee)
-            return Leg(hip: hip, knee: knee, ankle: a, foot: foot)
-        }
-        let shoulderPoint = torso(48 + p.shrug, -0.5)
-        func arm(_ pose: ArmPose, _ o: Vec) -> Arm {
-            let shoulder = shoulderPoint + o
-            switch pose {
-            case let .swing(upper, bend, upperLength, flex):
-                let elbow = shoulder + Vec.direction(180 - upper) * (FigureBody.upperArm * upperLength)
-                let wrist = elbow + Vec.direction(180 - upper - bend) * FigureBody.forearm
-                return Arm(shoulder: shoulder, elbow: elbow, wrist: wrist, scale: 1, flex: flex)
-            case let .reach(hand, onTorso, scale, upperLength, side, flex):
-                let target = (onTorso ? torso(hand.x, hand.y) : hand) + o
-                let elbow = FigureMath.joint(from: shoulder, to: target, FigureBody.upperArm * scale * upperLength,
-                                             FigureBody.forearm * scale, bend: side)
-                let wrist = elbow + (target - elbow).unit * (FigureBody.forearm * scale)
-                return Arm(shoulder: shoulder, elbow: elbow, wrist: wrist, scale: scale, flex: flex)
-            }
-        }
-        let far = FigureBody.farOffset
-        nearLeg = leg(p.ankle, p.foot, p.thigh, p.shin, .zero)
-        farLeg = leg(p.farAnkle ?? p.ankle, p.farFoot ?? p.foot, p.farThigh ?? p.thigh, p.farShin ?? p.shin, far)
-        nearArm = arm(p.arm, .zero)
-        farArm = arm(p.farArm ?? p.arm, far)
+        let core = KitaeCore.Figure(pose: pose.core)
+        self.core = core
+        self.pose = FigurePose(core.pose)
+        spine = Vec(core.spine)
+        front = Vec(core.front)
+        neckBase = Vec(core.neckBase)
+        neckTop = Vec(core.neckTop)
+        head = Vec(core.head)
+        headDirection = Vec(core.headDirection)
+        nearLeg = Leg(core.nearLeg)
+        farLeg = Leg(core.farLeg)
+        nearArm = Arm(core.nearArm)
+        farArm = Arm(core.farArm)
     }
 
-    /// A point on the body: `along` the spine from the hip, then `out` the front.
-    func torso(_ along: Double, _ out: Double) -> Vec { Figure.point(pose, spine, front, along, out) }
+    /// A point on the body: `along` the spine from the hip, then `out` the front. The spine bends
+    /// above the waist by `curl`, smoothly between 10 and 26 along it.
+    func torso(_ along: Double, _ out: Double) -> Vec { Vec(core.torso(along: along, out: out)) }
 
     /// The spine's direction at a point `along` it, following the curl.
-    func spine(at along: Double) -> Vec {
-        spine.rotated(by: pose.curl * .pi / 180 * FigureMath.smoothstep((along - 10) / 16))
-    }
+    func spine(at along: Double) -> Vec { Vec(core.spine(along: along)) }
 
     /// The direction the body faces at a point `along` the spine, as an angle like `lean`.
-    func turn(at along: Double) -> Double {
-        pose.lean + pose.curl * FigureMath.smoothstep((along - 10) / 16)
-    }
-
-    /// The spine bends above the waist by `curl`, smoothly between 10 and 26 along it.
-    private static func point(_ p: FigurePose, _ spine: Vec, _ front: Vec, _ along: Double, _ out: Double) -> Vec {
-        let q = p.hip + spine * along + front * out
-        guard p.curl != 0 else { return q }
-        let pivot = p.hip + spine * 18
-        return pivot + (q - pivot).rotated(by: p.curl * .pi / 180 * FigureMath.smoothstep((along - 10) / 16))
-    }
+    func turn(at along: Double) -> Double { core.turn(along: along) }
 }

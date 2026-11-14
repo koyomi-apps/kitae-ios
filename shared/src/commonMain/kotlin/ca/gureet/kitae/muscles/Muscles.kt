@@ -125,7 +125,8 @@ class ExerciseMuscles(val map: MuscleMap) {
     companion object {
         private val json = Json { ignoreUnknownKeys = true }
 
-        /** Reads the text of `ExerciseMuscles.json`. */
+        /** Reads the text of `ExerciseMuscles.json`, throwing when it isn't the muscle map. */
+        @Throws(Exception::class)
         fun decode(text: String): ExerciseMuscles = ExerciseMuscles(json.decodeFromString(MuscleMap.serializer(), text))
     }
 }

@@ -226,9 +226,13 @@ struct SessionTests {
     }
 
     @Test func upNextIsTheDayAfterTheLastOneDone() throws {
-        #expect(Plans.dayAfter(nil, in: plan.days)?.name == "Push A")
-        #expect(Plans.dayAfter(plan.days[1].id, in: plan.days)?.name == "Legs")
-        #expect(Plans.dayAfter(plan.days[4].id, in: plan.days)?.name == "Push A")
+        func dayAfter(_ lastDayID: Int64?) throws -> String? {
+            let id = try database.read { db in try Plans.dayAfter(db, planID: plan.id, lastDayID: lastDayID) }
+            return plan.days.first { $0.id == id }?.name
+        }
+        #expect(try dayAfter(nil) == "Push A")
+        #expect(try dayAfter(plan.days[1].id) == "Legs")
+        #expect(try dayAfter(plan.days[4].id) == "Push A")
 
         let id = try start(pullA)
         // A workout with nothing done doesn't count.

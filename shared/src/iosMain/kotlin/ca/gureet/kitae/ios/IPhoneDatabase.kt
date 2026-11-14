@@ -7,7 +7,10 @@ import androidx.room3.useWriterConnection
 import androidx.sqlite.SQLiteStatement
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import androidx.sqlite.execSQL
+import ca.gureet.kitae.backup.BackupArchive
+import ca.gureet.kitae.backup.BackupContents
 import ca.gureet.kitae.backup.Backups
+import ca.gureet.kitae.backup.PreferenceValue
 import ca.gureet.kitae.database.ActivityWeeks
 import ca.gureet.kitae.database.DatabaseFiles
 import ca.gureet.kitae.database.DayExerciseWithSets
@@ -85,6 +88,14 @@ class IPhoneDatabase(private val path: String, seed: String) {
         database = build()
         open()
     }
+
+    /**
+     * Makes a backup zip of the database as it is now, with [preferences] as its settings file, in
+     * [work], with the iPhone's zip library, and returns where it is.
+     */
+    @Throws(Exception::class)
+    fun makeArchive(preferences: Map<String, PreferenceValue>, work: String, archive: BackupArchive): String =
+        blocking { Backups.makeArchive(database, preferences, work, archive) }
 
     /** Copies the database as it is now to [file], in one file without a log, for a backup. */
     @Throws(Exception::class)
@@ -400,11 +411,11 @@ class IPhoneDatabase(private val path: String, seed: String) {
         }
 
         /**
-         * Checks a backup's database file: Kitae's, at a version this app opens, and whole.
-         * Throws `BackupException` when it isn't.
+         * Takes the backup zip at [zip] apart in [work], with the iPhone's zip library, and checks
+         * its database. Throws `BackupException` when it isn't a backup this app restores.
          */
         @Throws(Exception::class)
-        fun checkBackup(file: String) = Backups.check(file)
+        fun openBackup(zip: String, work: String, archive: BackupArchive): BackupContents = Backups.open(zip, work, archive)
     }
 }
 

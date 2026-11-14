@@ -110,7 +110,7 @@ jobs:
         run: |
           header=shared/build/bin/iosSimulatorArm64/debugFramework/KitaeCore.framework/Headers/KitaeCore.h
           sed -n '/swift_name("IPhoneDatabase")/,/^@end/p' "$header" | grep -o 'swift_name("[^"]*")\|- ([^)]*)[a-zA-Z]*' | head -150
-          grep -n -E 'swift_name\("(KotlinInt|KotlinLong|KotlinDouble|KotlinBoolean|NameProblemException|BackupException)"\)' -A4 "$header" | head -40
+          grep -n -E 'swift_name\("(KotlinInt|KotlinLong|KotlinDouble|KotlinBoolean|KotlinByteArray|NameProblemException|BackupException|BackupArchive|IPhoneSettings|PreferenceValue[A-Za-z]*)"\)' -A4 "$header" | head -80
 
       # The app as the tests left it, opened on a few screens with example data.
       - name: Take screenshots

@@ -36,6 +36,8 @@ import ca.gureet.kitae.model.ActivityLevel
 import ca.gureet.kitae.model.BodyLog
 import ca.gureet.kitae.model.BodyProfile
 import ca.gureet.kitae.model.Sex
+import ca.gureet.kitae.model.WorkoutProgress
+import ca.gureet.kitae.model.doneSets
 import kotlin.concurrent.Volatile
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
@@ -126,6 +128,11 @@ class IPhoneDatabase(private val path: String, seed: String) {
     @Throws(Exception::class)
     fun plan(id: Long): PlanWithDays? = blocking { database.plans().plan(id) }
 
+    /** The id of the plan's day up next: the one after the day done last, [lastDayId]. */
+    @Throws(Exception::class)
+    fun dayAfter(planId: Long, lastDayId: Long?): Long? =
+        blocking { database.plans().plan(planId)?.dayAfter(lastDayId)?.day?.id }
+
     @Throws(Exception::class)
     fun dayExercises(dayId: Long): List<DayExerciseWithSets> = blocking { database.plans().dayExercises(dayId) }
 
@@ -199,6 +206,16 @@ class IPhoneDatabase(private val path: String, seed: String) {
     fun workoutExercises(workoutId: Long, dayId: Long?): List<WorkoutExercise> =
         blocking { database.workouts().exercises(workoutId, dayId) }
 
+    /** The workout's sets as its screen counts them. [dayId] is its day's, null if that was deleted. */
+    @Throws(Exception::class)
+    fun workoutProgress(workoutId: Long, dayId: Long?): WorkoutProgress =
+        blocking { WorkoutProgress(database.workouts().exercises(workoutId, dayId), hasDay = dayId != null) }
+
+    /** The workout's done sets, for its energy. */
+    @Throws(Exception::class)
+    fun workoutDoneSets(workoutId: Long): List<DoneSet> =
+        blocking { database.workouts().exercises(workoutId, null).flatMap { it.doneSets } }
+
     @Throws(Exception::class)
     fun lastKnownSet(exerciseId: Long, dayId: Long?): SetDraft? = blocking { database.workouts().lastKnownSet(exerciseId, dayId) }
 
@@ -211,6 +228,10 @@ class IPhoneDatabase(private val path: String, seed: String) {
     @Throws(Exception::class)
     fun addSet(workoutId: Long, exerciseId: Long, set: SetDraft): Long =
         blocking { database.workouts().addSet(workoutId, exerciseId, set) }
+
+    @Throws(Exception::class)
+    fun addSetLikeLast(workoutId: Long, exerciseId: Long, dayId: Long?, defaultWeightKg: Double): Long =
+        blocking { database.workouts().addSetLikeLast(workoutId, exerciseId, dayId, defaultWeightKg) }
 
     @Throws(Exception::class)
     fun deleteSet(setId: Long) = blocking { database.workouts().deleteSet(setId) }

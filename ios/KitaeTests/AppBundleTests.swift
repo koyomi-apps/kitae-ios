@@ -26,4 +26,8 @@ struct AppBundleTests {
     @Test func itUsesNoEncryptionToDeclare() {
         #expect(Bundle.main.object(forInfoDictionaryKey: "ITSAppUsesNonExemptEncryption") as? Bool == false)
     }
+
+    @Test func theHomeScreenCallsItKamae() {
+        #expect(Bundle.main.object(forInfoDictionaryKey: "CFBundleDisplayName") as? String == "Kamae")
+    }
 }

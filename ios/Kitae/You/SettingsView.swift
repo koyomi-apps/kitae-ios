@@ -40,7 +40,7 @@ struct SettingsView: View {
                     .listRowBackground(Color.card)
 
                 if model.settings.restAlerts, alertsDenied {
-                    Button("Allow alerts for Kitae in Settings") {
+                    Button("Allow alerts for Kamae in Settings") {
                         if let url = URL(string: UIApplication.openNotificationSettingsURLString) {
                             openURL(url)
                         }
@@ -76,7 +76,7 @@ struct SettingsView: View {
             }
 
             Section {
-                Button("Reset Kitae", role: .destructive) {
+                Button("Reset Kamae", role: .destructive) {
                     confirmsReset = true
                 }
                 .disabled(model.backups.isWorking)
@@ -107,7 +107,7 @@ struct SettingsView: View {
                     }
                     .contentShape(.rect)
                 }
-                .accessibilityHint("Opens Kitae's code on GitHub")
+                .accessibilityHint("Opens Kamae's code on GitHub")
                 .listRowBackground(Color.card)
             } header: {
                 SectionCaption(".about")
@@ -119,7 +119,7 @@ struct SettingsView: View {
         .background(Color.paper)
         .navigationTitle("Settings")
         .backupFlow(backupFlow)
-        .confirmationDialog("Reset Kitae?", isPresented: $confirmsReset, titleVisibility: .visible) {
+        .confirmationDialog("Reset Kamae?", isPresented: $confirmsReset, titleVisibility: .visible) {
             Button("Reset", role: .destructive) {
                 // Once the question has gone, as every screen is made again.
                 Task {
@@ -128,10 +128,10 @@ struct SettingsView: View {
                 }
             }
         } message: {
-            Text("This permanently deletes all your plans, workouts, exercises, weigh-ins and settings, and Kitae starts again with its starter plan and exercises. Backups in your backup folder are kept.")
+            Text("This permanently deletes all your plans, workouts, exercises, weigh-ins and settings, and Kamae starts again with its starter plan and exercises. Backups in your backup folder are kept.")
         }
         .alert(
-            "Couldn't reset Kitae",
+            "Couldn't reset Kamae",
             isPresented: Binding(get: { resetProblem != nil }, set: { if !$0 { resetProblem = nil } })
         ) {
             Button("OK", role: .cancel) {}
@@ -147,9 +147,9 @@ struct SettingsView: View {
         }
     }
 
-    /// "Last backup: today at 6:31 PM. Kitae on Android can restore these backups too."
+    /// "Last backup: today at 6:31 PM. Kamae on Android can restore these backups too."
     private var backupSummary: String {
-        let android = "Kitae on Android can restore these backups too."
+        let android = "Kamae on Android can restore these backups too."
         guard let last = model.backups.lastBackup else { return "No backups yet. \(android)" }
         let format = DateFormatter()
         format.dateStyle = .medium

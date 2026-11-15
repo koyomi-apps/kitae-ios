@@ -213,15 +213,8 @@ nonisolated enum Exercises {
     }
 
     /// A reference as it's saved: trimmed, with https:// in front when it has no scheme, or
-    /// nil when it's empty.
+    /// nil when it's empty. The shared module saves it so.
     static func savedReference(_ text: String) -> String? {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return nil }
-        return trimmed.contains("://") ? trimmed : "https://\(trimmed)"
-    }
-
-    static func savedInstructions(_ text: String) -> String? {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        return trimmed.isEmpty ? nil : trimmed
+        KitaeCore.Exercises.Companion.shared.savedReference(text: text)
     }
 }

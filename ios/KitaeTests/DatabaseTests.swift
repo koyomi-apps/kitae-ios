@@ -230,17 +230,3 @@ struct EpochDayTests {
         #expect(Date(epochMilliseconds: date.epochMilliseconds) == date)
     }
 }
-
-struct WarmupOrderTests {
-    @Test func warmupsMoveToTheFront() {
-        let sets: [(slot: Int, isWarmup: Bool)] = [(0, false), (1, true), (2, false), (3, true)]
-        let moves = warmupsFirstSlots(sets, slot: { $0.slot }, isWarmup: { $0.isWarmup })
-        #expect(moves.map { $0.item.slot } == [1, 3, 0, 2])
-        #expect(moves.map { $0.slot } == [0, 1, 2, 3])
-    }
-
-    @Test func nothingMovesWhenWarmupsAreFirst() {
-        let sets: [(slot: Int, isWarmup: Bool)] = [(4, true), (7, false), (9, false)]
-        #expect(warmupsFirstSlots(sets, slot: { $0.slot }, isWarmup: { $0.isWarmup }).isEmpty)
-    }
-}

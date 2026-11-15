@@ -18,15 +18,15 @@ nonisolated enum BackupError: Error, LocalizedError, Equatable {
         case .notKitae:
             "This file isn't a Kitae backup."
         case .olderVersion:
-            "This backup is from an older version of Kitae. Restore it in Kitae for Android, then back up again from there."
+            "This backup is from an older version of Kitae. Restore it in Kitae for Android 2.0.0, then back up again from there."
         case .newerVersion:
-            "This backup is from a newer version of Kitae. Update Kitae, then try again."
+            "This backup is from a newer version of Kitae. Update Kamae, then try again."
         case .damaged:
             "This backup is damaged, so it can't be restored."
         case .workoutInProgress:
             "Finish or discard the workout in progress first."
         case .folderUnavailable:
-            "Kitae can't reach the backup folder. Choose it again in Settings."
+            "Kamae can't reach the backup folder. Choose it again in Settings."
         }
     }
 }
@@ -56,21 +56,14 @@ nonisolated struct BackupContents: Sendable {
 /// Kitae for Android's: the database file `kenko_database`, and `settings.preferences_pb` with
 /// the settings. Android's can also hold the database's write-ahead log, `kenko_database-wal`.
 nonisolated enum Backups {
-    static let databaseEntry = "kenko_database"
-    static let logEntry = "kenko_database-wal"
-    static let settingsEntry = "settings.preferences_pb"
     /// What's in Kitae just before a backup is restored over it.
-    static let beforeRestoreName = "kitae_backup_before_restore.zip"
+    static let beforeRestoreName = KitaeCore.Backups.shared.BEFORE_RESTORE_NAME
 
     /// "kitae_backup_10_10.zip" for 10 October: named like Kitae for Android's backups, by day
     /// and month, so there's one a day and a day's backup replaces the one from a year before.
+    /// The shared module names them (`Backups.kt`).
     static func fileName(for date: Date, calendar: Calendar = .current) -> String {
-        let parts = calendar.dateComponents([.day, .month], from: date)
-        return "kitae_backup_\(twoDigits(parts.day ?? 1))_\(twoDigits(parts.month ?? 1)).zip"
-    }
-
-    private static func twoDigits(_ number: Int) -> String {
-        number < 10 ? "0\(number)" : "\(number)"
+        KitaeCore.Backups.shared.fileName(today: Int64(EpochDay.of(date, in: calendar.timeZone)))
     }
 
     // MARK: Backing up

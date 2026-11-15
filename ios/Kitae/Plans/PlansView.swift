@@ -23,7 +23,7 @@ struct PlansView: View {
                     }
                 } header: {
                     if model.currentPlan == nil {
-                        Text("Pick a plan to follow, and Kitae lines up its days one after another. You can switch plans or make your own any time.")
+                        Text("Pick a plan to follow, and Kamae lines up its days one after another. You can switch plans or make your own any time.")
                             .font(.subheadline)
                             .foregroundStyle(.inkSoft)
                             .textCase(nil)

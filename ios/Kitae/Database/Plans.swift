@@ -30,12 +30,10 @@ nonisolated enum Plans {
         try db.core.dayExercises(dayId: dayID).map { DayExercise($0) }
     }
 
-    /// The day after the one done last, going back to the first after the last day.
-    /// Kitae for Android's `nextAfter`.
-    static func dayAfter(_ lastDayID: Int64?, in days: [TrainingDay]) -> TrainingDay? {
-        guard !days.isEmpty else { return nil }
-        guard let index = days.firstIndex(where: { $0.id == lastDayID }) else { return days.first }
-        return days[(index + 1) % days.count]
+    /// The id of the plan's day after the one done last, going back to the first after the last
+    /// day. Kitae for Android's `nextAfter`.
+    static func dayAfter(_ db: Database, planID: Int64, lastDayID: Int64?) throws -> Int64? {
+        try db.core.dayAfter(planId: planID, lastDayId: lastDayID?.kotlin)?.int64Value
     }
 
     // MARK: Taking a workout back into the plan

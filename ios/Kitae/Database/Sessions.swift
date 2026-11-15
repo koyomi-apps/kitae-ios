@@ -66,6 +66,17 @@ nonisolated enum Sessions {
         try db.core.workoutExercises(workoutId: sessionID, dayId: dayID?.kotlin).map { WorkoutExercise($0) }
     }
 
+    /// The same sets as the shared module counts them, for the workout in progress. `dayID` is
+    /// the workout's day, nil if it was deleted.
+    static func progress(_ db: Database, sessionID: Int64, dayID: Int64?) throws -> KitaeCore.WorkoutProgress {
+        try db.core.workoutProgress(workoutId: sessionID, dayId: dayID?.kotlin)
+    }
+
+    /// A workout's done sets, for its energy.
+    static func doneSets(_ db: Database, sessionID: Int64) throws -> [DoneSet] {
+        try db.core.workoutDoneSets(workoutId: sessionID).map { DoneSet($0) }
+    }
+
     /// What a new set of an exercise starts as when there's nothing to copy in the workout:
     /// the day's last planned set, or the last set ever done, or nil.
     static func lastKnownSet(_ db: Database, exerciseID: Int64, dayID: Int64?) throws -> SetDraft? {
@@ -89,6 +100,16 @@ nonisolated enum Sessions {
     @discardableResult
     static func addSet(_ db: Database, sessionID: Int64, exerciseID: Int64, set: SetDraft) throws -> Int64 {
         try db.core.addSet(workoutId: sessionID, exerciseId: exerciseID, set: set.core)
+    }
+
+    /// Adds a set like the exercise's last one in the workout, not done yet, as its + does, and
+    /// returns its id. A warm-up is followed by a standard set. With no set to copy, it's like the
+    /// day's planned sets or the last time the exercise was done, or 12 reps of `defaultWeightKg`.
+    @discardableResult
+    static func addSetLikeLast(_ db: Database, sessionID: Int64, exerciseID: Int64, dayID: Int64?,
+                               defaultWeightKg: Double) throws -> Int64 {
+        try db.core.addSetLikeLast(workoutId: sessionID, exerciseId: exerciseID, dayId: dayID?.kotlin,
+                                   defaultWeightKg: defaultWeightKg)
     }
 
     static func deleteSet(_ db: Database, setID: Int64) throws {

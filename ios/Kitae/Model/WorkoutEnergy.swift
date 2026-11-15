@@ -78,13 +78,3 @@ nonisolated extension DoneSet {
                           reps: Int32(clamping: reps), weightKg: weightKg, type: type.core)
     }
 }
-
-nonisolated extension WorkoutExercise {
-    /// Its done sets, for the energy estimate.
-    var doneSets: [DoneSet] {
-        sets.filter(\.isDone).map {
-            DoneSet(exerciseID: exercise.id, libraryKey: exercise.libraryKey, target: exercise.target,
-                    isIsometric: exercise.isIsometric, reps: $0.reps, weightKg: exercise.weight($0.weightKg), type: $0.type)
-        }
-    }
-}

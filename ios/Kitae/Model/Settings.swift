@@ -20,18 +20,25 @@ nonisolated enum AppTheme: String, CaseIterable, Identifiable, Sendable {
         }
     }
 
-    /// Kitae for Android's name for it, as its settings keep it.
-    var androidName: String {
+    /// The shared module's own.
+    var core: KitaeCore.AppTheme {
         switch self {
-        case .system: "System"
-        case .light: "Light"
-        case .dark: "Dark"
+        case .system: KitaeCore.AppTheme.system
+        case .light: KitaeCore.AppTheme.light
+        case .dark: KitaeCore.AppTheme.dark
         }
     }
 
+    init(_ theme: KitaeCore.AppTheme) {
+        self = Self.allCases.first { $0.core == theme } ?? .system
+    }
+
+    /// Kitae for Android's name for it, as its settings keep it.
+    var androidName: String { core.stored }
+
     init?(androidName: String) {
-        guard let theme = Self.allCases.first(where: { $0.androidName == androidName }) else { return nil }
-        self = theme
+        guard let theme = KitaeCore.AppTheme.Companion.shared.fromStored(stored: androidName) else { return nil }
+        self.init(theme)
     }
 }
 
@@ -67,62 +74,48 @@ nonisolated enum TextSize: String, CaseIterable, Identifiable, Sendable {
     }
 }
 
-nonisolated extension WeightUnit {
-    /// Kitae for Android's name for it, as its settings keep it.
-    var androidName: String {
-        switch self {
-        case .kilograms: "Kilograms"
-        case .pounds: "Pounds"
-        }
-    }
-
-    init?(androidName: String) {
-        guard let unit = Self.allCases.first(where: { $0.androidName == androidName }) else { return nil }
-        self = unit
-    }
-}
-
-/// What Settings changes.
+/// What Settings changes. Each starts as the shared module's does (`AppSettings` in
+/// `Settings.kt`), but for the text size, which is this phone's.
 nonisolated struct AppSettings: Equatable, Sendable {
-    var unit: WeightUnit = .kilograms
-    var decimals: DecimalStyle = .automatic
+    var unit = WeightUnit(IPhoneSettings.shared.defaults.unit)
+    var decimals = DecimalStyle(IPhoneSettings.shared.defaults.decimals)
     /// The rest after a set when neither the set nor its exercise has one of its own, like
     /// Kitae for Android's rest timer setting. 0 starts no rest.
-    var defaultRestSeconds = 90
+    var defaultRestSeconds = Int(IPhoneSettings.shared.defaults.defaultRestSeconds)
     /// Whether "Rest over" goes off when a rest runs out.
-    var restAlerts = true
-    var theme: AppTheme = .system
+    var restAlerts = IPhoneSettings.shared.defaults.restAlerts
+    var theme = AppTheme(IPhoneSettings.shared.defaults.theme)
     /// Only on this phone, like the iPhone's own text size.
     var textSize: TextSize = .iPhone
-    var backUpAfterWorkouts = true
+    var backUpAfterWorkouts = IPhoneSettings.shared.defaults.backUpAfterWorkouts
     /// Whether a summary opens after finishing a workout: its time, sets, energy and muscles.
-    var showsWorkoutSummary = true
+    var showsWorkoutSummary = IPhoneSettings.shared.defaults.showsWorkoutSummary
     /// Whether that summary lists the records the workout's sets beat.
-    var showsNewBests = true
+    var showsNewBests = IPhoneSettings.shared.defaults.showsNewBests
     /// Kitae for Android's colour palette, kept from a restored backup so that backups made
     /// here bring it back.
     var androidPalette: String?
 
     /// The palettes Kitae for Android has. It can't open settings with another one.
-    static let androidPalettes: Set = ["Dynamic", "Default", "Zestful", "Serene", "Twilight"]
+    static let androidPalettes: Set<String> = KitaeCore.AppSettings.Companion.shared.ANDROID_PALETTES
 }
 
-/// Where each setting is kept, in UserDefaults and in a backup's settings file. The settings
-/// Kitae for Android also has use its names, and its values (`weight_unit` is `Kilograms` or
-/// `Pounds`, and so on).
+/// Where each setting is kept, in UserDefaults and in a backup's settings file, by the shared
+/// module's names (`SettingKey` in `Settings.kt`). The settings Kitae for Android also has use
+/// its names, and its values (`weight_unit` is `Kilograms` or `Pounds`, and so on).
 nonisolated enum SettingKey {
-    static let unit = "weight_unit"
-    static let decimals = "decimals"
-    static let defaultRest = "rest_timer_seconds"
-    static let restAlerts = "rest_alerts"
-    static let theme = "theme"
-    static let textSize = "text_size"
-    static let backUpAfterWorkouts = "back_up_after_workouts"
-    static let workoutSummary = "workout_summary"
-    static let newBests = "new_bests"
-    static let palette = "color_palette"
+    static let unit = KitaeCore.SettingKey.shared.UNIT
+    static let decimals = KitaeCore.SettingKey.shared.DECIMALS
+    static let defaultRest = KitaeCore.SettingKey.shared.DEFAULT_REST
+    static let restAlerts = KitaeCore.SettingKey.shared.REST_ALERTS
+    static let theme = KitaeCore.SettingKey.shared.THEME
+    static let textSize = KitaeCore.SettingKey.shared.TEXT_SIZE
+    static let backUpAfterWorkouts = KitaeCore.SettingKey.shared.BACK_UP_AFTER_WORKOUTS
+    static let workoutSummary = KitaeCore.SettingKey.shared.WORKOUT_SUMMARY
+    static let newBests = KitaeCore.SettingKey.shared.NEW_BESTS
+    static let palette = KitaeCore.SettingKey.shared.PALETTE
     /// Kitae for Android's first launch is over once a plan is chosen.
-    static let onboardingDone = "onboarding_done"
+    static let onboardingDone = KitaeCore.SettingKey.shared.ONBOARDING_DONE
     /// Whether the welcome is over. Not a setting, and not backed up.
     static let welcomeDone = "welcome_done"
 }
@@ -240,11 +233,11 @@ nonisolated extension AppSettings {
     /// have, or that can't be read, stays as it is.
     mutating func apply(backup preferences: [String: PreferenceValue]) {
         let backup = core.applyingBackup(preferences: preferences.mapValues(\.core))
-        unit = WeightUnit(androidName: backup.unit.stored) ?? unit
-        decimals = DecimalStyle(rawValue: backup.decimals.stored) ?? decimals
+        unit = WeightUnit(backup.unit)
+        decimals = DecimalStyle(backup.decimals)
         defaultRestSeconds = Int(backup.defaultRestSeconds)
         restAlerts = backup.restAlerts
-        theme = AppTheme(androidName: backup.theme.stored) ?? theme
+        theme = AppTheme(backup.theme)
         showsWorkoutSummary = backup.showsWorkoutSummary
         showsNewBests = backup.showsNewBests
         androidPalette = backup.androidPalette

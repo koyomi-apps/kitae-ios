@@ -48,7 +48,7 @@ struct TodayView: View {
                     ContentUnavailableView {
                         Label("No plan yet", systemImage: "calendar")
                     } description: {
-                        Text("Choose a plan to follow, and Kitae lines up its days for you.")
+                        Text("Choose a plan to follow, and Kamae lines up its days for you.")
                     } actions: {
                         Button("Choose a plan") { model.isChoosingPlan = true }
                             .buttonStyle(.borderedProminent)

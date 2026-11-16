@@ -1,0 +1,130 @@
+name: iPhone walkthrough
+
+# Records the iPhone app on a GitHub Mac while ios/KitaeUITests/WalkthroughTests.swift does a first
+# workout, from the welcome to Settings, on a simulator that has never had the app. Run it from the
+# Actions tab, or change the test or this file in a pull request. The video is kept as an
+# artifact, and printed in the log too, as Claude's cloud workspace can read logs but not
+# artifacts.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - ".github/workflows/walkthrough.yml"
+      - "ios/KitaeUITests/**"
+
+permissions:
+  contents: read
+
+jobs:
+  walkthrough:
+    name: iPhone walkthrough
+    runs-on: xcode-27
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      # Xcode's build phase runs Gradle, which builds KitaeCore, the shared Kotlin module.
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Pick a simulator
+        id: simulator
+        run: |
+          xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          choices = []
+          for runtime, devices in json.load(sys.stdin)["devices"].items():
+              if ".SimRuntime.iOS-" not in runtime:
+                  continue
+              version = []
+              for part in runtime.split(".SimRuntime.iOS-")[1].split("-"):
+                  if not part.isdigit():
+                      break
+                  version.append(int(part))
+              for device in devices:
+                  name = device["name"]
+                  if name.startswith("iPhone"):
+                      choices.append((version, "Pro" in name and "Max" not in name, name, device["udid"]))
+          version, _, name, udid = max(choices)
+          print(f"{name}, iOS {version}, {udid}", file=sys.stderr)
+          print(f"udid={udid}")
+          ' >> "$GITHUB_OUTPUT"
+
+      - name: Build the app and its UI tests
+        working-directory: ios
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          xcodebuild build-for-testing -project Kitae.xcodeproj -scheme Kitae -destination "id=$UDID" \
+            -derivedDataPath "$RUNNER_TEMP/derived" > "$RUNNER_TEMP/build.log" 2>&1 \
+            || { grep -E ' error: |^error: |^e: |What went wrong' "$RUNNER_TEMP/build.log" | head -50; tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
+
+      - name: Walk through the app, recording it
+        working-directory: ios
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+          # Passed to the test without TEST_RUNNER_ (see WalkthroughTests.swift).
+          TEST_RUNNER_KAMAE_FRESH_SIMULATOR: "1"
+          TEST_RUNNER_KAMAE_WALKTHROUGH_PAUSE: "1.2"
+        run: |
+          xcrun simctl boot "$UDID" 2> /dev/null || true
+          xcrun simctl bootstatus "$UDID" -b > /dev/null
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
+            --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 || true
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force "$RUNNER_TEMP/walkthrough.mov" > "$RUNNER_TEMP/record.log" 2>&1 &
+          recorder=$!
+          for _ in $(seq 1 30); do
+            grep -q 'Recording started' "$RUNNER_TEMP/record.log" && break
+            sleep 1
+          done
+          cat "$RUNNER_TEMP/record.log"
+          log="$RUNNER_TEMP/test.log"
+          status=0
+          xcodebuild test-without-building -project Kitae.xcodeproj -scheme Kitae -destination "id=$UDID" \
+            -derivedDataPath "$RUNNER_TEMP/derived" -only-testing:KitaeUITests/WalkthroughTests \
+            -parallel-testing-enabled NO -collect-test-diagnostics never > "$log" 2>&1 || status=$?
+          sleep 2
+          kill -INT "$recorder"
+          wait "$recorder" || true
+          grep -E 'WALKTHROUGH|error:|failed|passed|\*\* [A-Z ]+ \*\*' "$log" | head -120 || true
+          if [ "$status" != 0 ]; then
+            echo "--- what was on screen ---"
+            sed -n '/^--- on screen ---/,/^Test Case/p' "$log" | head -400
+            echo "--- the end of the log ---"
+            tail -60 "$log"
+          fi
+          ls -l "$RUNNER_TEMP/walkthrough.mov" || true
+          exit "$status"
+
+      # About 600 points wide, small enough for the log.
+      - name: Make the video smaller
+        if: always()
+        run: |
+          [ -s "$RUNNER_TEMP/walkthrough.mov" ] || exit 0
+          command -v ffmpeg > /dev/null \
+            || HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install --quiet ffmpeg > /dev/null
+          mkdir -p "$RUNNER_TEMP/video"
+          ffmpeg -loglevel error -y -i "$RUNNER_TEMP/walkthrough.mov" -vf "fps=30,scale=600:-2" -c:v libx264 \
+            -preset veryfast -crf 28 -pix_fmt yuv420p -movflags +faststart -an "$RUNNER_TEMP/video/kamae-walkthrough.mp4"
+          ffprobe -v error -show_entries format=duration,size -show_entries stream=width,height \
+            -of compact "$RUNNER_TEMP/video/kamae-walkthrough.mp4"
+
+      - name: Keep the video
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: iphone-walkthrough
+          path: ${{ runner.temp }}/video
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Print the video
+        if: always()
+        run: |
+          file="$RUNNER_TEMP/video/kamae-walkthrough.mp4"
+          [ -e "$file" ] || exit 0
+          base64 -i "$file" | fold -w 3000 | sed "s|^|VIDEO $(basename "$file") |"

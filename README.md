@@ -2,7 +2,7 @@
 
 Kamae is a workout journal built around your training days: plan your split once, then pick a day and tick off your sets. Until November 2026 it was called Kitae; [the name](#the-name) says why it changed.
 
-This repository has Kamae for iPhone, written in SwiftUI, in `ios/`, and Kamae for Android, written with Jetpack Compose, in `android/`. Kamae's data and rules are a Kotlin module the two share, in `shared/`, so both apps store, count and back up the same way.
+This repository has Kamae for iPhone, written in SwiftUI, in `ios/`, and Kamae for Android, written with Jetpack Compose, in `android/`. Kamae's data and rules are a Kotlin module the two share, in `shared/`, so both apps store, count and back up the same way. Kamae's website, [kamae.fromkoyomi.org](https://kamae.fromkoyomi.org), is in `docs/`.
 
 **Status:** beta. Kamae for iPhone is on TestFlight, and Kamae for Android has test builds.
 
@@ -17,13 +17,13 @@ More screenshots of the iPhone app, in light and dark mode, are in [docs/screens
 
 ### iPhone
 
-Join the beta at [testflight.apple.com/join/GTKbw4Hg](https://testflight.apple.com/join/GTKbw4Hg) on an iPhone with iOS 26 or newer. The link opens Apple's TestFlight app, which installs Kamae and its updates. If you've been testing Kitae, Kamae arrives as an update and keeps your data. Send feedback from TestFlight, or report bugs and ask for features in [the issues on GitHub](https://github.com/koyomi-apps/kitae-ios/issues).
+Join the beta at [testflight.apple.com/join/GTKbw4Hg](https://testflight.apple.com/join/GTKbw4Hg) on an iPhone with iOS 26 or newer. The link opens Apple's TestFlight app, which installs Kamae and its updates. If you've been testing Kitae, Kamae arrives as an update and keeps your data. Send feedback from TestFlight, or report bugs and ask for features in [the issues on GitHub](https://github.com/koyomi-apps/kamae/issues).
 
-To sideload it instead, each iPhone [release on GitHub](https://github.com/koyomi-apps/kitae-ios/releases) (tagged like `v1.0-3`) has an IPA to install with AltStore, SideStore or Sideloadly, which sign it with your own Apple Account. With a free account, the app stops opening after seven days until it's refreshed, and it uses two of the account's App IDs, one for the rest timer on the Lock Screen. Sideloaded copies don't update by themselves, and they keep their data apart from the TestFlight one; move between them with a backup. What's new in each build is in the [changelog](ios/CHANGELOG.md).
+To sideload it instead, each iPhone [release on GitHub](https://github.com/koyomi-apps/kamae/releases) (tagged like `v1.0-3`) has an IPA to install with AltStore, SideStore or Sideloadly, which sign it with your own Apple Account. With a free account, the app stops opening after seven days until it's refreshed, and it uses two of the account's App IDs, one for the rest timer on the Lock Screen. Sideloaded copies don't update by themselves, and they keep their data apart from the TestFlight one; move between them with a backup. What's new in each build is in the [changelog](ios/CHANGELOG.md).
 
 ### Android
 
-Test builds of Kamae for Android, for Android 8.0 or newer, are pre-releases on [the releases page](https://github.com/koyomi-apps/kitae-ios/releases) (tagged like `android-v0.9.1`), each with an APK to install. Version 1.0.0 is planned for F-Droid as well.
+Test builds of Kamae for Android, for Android 8.0 or newer, are pre-releases on [the releases page](https://github.com/koyomi-apps/kamae/releases) (tagged like `android-v0.9.1`), each with an APK to install. Version 1.0.0 is planned for F-Droid as well.
 
 Kamae for Android is a new app with an ID of its own, `ca.gureet.kamae`, rather than an update to Kitae for Android 2.0.0, so it installs beside it. To bring your plans, workouts and settings over, back up in Kitae, then restore the backup on Kamae's welcome screen. Kitae for Android 2.0.0 stays as it is, on F-Droid and at [codeberg.org/gureetk/kitae](https://codeberg.org/gureetk/kitae).
 
@@ -40,7 +40,7 @@ Kamae for Android is a new app with an ID of its own, `ca.gureet.kamae`, rather 
 
 Kamae was called Kitae until November 2026, from 鍛え (*kitae*), the Japanese *kitaeru*, "to forge, to train": what lifting does to you, one session at a time. Another workout log on the App Store already went by Kitae, so the app took a name of its own rather than share one.
 
-On iPhone only the name changed: it's the same app, and the update keeps your data. The code, the iPhone app's ID (`ca.gureet.kitae`) and this repository's name still say Kitae, and backups are still named `kitae_backup_DD_MM.zip`, so Kitae's backups and Kamae's open in either app.
+On iPhone only the name changed: it's the same app, and the update keeps your data. The code and the iPhone app's ID (`ca.gureet.kitae`) still say Kitae, and backups are still named `kitae_backup_DD_MM.zip`, so Kitae's backups and Kamae's open in either app. This repository was koyomi-apps/kitae-ios and the website kitae.fromkoyomi.org; their old addresses lead to the new ones.
 
 ## Building
 

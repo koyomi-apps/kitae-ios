@@ -1,0 +1,157 @@
+/* Kamae's page. Koyomi's shared styles are in koyomi.css; this file sets
+   Kamae's olive and has the parts only this page has: the icon, the example
+   day and the screenshots. Colours are Kamae's own colour sets, each written
+   once as light-dark(light, dark), and fonts are Kamae's fonts. */
+
+:root {
+  --accent: light-dark(#63611E, #CECA75);
+  --accent-soft: light-dark(#F7F3A1, #49482C);
+  --on-accent-soft: light-dark(#545210, #E8E4BE);
+  --band-bg: light-dark(#63611E, #49482C);
+  --band-fg: light-dark(#FFFFFF, #E8E4BE);
+  --band-on: light-dark(#F7F3A1, #CECA75);
+  --band-off: light-dark(rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
+}
+
+/* The icon */
+
+.icon-art .bar,
+.icon-art .plate {
+  fill: var(--band-on);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .loadup .plate {
+    transform-box: fill-box;
+    animation: slide-in 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .loadup .big.l {
+    --from: -90px;
+    animation-delay: 0.15s;
+  }
+  .loadup .big.r {
+    --from: 90px;
+    animation-delay: 0.15s;
+  }
+  .loadup .small.l {
+    --from: -110px;
+    animation-delay: 0.5s;
+  }
+  .loadup .small.r {
+    --from: 110px;
+    animation-delay: 0.5s;
+  }
+  @keyframes slide-in {
+    0% {
+      opacity: 0;
+      transform: translateX(var(--from));
+    }
+    60% {
+      opacity: 1;
+      transform: translateX(calc(var(--from) * -0.06));
+    }
+    100% {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+}
+
+/* An example day */
+
+.day-fig {
+  margin: 0;
+}
+.day {
+  padding: clamp(20px, 3.4vw, 34px);
+  border-radius: 28px;
+  background: var(--paper);
+  color: var(--ink);
+}
+.band .day p {
+  max-width: none;
+  margin: 0;
+}
+.day-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+.band .day .day-name {
+  margin: 0.15em 0 0.5em;
+  font-size: clamp(2.8rem, 2rem + 3vw, 4rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+}
+.lift {
+  padding-block: 14px 18px;
+  border-top: 2px solid var(--rule);
+}
+.band .day .lift-name {
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+.sets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+.sets li {
+  padding: 5px 12px;
+  border: 2px solid var(--ink-soft);
+  border-radius: 999px;
+}
+.sets .done {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--paper);
+}
+
+@media (max-width: 480px) {
+  .sets {
+    gap: 6px;
+    font-size: 0.72rem;
+  }
+  .sets li {
+    padding: 4px 8px;
+  }
+}
+
+/* Screenshots */
+
+.shots {
+  padding-block: clamp(56px, 9vw, 112px);
+  background: var(--accent-soft);
+  color: var(--on-accent-soft);
+}
+.shots a:focus-visible,
+.shots .strip:focus-visible {
+  outline: 3px solid var(--on-accent-soft);
+  outline-offset: 4px;
+}
+.shots-note {
+  margin: 1rem 0 0;
+  font-size: 1.1rem;
+}
+.plat {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  margin: clamp(40px, 6vw, 64px) 0 20px;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+.plat .tag {
+  font-size: 0.9rem;
+}

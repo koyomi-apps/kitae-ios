@@ -19,7 +19,7 @@ struct SettingsView: View {
     /// Why resetting didn't work.
     @State private var resetProblem: String?
 
-    static let sourceCode = URL(string: "https://github.com/koyomi-apps/kitae-ios")!
+    static let sourceCode = URL(string: "https://github.com/koyomi-apps/kamae")!
 
     var body: some View {
         @Bindable var model = model

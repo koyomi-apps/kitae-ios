@@ -1,0 +1,119 @@
+name: iPhone screenshots
+
+# Takes the iPhone app's screenshots in docs/screenshots, with the example data of its debug
+# screens, on a GitHub Mac. Run it from the Actions tab with the screens to take, or change
+# the list for pull requests below, which makes it run on that pull request. The pictures are
+# kept as an artifact, and printed in the log at full size too, as Claude's cloud workspace
+# can read logs but not artifacts.
+
+on:
+  workflow_dispatch:
+    inputs:
+      screens:
+        description: Screens to take, named as in docs/screenshots
+        default: >-
+          today-light today-dark workout-light workout-dark keypad-light welcome-light settings-light
+          body-light history-light history-dark workout-detail-light exercises-light
+          exercise-progress-light exercise-progress-dark exercise-howto-light exercise-howto-dark
+          you-light you-dark workout-done-light workout-done-dark edit-plan-light add-exercise-light
+  pull_request:
+    paths:
+      - ".github/workflows/screenshots.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    name: iPhone screenshots
+    runs-on: xcode-27
+    timeout-minutes: 45
+    env:
+      # For pull requests: the ones that showed Kitae, retaken for Kamae.
+      SCREENS: ${{ inputs.screens || 'welcome-light workout-done-light workout-done-dark' }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: 17
+          cache: gradle
+
+      - name: Pick a simulator
+        id: simulator
+        run: |
+          xcrun simctl list devices available --json | python3 -c '
+          import json, sys
+          choices = []
+          for runtime, devices in json.load(sys.stdin)["devices"].items():
+              if ".SimRuntime.iOS-" not in runtime:
+                  continue
+              version = []
+              for part in runtime.split(".SimRuntime.iOS-")[1].split("-"):
+                  if not part.isdigit():
+                      break
+                  version.append(int(part))
+              for device in devices:
+                  name = device["name"]
+                  if name.startswith("iPhone"):
+                      choices.append((version, "Pro" in name and "Max" not in name, name, device["udid"]))
+          version, _, name, udid = max(choices)
+          print(f"{name}, iOS {version}, {udid}", file=sys.stderr)
+          print(f"udid={udid}")
+          ' >> "$GITHUB_OUTPUT"
+
+      - name: Build the app
+        working-directory: ios
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          xcodebuild build -project Kitae.xcodeproj -scheme Kitae -destination "id=$UDID" \
+            -derivedDataPath "$RUNNER_TEMP/derived" > "$RUNNER_TEMP/build.log" 2>&1 \
+            || { grep -E ' error: |^error: |^e: |What went wrong' "$RUNNER_TEMP/build.log" | head -50; tail -40 "$RUNNER_TEMP/build.log"; exit 1; }
+
+      - name: Take the screenshots
+        env:
+          UDID: ${{ steps.simulator.outputs.udid }}
+        run: |
+          shots="$RUNNER_TEMP/screenshots"
+          mkdir -p "$shots"
+          xcrun simctl boot "$UDID" 2> /dev/null || true
+          xcrun simctl bootstatus "$UDID" -b > /dev/null
+          xcrun simctl install "$UDID" "$RUNNER_TEMP/derived/Build/Products/Debug-iphonesimulator/Kitae.app"
+          xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
+            --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 || true
+          for shot in $SCREENS; do
+            name="${shot%-*}"
+            mode="${shot##*-}"
+            # docs/screenshots' name for each of the debug screens (DebugLaunch.swift).
+            case "$name" in
+              keypad) screen=typing ;;
+              workout-detail) screen=workoutdetail ;;
+              exercise-progress) screen=exercise ;;
+              exercise-howto) screen=howto ;;
+              workout-done) screen=workoutdone ;;
+              edit-plan) screen=planedit ;;
+              add-exercise) screen=addexercise ;;
+              *) screen="$name" ;;
+            esac
+            xcrun simctl ui "$UDID" appearance "$mode"
+            xcrun simctl launch --terminate-running-process "$UDID" ca.gureet.kitae -KitaeScreen "$screen" > /dev/null
+            sleep 8
+            xcrun simctl io "$UDID" screenshot "$shots/$shot.png" 2> /dev/null
+            echo "$shot: -KitaeScreen $screen, $(sips -g pixelWidth -g pixelHeight "$shots/$shot.png" | tail -2 | awk '{ print $2 }' | paste -sd x -)"
+          done
+
+      - name: Keep the screenshots
+        uses: actions/upload-artifact@v7
+        with:
+          name: iphone-screenshots-full
+          path: ${{ runner.temp }}/screenshots
+          retention-days: 14
+
+      - name: Print the screenshots
+        run: |
+          for file in "$RUNNER_TEMP"/screenshots/*.png; do
+            [ -e "$file" ] || continue
+            base64 -i "$file" | fold -w 3000 | sed "s|^|SCREENSHOT $(basename "$file") |"
+          done

@@ -1,0 +1,654 @@
+/* Koyomi's shared website styles, version 1 (2026-10-22).
+
+   Fonts, paper and ink, the theme switch and the pieces every Koyomi site uses.
+   This file is the same on every site (fromkoyomi.org, kitae.fromkoyomi.org,
+   tabe.fromkoyomi.org): change it in one repository and copy it to the others.
+   Each site's style.css comes after it and sets that app's accent colours and
+   its own parts of the page.
+
+   Colours are the apps' own colour sets. Each one is written once as
+   light-dark(light, dark): the page follows the phone's setting, and the switch
+   in the header flips it by changing color-scheme, with no script. */
+
+@font-face {
+  font-family: "Darker Grotesque";
+  src: url("fonts/DarkerGrotesque-SemiBold.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Darker Grotesque";
+  src: url("fonts/DarkerGrotesque-Bold.woff2") format("woff2");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: "Space Mono";
+  src: url("fonts/SpaceMono-Regular.woff2") format("woff2");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  color-scheme: light dark;
+
+  /* Paper and ink, shared by every Koyomi app. */
+  --paper: light-dark(#FDF9F0, #14140E);
+  --card: light-dark(#F4F0E6, #1E1E18);
+  --field: light-dark(#ECE8DF, #2B2A24);
+  --ink: light-dark(#1C1C16, #E6E2D9);
+  --ink-soft: light-dark(#5E5C4E, #B3B0A0);
+  --rule: light-dark(#1C1C16, #E6E2D9);
+  --hairline: light-dark(rgba(28, 28, 22, 0.14), rgba(230, 226, 217, 0.18));
+
+  /* The accent. Each site sets its own in style.css; these are Kitae's olive. */
+  --accent: light-dark(#63611E, #CECA75);
+  --accent-soft: light-dark(#F7F3A1, #49482C);
+  --on-accent-soft: light-dark(#545210, #E8E4BE);
+  --band-bg: light-dark(#63611E, #49482C);
+  --band-fg: light-dark(#FFFFFF, #E8E4BE);
+  --band-on: light-dark(#F7F3A1, #CECA75);
+  --band-off: light-dark(rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
+
+  --display: "Darker Grotesque", "Avenir Next Condensed", ui-sans-serif, system-ui, sans-serif;
+  --mono: "Space Mono", ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --cjk: "Hiragino Sans", "Yu Gothic", "Noto Sans CJK JP", "Noto Sans JP", sans-serif;
+}
+
+/* The theme switch flips whichever theme the device asks for. */
+@media (prefers-color-scheme: light) {
+  :root:has(#flip:checked) {
+    color-scheme: dark;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root:has(#flip:checked) {
+    color-scheme: light;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(1.25rem, 1.1rem + 0.5vw, 1.45rem);
+  line-height: 1.4;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--on-accent-soft);
+}
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+a:hover {
+  text-decoration-thickness: 4px;
+}
+a:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+[lang="ja"] {
+  font-family: var(--cjk);
+}
+
+.wrap {
+  max-width: 1180px;
+  margin-inline: auto;
+  padding-inline: clamp(20px, 5vw, 56px);
+}
+
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Captions in Space Mono, like the apps' ".today" labels. Their size comes from
+   where they are. Space Mono is only served in its regular weight, so mono text
+   always asks for 400 rather than getting a faked bold. */
+.tag {
+  font-family: var(--mono);
+  font-weight: 400;
+}
+
+/* Header */
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding-block: 22px;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  text-decoration: none;
+}
+.mark {
+  display: block;
+  height: 1.7rem;
+  width: auto;
+  fill: var(--accent);
+}
+.top nav {
+  display: flex;
+  gap: clamp(16px, 3vw, 32px);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+/* Theme switch: a checkbox and its label, so it needs no script. */
+.flip-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+.flip {
+  cursor: pointer;
+  text-decoration-line: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+.flip:hover {
+  text-decoration-thickness: 4px;
+}
+.flip-input:focus-visible + .flip {
+  outline: 3px solid var(--accent);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+.flip .to-light {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  .flip .to-dark {
+    display: none;
+  }
+  .flip .to-light {
+    display: inline;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root:has(#flip:checked) .flip .to-dark {
+    display: none;
+  }
+  :root:has(#flip:checked) .flip .to-light {
+    display: inline;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root:has(#flip:checked) .flip .to-dark {
+    display: inline;
+  }
+  :root:has(#flip:checked) .flip .to-light {
+    display: none;
+  }
+}
+
+/* Hero */
+
+.hero {
+  display: grid;
+  align-items: center;
+  gap: clamp(32px, 5vw, 64px);
+  padding-block: clamp(32px, 6vw, 80px) clamp(56px, 9vw, 112px);
+}
+@media (min-width: 860px) {
+  .hero {
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 0.7fr);
+  }
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(3.4rem, 2rem + 7vw, 7rem);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.lede {
+  max-width: 28em;
+  margin: 1.3em 0 0;
+  color: var(--ink-soft);
+  font-size: 1.1em;
+}
+
+/* Where to get an app: a caption and its links. */
+.get {
+  display: grid;
+  gap: 18px;
+  margin: 2.2rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+.get li {
+  display: grid;
+  grid-template-columns: 6.5rem minmax(0, 1fr);
+  align-items: baseline;
+  gap: 4px 12px;
+}
+.get .tag {
+  color: var(--accent);
+  font-size: 0.9rem;
+}
+.get .links {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+}
+.get .note {
+  color: var(--ink-soft);
+  font-size: 1.1rem;
+}
+
+/* An app's icon, drawn large. */
+.icon-art {
+  display: block;
+  justify-self: stretch;
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+}
+.icon-art .tile {
+  fill: var(--band-bg);
+}
+.icon-art .shape {
+  fill: var(--band-on);
+}
+
+/* Section titles */
+
+.title {
+  margin: 0;
+  font-size: clamp(3rem, 1.8rem + 5vw, 5.6rem);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+}
+.head {
+  margin: 0;
+  font-size: clamp(2.6rem, 1.6rem + 4vw, 4.2rem);
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+/* Bands: a full-width stripe in the app's colour. */
+
+.band {
+  background: var(--band-bg);
+  color: var(--band-fg);
+}
+.band a:focus-visible {
+  outline-color: var(--band-fg);
+}
+.band-inner {
+  display: grid;
+  align-items: center;
+  gap: clamp(40px, 6vw, 72px);
+  padding-block: clamp(56px, 9vw, 112px);
+}
+@media (min-width: 860px) {
+  .band-inner {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+.band p {
+  max-width: 27em;
+  margin: 1.2em 0 0;
+}
+.band .title + p {
+  margin-top: 1.5em;
+}
+
+/* Soft sections: the app's lighter colour. */
+
+.soft {
+  padding-block: clamp(56px, 9vw, 112px);
+  background: var(--accent-soft);
+  color: var(--on-accent-soft);
+}
+.soft a:focus-visible {
+  outline-color: var(--on-accent-soft);
+}
+
+figcaption {
+  max-width: 27em;
+  margin-top: 1.1rem;
+  font-size: 1.1rem;
+}
+.band figcaption {
+  opacity: 0.88;
+}
+
+/* Features: captions over short paragraphs, in a grid. */
+
+.feat {
+  padding-block: clamp(56px, 9vw, 112px);
+}
+.feat .head {
+  max-width: 13em;
+  margin-bottom: clamp(32px, 5vw, 56px);
+}
+.feat dl {
+  display: grid;
+  gap: 36px;
+  margin: 0;
+}
+@media (min-width: 640px) {
+  .feat dl {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 44px clamp(28px, 4vw, 56px);
+  }
+}
+@media (min-width: 980px) {
+  .feat dl {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.feat .item {
+  padding-top: 18px;
+  border-top: 2px solid var(--rule);
+}
+.feat dt {
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 400;
+}
+.soft .feat dt,
+.soft dt {
+  color: inherit;
+}
+.soft .item {
+  border-top-color: currentColor;
+}
+.feat dd {
+  max-width: 22em;
+  margin: 0.7rem 0 0;
+}
+
+/* Text beside a figure */
+
+.data {
+  display: grid;
+  align-items: center;
+  gap: clamp(40px, 6vw, 72px);
+  padding-block: 0 clamp(56px, 9vw, 112px);
+}
+@media (min-width: 860px) {
+  .data {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  }
+}
+/* .mirror puts the figure first on wide screens, to vary sections that follow each other. */
+@media (min-width: 860px) {
+  .data.mirror > figure {
+    order: -1;
+  }
+}
+.data p {
+  max-width: 27em;
+  margin: 1.2em 0 0;
+}
+.data .head + p {
+  margin-top: 1.5em;
+}
+.nots {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin: 1.8rem 0 0;
+  padding: 0;
+  list-style: none;
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+/* A backup going from one phone to the other */
+
+.swap {
+  margin: 0;
+  padding: clamp(28px, 5vw, 48px);
+  border-radius: 28px;
+  background: var(--accent-soft);
+  color: var(--on-accent-soft);
+}
+.swap-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--mono);
+  font-size: 1rem;
+  font-weight: 400;
+}
+.swap .line {
+  position: relative;
+  flex: 1;
+  height: 2px;
+  background: currentColor;
+}
+.swap .line::before,
+.swap .line::after {
+  content: "";
+  position: absolute;
+  top: -5px;
+  border: 6px solid transparent;
+}
+.swap .line::before {
+  left: -2px;
+  border-right: 9px solid currentColor;
+  border-left: 0;
+}
+.swap .line::after {
+  right: -2px;
+  border-left: 9px solid currentColor;
+  border-right: 0;
+}
+.swap .file {
+  margin: 1.4rem 0 0;
+  font-family: var(--mono);
+  font-size: clamp(0.95rem, 0.7rem + 1.3vw, 1.3rem);
+  font-weight: 400;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.swap figcaption {
+  margin-top: 1.6rem;
+}
+
+/* The name, in Japanese */
+
+.kanji {
+  margin: 0;
+  font-family: var(--cjk);
+  font-size: clamp(6rem, 3rem + 14vw, 12rem);
+  font-weight: 700;
+  line-height: 1;
+}
+.band .kanji + p {
+  margin-top: 1rem;
+}
+
+/* A grid of days, like the apps' activity grid */
+
+.days {
+  margin: 0;
+}
+.cells {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(16, 1fr);
+  grid-template-rows: repeat(7, auto);
+  gap: clamp(3px, 0.6vw, 6px);
+}
+.cells b,
+.cells i,
+.cells s {
+  display: block;
+  aspect-ratio: 1;
+  border-radius: clamp(2px, 0.4vw, 4px);
+}
+.cells b {
+  background: var(--band-on);
+}
+.cells i {
+  background: var(--band-off);
+}
+.cells s {
+  background: var(--band-off);
+  opacity: 0.45;
+}
+
+/* Screenshots: a sideways strip of phones that scrolls with touch, trackpad or
+   keys. Each shot has a light and a dark picture, and the one for the page's
+   theme is shown (and downloaded, as they're lazy-loaded). */
+
+.strip {
+  --edge: max(clamp(20px, 5vw, 56px), calc((100% - 1180px) / 2 + clamp(20px, 5vw, 56px)));
+  padding-inline: var(--edge);
+  padding-block: 4px 12px;
+  overflow-x: auto;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: var(--edge);
+  scrollbar-width: thin;
+  scrollbar-color: currentColor transparent;
+}
+.strip ul {
+  display: flex;
+  gap: clamp(16px, 2.4vw, 28px);
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.strip li {
+  flex: none;
+  width: clamp(190px, 22vw, 250px);
+  scroll-snap-align: start;
+}
+.shot {
+  margin: 0;
+}
+.shot img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 11% / 5%;
+  box-shadow: 0 0 0 2px var(--hairline);
+}
+.shot.droid img {
+  border-radius: 13% / 6%;
+}
+.shot figcaption {
+  margin-top: 12px;
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  font-weight: 400;
+}
+.shot .dk {
+  display: none;
+}
+@media (prefers-color-scheme: dark) {
+  .shot .lt {
+    display: none;
+  }
+  .shot .dk {
+    display: block;
+  }
+}
+@media (prefers-color-scheme: light) {
+  :root:has(#flip:checked) .shot .lt {
+    display: none;
+  }
+  :root:has(#flip:checked) .shot .dk {
+    display: block;
+  }
+}
+@media (prefers-color-scheme: dark) {
+  :root:has(#flip:checked) .shot .lt {
+    display: block;
+  }
+  :root:has(#flip:checked) .shot .dk {
+    display: none;
+  }
+}
+
+/* Footer */
+
+.foot {
+  border-top: 2px solid var(--rule);
+}
+.foot-inner {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 20px 40px;
+  padding-block: 32px 48px;
+  font-size: 1.15rem;
+}
+.fine {
+  max-width: 38em;
+  color: var(--ink-soft);
+}
+.fine p {
+  margin: 0 0 0.8em;
+}
+.fine p:last-child {
+  margin-bottom: 0;
+}
+.foot nav {
+  display: flex;
+  gap: 24px;
+  font-family: var(--mono);
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+@media (max-width: 480px) {
+  .top nav {
+    gap: 14px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+  }
+}

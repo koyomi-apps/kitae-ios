@@ -54,7 +54,7 @@ final class WalkthroughTests: XCTestCase {
         if fresh {
             // The first rest asks to send alerts for when it's over.
             let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.buttons["Allow"]
-            if allow.waitForExistence(timeout: 8) {
+            if allow.waitForExistence(timeout: 4) {
                 walk.wait()
                 allow.tap()
                 walk.wait()
@@ -164,6 +164,7 @@ final class WalkthroughTests: XCTestCase {
         walk.scrollDown()
         walk.wait()
         walk.back(to: "Exercises")
+        walk.endSearch()
 
         walk.step("You and Settings")
         walk.tab("You")
@@ -264,12 +265,16 @@ private struct Walk {
     }
 
     func optional(_ candidates: [XCUIElement], timeout: TimeInterval) -> XCUIElement? {
+        if candidates.count == 1 {
+            return candidates[0].waitForExistence(timeout: timeout) ? candidates[0] : nil
+        }
+        // Not too often: each look asks the app for everything on screen.
         let deadline = Date.now.addingTimeInterval(timeout)
         repeat {
             if let found = candidates.first(where: { $0.exists }) {
                 return found
             }
-            Thread.sleep(forTimeInterval: 0.25)
+            Thread.sleep(forTimeInterval: 0.5)
         } while Date.now < deadline
         return nil
     }
@@ -317,12 +322,22 @@ private struct Walk {
         wait()
     }
 
+    /// Ends a search with the search bar's close button, which puts the keyboard away.
+    func endSearch() {
+        if let close = optional(app.navigationBars.buttons["Close"].firstMatch, app.buttons["Cancel"].firstMatch,
+                                timeout: 2) {
+            close.tap()
+            wait(0.5)
+        } else {
+            note("no way to end the search")
+        }
+    }
+
     /// A tab, putting the keyboard away and bringing the tab bar back first if scrolling shrank it.
     func tab(_ name: String) {
         let tab = app.tabBars.buttons[name].firstMatch
-        if app.keyboards.firstMatch.exists, app.buttons["Cancel"].firstMatch.exists {
-            app.buttons["Cancel"].firstMatch.tap()
-            wait(0.5)
+        if app.keyboards.firstMatch.exists {
+            endSearch()
         }
         if !(tab.exists && tab.isHittable) {
             app.swipeDown(velocity: .fast)

@@ -1,10 +1,9 @@
 name: iPhone walkthrough
 
 # Records the iPhone app on a GitHub Mac while ios/KitaeUITests/WalkthroughTests.swift does a first
-# workout, from the welcome to Settings, on a simulator that has never had the app. Run it from the
-# Actions tab, or change the test or this file in a pull request. The video is kept as an
-# artifact, and printed in the log too, as Claude's cloud workspace can read logs but not
-# artifacts.
+# workout, from the welcome to Settings, with example data in memory. Run it from the Actions
+# tab, or change the test or this file in a pull request. The video is kept as an artifact, and
+# printed in the log too, as Claude's cloud workspace can read logs but not artifacts.
 
 on:
   workflow_dispatch:
@@ -68,7 +67,6 @@ jobs:
         env:
           UDID: ${{ steps.simulator.outputs.udid }}
           # Passed to the test without TEST_RUNNER_ (see WalkthroughTests.swift).
-          TEST_RUNNER_KAMAE_FRESH_SIMULATOR: "1"
           TEST_RUNNER_KAMAE_WALKTHROUGH_PAUSE: "1.2"
         run: |
           xcrun simctl boot "$UDID" 2> /dev/null || true
@@ -76,7 +74,7 @@ jobs:
           xcrun simctl status_bar "$UDID" override --time 9:41 --batteryState charged --batteryLevel 100 \
             --dataNetwork wifi --wifiMode active --wifiBars 3 --cellularMode active --cellularBars 4 || true
           # How busy the Mac is while the test runs.
-          ( set +e; while true; do ps -A -r -o %cpu=,comm= | head -4 | awk '{ printf "%s %s  ", $1, $NF } END { print "" }'; sleep 15; done ) \
+          ( set +e; while true; do ps -A -r -o %cpu=,comm= 2> /dev/null | head -4 | awk '{ n = split($0, path, "/"); printf "%s %s  ", $1, path[n] } END { print "" }'; sleep 15; done ) \
             > "$RUNNER_TEMP/cpu.log" 2>&1 &
           sampler=$!
           log="$RUNNER_TEMP/test.log"
@@ -104,7 +102,7 @@ jobs:
           echo "--- the test's slowest moments: seconds before the next thing, and what it was doing ---"
           grep -E '^ +t = ' "$log" | awk '{ t = $3 + 0; if (NR > 1 && t - last > 3) printf "%6.1f  %s\n", t - last, prev; last = t; prev = $0 }' | head -60 || true
           echo "--- the busiest programs every 15 seconds ---"
-          head -40 "$RUNNER_TEMP/cpu.log"
+          head -30 "$RUNNER_TEMP/cpu.log"
           if [ "$status" != 0 ]; then
             echo "--- what was on screen ---"
             sed -n '/^--- on screen ---/,/^Test Case/p' "$log" | head -400

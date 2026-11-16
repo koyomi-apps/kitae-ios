@@ -7,11 +7,13 @@ import XCTest
 /// ticking sets with the rest timer, a heavier set, one more set than planned, finishing, and then
 /// History, Exercises and You.
 ///
-/// GitHub's Mac records it as a video (`.github/workflows/walkthrough.yml`). That sets
-/// `KAMAE_WALKTHROUGH_PAUSE`, the seconds to wait after each step so the video can be followed,
-/// and `KAMAE_FRESH_SIMULATOR`, as its simulator has never had the app, so the app starts as it
-/// would for someone new. Anywhere else the test goes straight through, with example data in
-/// memory (`-KitaeScreen welcome`), so it leaves the simulator's own workouts alone.
+/// The app starts on its welcome with example data in memory (`-KitaeScreen welcome`), so the test
+/// leaves the simulator's own workouts alone, and the rest timer doesn't ask to send alerts: on
+/// GitHub's Mac that question could take long enough to show that the test tapped on behind it.
+///
+/// GitHub's Mac records it as a video (`.github/workflows/walkthrough.yml`), which sets
+/// `KAMAE_WALKTHROUGH_PAUSE`, the seconds to wait after each step so the video can be followed.
+/// Anywhere else the test goes straight through.
 final class WalkthroughTests: XCTestCase {
     override func setUpWithError() throws {
         continueAfterFailure = false
@@ -19,13 +21,10 @@ final class WalkthroughTests: XCTestCase {
 
     @MainActor
     func testFirstWorkout() throws {
-        let environment = ProcessInfo.processInfo.environment
-        let fresh = environment["KAMAE_FRESH_SIMULATOR"] == "1"
         let app = XCUIApplication()
-        if !fresh {
-            app.launchArguments = ["-KitaeScreen", "welcome"]
-        }
-        let walk = Walk(app: app, pause: Double(environment["KAMAE_WALKTHROUGH_PAUSE"] ?? "") ?? 0)
+        app.launchArguments = ["-KitaeScreen", "welcome"]
+        let pause = Double(ProcessInfo.processInfo.environment["KAMAE_WALKTHROUGH_PAUSE"] ?? "") ?? 0
+        let walk = Walk(app: app, pause: pause)
         app.launch()
 
         walk.step("The welcome")
@@ -51,17 +50,6 @@ final class WalkthroughTests: XCTestCase {
         walk.find("the workout", walk.button("Finish"))
         walk.wait()
         walk.tap("set 01", walk.button("Mark set 01 done"))
-        if fresh {
-            // The first rest asks to send alerts for when it's over.
-            let allow = XCUIApplication(bundleIdentifier: "com.apple.springboard").alerts.buttons["Allow"]
-            if allow.waitForExistence(timeout: 4) {
-                walk.wait()
-                allow.tap()
-                walk.wait()
-            } else {
-                walk.note("no question about alerts")
-            }
-        }
         walk.find("the rest timer", walk.button("Skip rest"))
         walk.wait(2)
         walk.tap("15 seconds more", walk.button("15 seconds more"))

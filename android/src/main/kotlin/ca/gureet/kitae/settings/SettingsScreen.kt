@@ -46,7 +46,7 @@ import ca.gureet.kitae.ui.components.SectionCaption
 import ca.gureet.kitae.ui.theme.kitaeColors
 
 /** Where Kamae's code is. */
-const val SOURCE_CODE = "https://github.com/koyomi-apps/kitae-ios"
+const val SOURCE_CODE = "https://github.com/koyomi-apps/kamae"
 
 /** A backup problem in the iPhone's words. */
 @Composable

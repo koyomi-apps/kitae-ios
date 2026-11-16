@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src 'self'; style-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'">
+<meta name="color-scheme" content="light dark">
+<meta name="theme-color" content="#FDF9F0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#14140E" media="(prefers-color-scheme: dark)">
+<title>Kamae: a free workout tracker that works offline</title>
+<meta name="description" content="Kamae, formerly Kitae, is a free, open-source workout journal for Android and iPhone. Plan your training days, log every set and watch your lifts climb. No account, no ads, no tracking.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="preload" href="fonts/DarkerGrotesque-Bold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="fonts/DarkerGrotesque-SemiBold.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="koyomi.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top wrap">
+  <a class="brand" href="./" aria-label="Kamae, home">
+    <svg class="mark" viewBox="140 278 744 468" aria-hidden="true" focusable="false">
+      <rect x="150" y="486" width="724" height="52" rx="26"/>
+      <rect x="294" y="288" width="96" height="448" rx="36"/>
+      <rect x="634" y="288" width="96" height="448" rx="36"/>
+      <rect x="222" y="362" width="62" height="300" rx="26"/>
+      <rect x="740" y="362" width="62" height="300" rx="26"/>
+    </svg>
+    <span>Kamae</span>
+  </a>
+  <nav aria-label="Site links">
+    <input class="flip-input" type="checkbox" id="flip" aria-label="Switch between the light and dark theme">
+    <label class="flip" for="flip"><span class="to-dark">Dark mode</span><span class="to-light">Light mode</span></label>
+    <a href="https://fromkoyomi.org/">Koyomi</a>
+    <a href="https://github.com/koyomi-apps">GitHub</a>
+  </nav>
+</header>
+
+<main>
+
+  <section class="hero wrap">
+    <div>
+      <h1>Pick a day. Tick off your sets.</h1>
+      <p class="lede">Kamae is a free workout journal built around your training days. Plan your split once, log every set and watch your lifts climb. It was called Kitae until November 2026.</p>
+      <ul class="get">
+        <li>
+          <span class="tag">.android</span>
+          <span class="links">
+            <a href="https://github.com/koyomi-apps/kamae/releases">Try the test builds</a>
+            <a href="https://github.com/koyomi-apps/kamae/tree/main/android">Source code</a>
+            <span class="note">F-Droid and Google Play soon. Needs Android 8 or newer</span>
+          </span>
+        </li>
+        <li>
+          <span class="tag">.iphone</span>
+          <span class="links">
+            <a href="https://testflight.apple.com/join/GTKbw4Hg">Join the TestFlight beta</a>
+            <a href="https://github.com/koyomi-apps/kamae/tree/main/ios">Source code</a>
+            <span class="note">Needs iOS 26 or newer</span>
+          </span>
+        </li>
+      </ul>
+    </div>
+    <svg class="icon-art loadup" viewBox="0 0 1024 1024" role="img" aria-label="Kamae's icon: a barbell seen from the side">
+      <rect class="tile" width="1024" height="1024" rx="230"/>
+      <rect class="bar" x="150" y="486" width="724" height="52" rx="26"/>
+      <rect class="plate big l" x="294" y="288" width="96" height="448" rx="36"/>
+      <rect class="plate big r" x="634" y="288" width="96" height="448" rx="36"/>
+      <rect class="plate small l" x="222" y="362" width="62" height="300" rx="26"/>
+      <rect class="plate small r" x="740" y="362" width="62" height="300" rx="26"/>
+    </svg>
+  </section>
+
+  <section class="shots" aria-labelledby="shots-title">
+    <div class="wrap">
+      <h2 class="head" id="shots-title">See it on your phone.</h2>
+      <p class="shots-note">The screens follow this page's light or dark theme.</p>
+    </div>
+
+    <div class="wrap">
+      <h3 class="plat"><span class="tag">.iphone</span> Kamae for iPhone</h3>
+    </div>
+    <div class="strip" role="region" aria-label="Screenshots of Kamae for iPhone" tabindex="0">
+      <ul>
+        <li>
+          <figure class="shot">
+            <img class="lt" src="screens/ios-today-light.webp" width="720" height="1565" loading="lazy" decoding="async" alt="Today: Push A is up next, with the plan's days to pick from and a Start button.">
+            <img class="dk" src="screens/ios-today-dark.webp" width="720" height="1565" loading="lazy" decoding="async" alt="Today: Push A is up next, with the plan's days to pick from and a Start button.">
+            <figcaption>.today</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot">
+            <img class="lt" src="screens/ios-workout-light.webp" width="720" height="1565" loading="lazy" decoding="async" alt="A workout in progress: sets with reps and weight ticked off, each exercise's muscles and note, and the rest timer at the bottom.">
+            <img class="dk" src="screens/ios-workout-dark.webp" width="720" height="1565" loading="lazy" decoding="async" alt="A workout in progress: sets with reps and weight ticked off, each exercise's muscles and note, and the rest timer at the bottom.">
+            <figcaption>.workout</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot">
+            <img class="lt" src="screens/ios-exercise-progress-light.webp" width="720" height="1565" loading="lazy" decoding="async" alt="An exercise page for Incline Bench, with a chart of the heaviest set and best-set tiles.">
+            <img class="dk" src="screens/ios-exercise-progress-dark.webp" width="720" height="1565" loading="lazy" decoding="async" alt="An exercise page for Incline Bench, with a chart of the heaviest set and best-set tiles.">
+            <figcaption>.progress</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot">
+            <img class="lt" src="screens/ios-exercise-howto-light.webp" width="720" height="1565" loading="lazy" decoding="async" alt="An exercise page for Deadlift, with an animation of the movement and numbered steps.">
+            <img class="dk" src="screens/ios-exercise-howto-dark.webp" width="720" height="1565" loading="lazy" decoding="async" alt="An exercise page for Deadlift, with an animation of the movement and numbered steps.">
+            <figcaption>.how to do it</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot">
+            <img class="lt" src="screens/ios-history-light.webp" width="720" height="1565" loading="lazy" decoding="async" alt="History for October, with each workout's day, length, sets and energy.">
+            <img class="dk" src="screens/ios-history-dark.webp" width="720" height="1565" loading="lazy" decoding="async" alt="History for October, with each workout's day, length, sets and energy.">
+            <figcaption>.history</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot">
+            <img class="lt" src="screens/ios-you-light.webp" width="720" height="1565" loading="lazy" decoding="async" alt="You: the current plan, totals, this week's energy and the muscles worked in the last 7 days.">
+            <img class="dk" src="screens/ios-you-dark.webp" width="720" height="1565" loading="lazy" decoding="async" alt="You: the current plan, totals, this week's energy and the muscles worked in the last 7 days.">
+            <figcaption>.you</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </div>
+
+    <div class="wrap">
+      <h3 class="plat"><span class="tag">.android</span> Kamae for Android</h3>
+    </div>
+    <div class="strip" role="region" aria-label="Screenshots of Kamae for Android" tabindex="0">
+      <ul>
+        <li>
+          <figure class="shot droid">
+            <img class="lt" src="screens/android-today-light.webp" width="720" height="1599" loading="lazy" decoding="async" alt="Today: Push A is up next, with the plan's days to pick from and a Start button.">
+            <img class="dk" src="screens/android-today-dark.webp" width="720" height="1599" loading="lazy" decoding="async" alt="Today: Push A is up next, with the plan's days to pick from and a Start button.">
+            <figcaption>.today</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot droid">
+            <img class="lt" src="screens/android-workout-light.webp" width="720" height="1599" loading="lazy" decoding="async" alt="A workout in progress: sets with reps and weight ticked off, each exercise's muscles, and the rest timer at the bottom.">
+            <img class="dk" src="screens/android-workout-dark.webp" width="720" height="1599" loading="lazy" decoding="async" alt="A workout in progress: sets with reps and weight ticked off, each exercise's muscles, and the rest timer at the bottom.">
+            <figcaption>.workout</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot droid">
+            <img class="lt" src="screens/android-exercise-progress-light.webp" width="720" height="1599" loading="lazy" decoding="async" alt="An exercise page for Incline Bench, with a chart of the heaviest set and best-set tiles.">
+            <img class="dk" src="screens/android-exercise-progress-dark.webp" width="720" height="1599" loading="lazy" decoding="async" alt="An exercise page for Incline Bench, with a chart of the heaviest set and best-set tiles.">
+            <figcaption>.progress</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot droid">
+            <img class="lt" src="screens/android-exercise-howto-light.webp" width="720" height="1599" loading="lazy" decoding="async" alt="An exercise page with an animation of the movement, the muscles it works and numbered steps.">
+            <img class="dk" src="screens/android-exercise-howto-dark.webp" width="720" height="1599" loading="lazy" decoding="async" alt="An exercise page with an animation of the movement, the muscles it works and numbered steps.">
+            <figcaption>.how to do it</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot droid">
+            <img class="lt" src="screens/android-history-light.webp" width="720" height="1599" loading="lazy" decoding="async" alt="History by month, with each workout's day, length, sets and energy.">
+            <img class="dk" src="screens/android-history-dark.webp" width="720" height="1599" loading="lazy" decoding="async" alt="History by month, with each workout's day, length, sets and energy.">
+            <figcaption>.history</figcaption>
+          </figure>
+        </li>
+        <li>
+          <figure class="shot droid">
+            <img class="lt" src="screens/android-you-light.webp" width="720" height="1599" loading="lazy" decoding="async" alt="You: the current plan, totals, this week, the muscles worked in the last 7 days and the activity grid.">
+            <img class="dk" src="screens/android-you-dark.webp" width="720" height="1599" loading="lazy" decoding="async" alt="You: the current plan, totals, this week, the muscles worked in the last 7 days and the activity grid.">
+            <figcaption>.you</figcaption>
+          </figure>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="session-title">
+    <div class="wrap band-inner">
+      <div>
+        <h2 class="title" id="session-title">Your day is already waiting.</h2>
+        <p>Open Kamae and the next day in your plan is up. Start it, tick off each set as you do it and let the rest timer count you back in.</p>
+        <p>When you finish, you choose what happens to the sets you skipped. The plan keeps up with what you really lifted.</p>
+      </div>
+      <figure class="day-fig">
+        <div class="day" aria-hidden="true">
+          <p class="day-head"><span>.in progress</span><span>5/9 sets</span></p>
+          <p class="day-name">Push A</p>
+          <div class="lift">
+            <p class="lift-name">Incline Bench Press</p>
+            <ul class="sets"><li class="done">10 × 20 kg</li><li class="done">10 × 20 kg</li><li class="done">8 × 22.5 kg</li></ul>
+          </div>
+          <div class="lift">
+            <p class="lift-name">Overhead Press</p>
+            <ul class="sets"><li class="done">10 × 30 kg</li><li class="done">9 × 30 kg</li><li>10 × 30 kg</li></ul>
+          </div>
+          <div class="lift">
+            <p class="lift-name">Lateral Raise</p>
+            <ul class="sets"><li>12 × 8 kg</li><li>12 × 8 kg</li><li>12 × 8 kg</li></ul>
+          </div>
+        </div>
+        <figcaption>An example day. Filled sets are done.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <section class="feat wrap" aria-labelledby="feat-title">
+    <h2 class="head" id="feat-title">Everything a lifter needs, nothing they don't.</h2>
+    <dl>
+      <div class="item">
+        <dt>.days</dt>
+        <dd>Name your training days, pick their exercises and plan the sets ahead. Kamae always knows which day is up next.</dd>
+      </div>
+      <div class="item">
+        <dt>.sets</dt>
+        <dd>Log sets as you go, add one on the fly and keep warm-ups first. Weights show in kilograms or pounds, and you can type them with a point or a comma.</dd>
+      </div>
+      <div class="item">
+        <dt>.rest</dt>
+        <dd>A rest timer starts after each set, and you can pause it or add time. On iPhone it follows you to the Lock Screen and the Dynamic Island, and on Android it is a notification.</dd>
+      </div>
+      <div class="item">
+        <dt>.exercises</dt>
+        <dd>Start with 169 exercises, each with an animated figure doing the movement, the muscles it works and its steps, and add your own. Each page charts your heaviest set.</dd>
+      </div>
+      <div class="item">
+        <dt>.history</dt>
+        <dd>Every workout, month by month, with how long it took, how many sets you finished and an estimate of the energy it used. Open one to see what you lifted.</dd>
+      </div>
+      <div class="item">
+        <dt>.progress</dt>
+        <dd>Your new bests after each workout, totals for your lifts and days trained, the muscles you worked this week, and a grid with a square for every day you trained.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section class="data wrap" aria-labelledby="data-title">
+    <div>
+      <h2 class="head" id="data-title">Your data is a file, and it is yours.</h2>
+      <p>Kamae has no accounts and no cloud. After every workout it backs up to a plain zip file in a folder you choose, and the backup restores on Android or iPhone, because both apps use the same format.</p>
+      <p>Backups from Kitae, on either phone, restore too.</p>
+      <ul class="nots">
+        <li>.no accounts</li>
+        <li>.no ads</li>
+        <li>.no tracking</li>
+        <li>.no feeds</li>
+      </ul>
+    </div>
+    <figure class="swap">
+      <div class="swap-row" aria-hidden="true">
+        <span class="tag">.android</span>
+        <span class="line"></span>
+        <span class="tag">.iphone</span>
+      </div>
+      <p class="file" aria-hidden="true">kitae_backup_13_10.zip</p>
+      <figcaption>A backup made on one phone restores on the other.</figcaption>
+    </figure>
+  </section>
+
+  <section class="band name-band" aria-labelledby="name-title">
+    <div class="wrap band-inner">
+      <div>
+        <h2 class="kanji" id="name-title"><span class="sr">Kamae, </span><span lang="ja">構え</span></h2>
+        <p>Kamae is Japanese for a stance: the set, ready position you take before you move, as in kendo or karate. In the gym it's the moment before a lift, feet planted and grip set.</p>
+        <p>Until November 2026 the app was called Kitae, from <span lang="ja">鍛え</span>, "to forge, to train". Another workout log on the App Store already went by Kitae, so the app took a name of its own. Only the name changed: your data and backups stay as they are.</p>
+      </div>
+      <figure class="days">
+        <div class="cells" aria-hidden="true">
+          <i></i><b></b><b></b><i></i><b></b><b></b><i></i>
+          <i></i><b></b><i></i><b></b><b></b><i></i><b></b>
+          <b></b><b></b><b></b><b></b><i></i><b></b><i></i>
+          <i></i><i></i><b></b><b></b><b></b><i></i><b></b>
+          <i></i><b></b><b></b><i></i><b></b><i></i><b></b>
+          <i></i><b></b><i></i><b></b><i></i><b></b><i></i>
+          <b></b><i></i><b></b><b></b><b></b><i></i><i></i>
+          <i></i><i></i><b></b><i></i><b></b><b></b><i></i>
+          <i></i><b></b><b></b><i></i><b></b><b></b><b></b>
+          <i></i><b></b><b></b><b></b><i></i><b></b><i></i>
+          <i></i><b></b><b></b><b></b><i></i><i></i><b></b>
+          <b></b><i></i><b></b><b></b><i></i><b></b><b></b>
+          <i></i><b></b><b></b><i></i><i></i><b></b><i></i>
+          <i></i><b></b><b></b><b></b><b></b><b></b><i></i>
+          <b></b><b></b><i></i><b></b><b></b><i></i><i></i>
+          <i></i><b></b><b></b><s></s><s></s><s></s><s></s>
+        </div>
+        <figcaption>Kamae's activity grid: one square for each day, filled in when you train. This one is an example.</figcaption>
+      </figure>
+    </div>
+  </section>
+
+</main>
+
+<footer class="foot">
+  <div class="wrap foot-inner">
+    <div class="fine">
+      <p>Kamae is free software under the GNU General Public License, version 3 or later, with an added permission for Apple's App Store and TestFlight. It is part of <a href="https://fromkoyomi.org/">Koyomi</a>'s apps.</p>
+      <p>Kamae shares its backup format with Kitae for Android 2.0.0, a fork of <a href="https://codeberg.org/Iamlooker/Kenko">Kenko</a> by LooKeR. Kamae contains none of Kenko's code.</p>
+      <p>Set in <a href="fonts/OFL-DarkerGrotesque.txt">Darker Grotesque</a> and <a href="fonts/OFL-SpaceMono.txt">Space Mono</a>, both under the SIL Open Font License. This site sets no cookies and loads nothing from other sites.</p>
+    </div>
+    <nav aria-label="Source code">
+      <a href="https://github.com/koyomi-apps/kamae/tree/main/android">Android</a>
+      <a href="https://github.com/koyomi-apps/kamae/tree/main/ios">iPhone</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>

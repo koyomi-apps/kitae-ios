@@ -1,6 +1,11 @@
 # Changelog
 
-What's new in each build of Kitae for iPhone. Builds go to [TestFlight](https://testflight.apple.com/join/GTKbw4Hg), and from 1.0 (2) each one is also on [GitHub's Releases page](https://github.com/koyomi-apps/kitae-ios/releases) as an IPA for sideloading.
+What's new in each build of Kamae for iPhone, called Kitae until November 2026. Builds go to [TestFlight](https://testflight.apple.com/join/GTKbw4Hg), and from 1.0 (2) each one is also on [GitHub's Releases page](https://github.com/koyomi-apps/kamae/releases) as an IPA for sideloading.
+
+## Next build
+
+- **Kitae is now Kamae.** Another workout log on the App Store already went by Kitae, so the app has a name of its own: 構え, a stance, the ready position before you move. It updates over Kitae as before and keeps your plans, workouts, settings and backups.
+- **One core for both phones.** Under the hood, the iPhone app now shares its data and rules with Kamae for Android: the database, backups, records, energy, muscles and the animated figures. Nothing should look different; if something does, please report it.
 
 ## 1.0 (4) · 2026-10-22
 

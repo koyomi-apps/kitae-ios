@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024">
+<style>
+.t{fill:#63611E}.b{fill:#F7F3A1}
+@media (prefers-color-scheme:dark){.t{fill:#49482C}.b{fill:#CECA75}}
+</style>
+<rect class="t" width="1024" height="1024" rx="230"/>
+<g class="b">
+<rect x="150" y="486" width="724" height="52" rx="26"/>
+<rect x="294" y="288" width="96" height="448" rx="36"/>
+<rect x="634" y="288" width="96" height="448" rx="36"/>
+<rect x="222" y="362" width="62" height="300" rx="26"/>
+<rect x="740" y="362" width="62" height="300" rx="26"/>
+</g>
+</svg>
